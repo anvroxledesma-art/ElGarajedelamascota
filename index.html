@@ -2188,12 +2188,27 @@ async function guardarProd(id) {
       hasImage: false
     }
 
+    // Determine the correct hasImage state BEFORE saving
+    const currentProd = adminProds.find(x => x.id === id)
+    if (pendingPhotos[id]) {
+      // A new photo is about to be uploaded
+      body.hasImage = true
+    } else if (removedPhotos.has(id)) {
+      // The photo is being removed
+      body.hasImage = false
+    } else if (currentProd && currentProd.hasImage) {
+      // Preserve existing image state
+      body.hasImage = true
+    }
+
     if (isLocalFallback) {
       const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
       const idx = localProds.findIndex(x => x.id === id)
       if (idx !== -1) {
-        body.hasImage = localProds[idx].hasImage || false
-        if (localProds[idx].localImage) {
+        if (!pendingPhotos[id] && !removedPhotos.has(id)) {
+          body.hasImage = localProds[idx].hasImage || false
+        }
+        if (localProds[idx].localImage && !removedPhotos.has(id)) {
           body.localImage = localProds[idx].localImage
         }
         localProds[idx] = body
