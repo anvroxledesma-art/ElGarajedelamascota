@@ -1154,6 +1154,12 @@ async function initApp() {
     categorias = catsRes
     productos = prodsRes
     isLocalFallback = false
+    
+    // Clear mock local token if we are now in API mode to prevent 401 on server writes
+    if (adminToken === 'local-admin-token-123') {
+      adminToken = null
+      sessionStorage.removeItem('admin_token')
+    }
   } catch (e) {
     loadLocalData()
   } finally {

@@ -483,17 +483,8 @@ app.delete('/api/products/:id', authorizeAdmin, async (req, res) => {
   }
 });
 
-// 4. File Upload (Multer)
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, UPLOADS_DIR);
-  },
-  filename: function (req, file, cb) {
-    const productId = req.body.productId;
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, productId + ext);
-  }
-});
+// 4. File Upload (Multer) - Memory Storage for cloud compatibility
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
   storage: storage,
@@ -515,12 +506,13 @@ app.post('/api/upload', authorizeAdmin, upload.single('image'), async (req, res)
   }
   
   const productId = parseInt(req.body.productId);
+  if (isNaN(productId)) {
+    return res.status(400).json({ error: 'ID de producto no válido' });
+  }
   
   if (useMongoDB) {
     try {
-      const filePath = req.file.path;
-      const fileBuffer = fs.readFileSync(filePath);
-      const base64Str = fileBuffer.toString('base64');
+      const base64Str = req.file.buffer.toString('base64');
       const mimeType = req.file.mimetype;
       
       await mongoDb.collection('products').updateOne(
@@ -528,22 +520,46 @@ app.post('/api/upload', authorizeAdmin, upload.single('image'), async (req, res)
         { $set: { hasImage: true, imageData: base64Str, imageMimeType: mimeType } }
       );
       
-      fs.unlinkSync(filePath); // remove temp file from disk
-      return res.json({ success: true, filename: req.file.filename });
+      return res.json({ success: true });
     } catch (e) {
       console.error("Error al guardar archivo en MongoDB:", e);
       return res.status(500).json({ error: 'Error al guardar imagen en la base de datos' });
     }
   } else {
-    // Local mode
-    const products = await getProducts();
-    const index = products.findIndex(p => p.id === productId);
-    if (index !== -1) {
-      const p = products[index];
-      p.hasImage = true;
-      await saveProduct(p);
+    // Local mode - write memory buffer to disk
+    try {
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      const filename = productId + ext;
+      const filePath = path.join(UPLOADS_DIR, filename);
+      
+      // Remove any existing image files with different extensions for this product
+      if (fs.existsSync(UPLOADS_DIR)) {
+        const files = fs.readdirSync(UPLOADS_DIR);
+        files.forEach(f => {
+          if (f.startsWith(productId + '.')) {
+            try {
+              fs.unlinkSync(path.join(UPLOADS_DIR, f));
+            } catch (err) {
+              console.error("Error deleting old file:", err);
+            }
+          }
+        });
+      }
+      
+      fs.writeFileSync(filePath, req.file.buffer);
+      
+      const products = await getProducts();
+      const index = products.findIndex(p => p.id === productId);
+      if (index !== -1) {
+        const p = products[index];
+        p.hasImage = true;
+        await saveProduct(p);
+      }
+      res.json({ success: true, filename: filename });
+    } catch (e) {
+      console.error("Error al guardar archivo localmente:", e);
+      res.status(500).json({ error: 'Error al guardar imagen localmente' });
     }
-    res.json({ success: true, filename: req.file.filename });
   }
 });
 
