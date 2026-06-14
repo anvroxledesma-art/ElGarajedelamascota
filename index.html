@@ -3578,6 +3578,17 @@ async function guardarProdSilent(id) {
     }
     removedPhotos.delete(id)
   }
+  
+  // Update in-memory arrays so we don't have to reload and lose other edits
+  const idxAdmin = adminProds.findIndex(x => x.id === id)
+  if (idxAdmin !== -1) {
+    adminProds[idxAdmin] = { ...adminProds[idxAdmin], ...body }
+  }
+  const idxProd = productos.findIndex(x => x.id === id)
+  if (idxProd !== -1) {
+    productos[idxProd] = { ...productos[idxProd], ...body }
+  }
+  
   return true
 }
 
@@ -3588,7 +3599,6 @@ async function guardarProd(id) {
     const ok = await guardarProdSilent(id)
     if (ok) {
       toast('✓ Producto guardado')
-      await recargarProductosAdmin()
     }
   } catch (err) {
     console.error(err)
@@ -3653,7 +3663,16 @@ async function eliminarProd(id) {
       await apiFetch(`/api/products/${id}`, { method: 'DELETE' })
     }
     toast('🗑 Producto eliminado')
-    await recargarProductosAdmin()
+    
+    // Remove from memory arrays
+    adminProds = adminProds.filter(x => x.id !== id)
+    productos = productos.filter(x => x.id !== id)
+    
+    // Remove the card directly from DOM
+    const card = document.querySelector(`.acard[data-pid="${id}"]`)
+    if (card) {
+      card.remove()
+    }
   } catch {
     toast('Error al eliminar', true)
   }
