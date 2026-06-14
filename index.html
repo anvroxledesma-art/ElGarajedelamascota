@@ -773,7 +773,6 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
       <button class="btn-cart-header" onclick="openCart()">
         🛒 <span class="cart-badge" id="cartBadge">0</span>
       </button>
-      <button class="btn-admin-top" onclick="openLogin()">⚙</button>
     </div>
   </header>
 
@@ -3614,6 +3613,12 @@ function toast(msg, isErr = false) {
 window.addEventListener('DOMContentLoaded', () => {
   initApp()
   actualizarIconoTema()
+
+  // Detectar URL secreta /admin o ?admin=true para abrir el login
+  if (window.location.pathname === '/admin' || window.location.search.includes('admin=true')) {
+    openLogin()
+    window.history.replaceState({}, '', '/')
+  }
 
   document.getElementById('ovCart').addEventListener('click', function(e) { if (e.target === this) closeCart() })
   document.getElementById('ovLogin').addEventListener('click', function(e) { if (e.target === this) closeLogin() })
