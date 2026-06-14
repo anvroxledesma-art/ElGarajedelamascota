@@ -207,6 +207,47 @@ async function deleteProduct(id) {
   const index = db.products.findIndex(p => p.id === id);
   if (index !== -1) {
     db.products.splice(index, 1);
+  }
+}
+
+async function getOrders() {
+  if (useMongoDB) {
+    return await mongoDb.collection('orders').find({}).toArray();
+  }
+  const db = readLocalDB();
+  return db.orders || [];
+}
+
+async function saveOrder(order) {
+  if (useMongoDB) {
+    const { _id, ...cleanOrder } = order;
+    await mongoDb.collection('orders').insertOne(cleanOrder);
+    return;
+  }
+  const db = readLocalDB();
+  if (!db.orders) db.orders = [];
+  db.orders.push(order);
+  writeLocalDB(db);
+}
+
+async function clearOrders() {
+  if (useMongoDB) {
+    await mongoDb.collection('orders').deleteMany({});
+    return;
+  }
+  const db = readLocalDB();
+  db.orders = [];
+  writeLocalDB(db);
+}
+
+async function deleteOrder(id) {
+  if (useMongoDB) {
+    await mongoDb.collection('orders').deleteOne({ id: parseInt(id) });
+    return;
+  }
+  const db = readLocalDB();
+  if (db.orders) {
+    db.orders = db.orders.filter(o => o.id !== parseInt(id));
     writeLocalDB(db);
   }
 }
@@ -631,6 +672,46 @@ app.delete('/api/images/:id', authorizeAdmin, async (req, res) => {
       }
     }
     res.status(404).json({ error: 'Imagen no encontrada' });
+  }
+});
+
+// 6.5. Sales/Orders API
+app.get('/api/orders', authorizeAdmin, async (req, res) => {
+  try {
+    const orders = await getOrders();
+    res.json(orders);
+  } catch (e) {
+    res.status(500).json({ error: 'No se pudieron obtener las ventas' });
+  }
+});
+
+app.post('/api/orders', async (req, res) => {
+  try {
+    const order = req.body;
+    order.id = Date.now();
+    order.fecha = new Date().toISOString();
+    await saveOrder(order);
+    res.json({ success: true, order });
+  } catch (e) {
+    res.status(500).json({ error: 'No se pudo guardar la venta' });
+  }
+});
+
+app.delete('/api/orders/all', authorizeAdmin, async (req, res) => {
+  try {
+    await clearOrders();
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'No se pudo limpiar el registro de ventas' });
+  }
+});
+
+app.delete('/api/orders/:id', authorizeAdmin, async (req, res) => {
+  try {
+    await deleteOrder(req.params.id);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'No se pudo eliminar la venta' });
   }
 });
 

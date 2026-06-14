@@ -914,6 +914,19 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
     <!-- RESUMEN -->
     <div class="asec on" id="asec-resumen">
       <div class="stats" id="adminStats"></div>
+
+      <!-- REGISTRO DE VENTAS -->
+      <div class="acard" id="adminOrdersCard" style="display:none; margin-bottom:1.2rem; border-color:var(--verde);">
+        <div class="acard-hdr" style="flex-wrap:wrap; gap:10px;">
+          <h3 style="color:var(--verde);">📈 Ventas Registradas</h3>
+          <button class="btn-danger" onclick="borrarTodasLasVentas()" style="margin-bottom:0; font-size:.8rem; padding:6px 12px; height:34px; width:auto; border-radius:6px; cursor:pointer;">🗑 Borrar Historial</button>
+        </div>
+        <div class="stats" id="orderStats" style="margin-bottom:1.2rem; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));"></div>
+        <div class="tbl-wrap">
+          <table class="tbl" id="ordenesTbl"></table>
+        </div>
+      </div>
+
       <div class="acard">
         <div class="acard-hdr">
           <h3>📋 Todos los productos</h3>
@@ -930,9 +943,12 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
     <!-- PRODUCTOS -->
     <div class="asec" id="asec-productos">
       <div class="acard">
-        <div class="acard-hdr">
+        <div class="acard-hdr" style="flex-wrap: wrap; gap: 10px;">
           <h3>📦 Editar productos</h3>
-          <button class="btn-save" onclick="recargarProductosAdmin()">🔄 Recargar</button>
+          <div style="display: flex; gap: 8px; align-items: center; width: 100%; max-width: 350px;">
+            <input type="text" id="admin-busqueda-prods" placeholder="🔍 Buscar por nombre, marca o ID..." oninput="renderTblProductos()" class="inp" style="margin-bottom: 0; padding: 7px 10px; font-size: 0.85rem; height: 36px; flex: 1;">
+            <button class="btn-save" onclick="recargarProductosAdmin()" style="margin-bottom: 0; height: 36px; padding: 0 12px; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">🔄 Recargar</button>
+          </div>
         </div>
         <div id="tblProductosWrap"></div>
       </div>
@@ -1963,17 +1979,21 @@ function renderCart() {
   })
   
   body.innerHTML = h
-  msg += '%0A' + encodeURIComponent('Total de referencia: $' + total.toLocaleString('es-AR')) + '%0A' + encodeURIComponent('Muchas gracias! 😊')
+  const savedName = localStorage.getItem('elgarage_cliente_nombre') || ''
 
   ftr.innerHTML = `
+    <div style="margin-bottom:12px; text-align: left;">
+      <label style="font-size:0.82rem; font-weight:700; color:var(--texto); display:block; margin-bottom:4px;">Tu Nombre y Apellido (para confirmar el pedido) *</label>
+      <input type="text" id="cart-client-name" placeholder="Ej: Valentin Ledesma" class="inp" value="${savedName}" style="margin-bottom:0; padding:8px 12px; font-size:0.9rem; height:36px; border:1.5px solid var(--borde); border-radius:8px; width:100%;">
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
       <button class="btn-vaciar" onclick="vaciarCarrito()">🗑 Vaciar</button>
       <div style="font-size:.85rem;color:var(--gris3)">Total: <strong style="font-size:1.05rem;color:var(--verde)">$${total.toLocaleString('es-AR')}</strong></div>
     </div>
-    <a class="btn-wsp-big" href="https://wa.me/${getWsp()}?text=${msg}" target="_blank">
+    <button class="btn-wsp-big" onclick="enviarPedido(${total})" style="border:none; width:100%; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-      Consultar por WhatsApp
-    </a>`
+      Enviar Pedido por WhatsApp
+    </button>
 }
 
 function chgQty(i, d) {
@@ -2006,6 +2026,145 @@ function chgQty(i, d) {
 
 function delItem(i) { carrito.splice(i, 1); renderCart(); updateBadge() }
 function vaciarCarrito() { if (confirm('¿Vaciar el carrito?')) { carrito = []; renderCart(); updateBadge() } }
+
+async function enviarPedido(total) {
+  const nameInput = document.getElementById('cart-client-name')
+  const nombreCliente = nameInput ? nameInput.value.trim() : ''
+  if (!nombreCliente) {
+    toast('⚠️ Por favor, ingresá tu nombre para confirmar el pedido', true)
+    nameInput?.focus()
+    return
+  }
+
+  localStorage.setItem('elgarage_cliente_nombre', nombreCliente)
+
+  // Preparar datos de venta
+  const cleanProds = carrito.map(item => {
+    const p = productos.find(x => x.id === item.id)
+    let itemCosto = 0
+    if (p) {
+      if (p.tipo === 'alimento') {
+        if (item.tipo === 'bolsa') {
+          itemCosto = (p.costo || 0) * item.qty
+        } else {
+          const peso = p.peso || 1
+          itemCosto = ((p.costo || 0) / peso) * item.qty
+        }
+      } else {
+        itemCosto = (p.costo || 0) * item.qty
+      }
+    }
+    return {
+      id: item.id,
+      nombre: item.nombre,
+      detalle: item.detalle,
+      qty: item.qty,
+      precio: item.precio,
+      costo: Math.round(itemCosto)
+    }
+  })
+
+  const orderData = {
+    cliente: nombreCliente,
+    productos: cleanProds,
+    total: total,
+    costoTotal: Math.round(cleanProds.reduce((sum, item) => sum + item.costo, 0))
+  }
+
+  // Guardar en base de datos
+  if (isLocalFallback) {
+    const localOrders = JSON.parse(localStorage.getItem('elgarage_orders') || '[]')
+    orderData.id = Date.now()
+    orderData.fecha = new Date().toISOString()
+    localOrders.push(orderData)
+    localStorage.setItem('elgarage_orders', JSON.stringify(localOrders))
+  } else {
+    try {
+      await apiFetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      })
+    } catch (err) {
+      console.error("No se pudo registrar la venta en el servidor:", err)
+    }
+  }
+
+  // Generar mensaje de WhatsApp
+  let msg = `Hola! Soy *${nombreCliente}*. Quisiera consultar por estos productos desde ${cfgData.nombre || 'El Garage de la Mascota'}:\n\n`
+  carrito.forEach((item) => {
+    const p = productos.find(x => x.id === item.id)
+    let itemTotal = item.precio * item.qty
+    let hasPromoApplied = false
+
+    if (p && p.promoEnabled && p.promoQty > 0 && p.promoPrice > 0) {
+      const bundles = Math.floor(item.qty / p.promoQty)
+      const rem = item.qty % p.promoQty
+      if (bundles > 0) {
+        itemTotal = (bundles * p.promoPrice) + (rem * item.precio)
+        hasPromoApplied = true
+      }
+    }
+
+    let itemDetailStr = `• 🐾 *${item.nombre}* (${item.detalle}) x${item.qty}`
+    if (hasPromoApplied) {
+      const bundles = Math.floor(item.qty / p.promoQty)
+      const rem = item.qty % p.promoQty
+      let breakdown = `${bundles}x Promo`
+      if (rem > 0) {
+        breakdown += ` + ${rem}x Indiv.`
+      }
+      itemDetailStr += ` [${breakdown}]`
+    }
+    itemDetailStr += ` - Subtotal: $${itemTotal.toLocaleString('es-AR')}`
+    msg += itemDetailStr + '\n'
+  })
+
+  msg += `\n*Total de referencia: $${total.toLocaleString('es-AR')}*\n`
+  msg += `📍 Retiro en el local\n\n¡Muchas gracias! 😊`
+
+  const encodedMsg = encodeURIComponent(msg)
+  window.open(`https://wa.me/${getWsp()}?text=${encodedMsg}`, '_blank')
+
+  // Vaciar carrito
+  carrito = []
+  updateBadge()
+  renderCart()
+}
+
+async function eliminarVenta(id) {
+  if (!confirm('¿Marcar esta venta como completada/entregada y removerla del listado?')) return
+  try {
+    if (isLocalFallback) {
+      adminOrders = adminOrders.filter(o => o.id !== id)
+      localStorage.setItem('elgarage_orders', JSON.stringify(adminOrders))
+      renderResumen()
+    } else {
+      await apiFetch(`/api/orders/${id}`, { method: 'DELETE' })
+      await recargarProductosAdmin()
+    }
+    toast('✓ Venta completada')
+  } catch {
+    toast('Error al actualizar venta', true)
+  }
+}
+
+async function borrarTodasLasVentas() {
+  if (!confirm('⚠️ ¿Estás seguro de que querés borrar TODO el historial de ventas registradas? Esta acción no se puede deshacer.')) return
+  try {
+    if (isLocalFallback) {
+      adminOrders = []
+      localStorage.setItem('elgarage_orders', JSON.stringify(adminOrders))
+      renderResumen()
+    } else {
+      await apiFetch('/api/orders/all', { method: 'DELETE' })
+      await recargarProductosAdmin()
+    }
+    toast('🗑 Historial limpio')
+  } catch {
+    toast('Error al limpiar historial', true)
+  }
+}
 
 // ================================================================
 // BÚSQUEDA
@@ -2486,7 +2645,11 @@ function aTab(name, btn) {
   btn.classList.add('on')
   document.getElementById('asec-' + name).classList.add('on')
   if (name === 'resumen') renderResumen()
-  if (name === 'productos') renderTblProductos()
+  if (name === 'productos') {
+    const sInput = document.getElementById('admin-busqueda-prods')
+    if (sInput) sInput.value = ''
+    renderTblProductos()
+  }
   if (name === 'categorias') renderCategorias()
   if (name === 'nuevo') poblarSelectCats()
   if (name === 'config') cargarConfigAdmin()
@@ -2497,6 +2660,7 @@ function aTab(name, btn) {
 // ================================================================
 let adminProds = []
 let adminCats = []
+let adminOrders = []
 
 async function renderAdmin() {
   await recargarProductosAdmin()
@@ -2510,6 +2674,7 @@ async function recargarProductosAdmin() {
   if (isLocalFallback) {
     adminProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
     adminCats = JSON.parse(localStorage.getItem('elgarage_categories') || '[]')
+    adminOrders = JSON.parse(localStorage.getItem('elgarage_orders') || '[]')
     renderResumen()
     renderTblProductos()
     renderCategorias()
@@ -2517,12 +2682,14 @@ async function recargarProductosAdmin() {
     return
   }
   try {
-    const [prodsRes, catsRes] = await Promise.all([
+    const [prodsRes, catsRes, ordersRes] = await Promise.all([
       apiFetch('/api/products?admin=true').then(r => r.json()),
       apiFetch('/api/categories').then(r => r.json()),
+      apiFetch('/api/orders').then(r => r.json()).catch(() => []),
     ])
     adminProds = prodsRes
     adminCats = catsRes
+    adminOrders = ordersRes
     renderResumen()
     renderTblProductos()
     renderCategorias()
@@ -2554,6 +2721,58 @@ function renderResumen() {
     <div class="stat"><div class="stat-n" style="color:#e74c3c">${sinS}</div><div class="stat-l">Sin stock</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--gris3)">${ocultos}</div><div class="stat-l">Ocultos</div></div>
   `
+
+  // Render Ventas
+  const ordersCard = document.getElementById('adminOrdersCard')
+  if (ordersCard) {
+    if (adminOrders && adminOrders.length > 0) {
+      ordersCard.style.display = 'block'
+      let totalVendido = 0
+      let totalCosto = 0
+      adminOrders.forEach(o => {
+        totalVendido += o.total || 0
+        totalCosto += o.costoTotal || 0
+      })
+      const totalGanancia = totalVendido - totalCosto
+      const ticketPromedio = totalVendido / adminOrders.length
+
+      document.getElementById('orderStats').innerHTML = `
+        <div class="stat"><div class="stat-n" style="color:var(--verde); font-size:1.3rem;">$${totalVendido.toLocaleString('es-AR')}</div><div class="stat-l">Ingresos</div></div>
+        <div class="stat"><div class="stat-n" style="color:var(--naranja); font-size:1.3rem;">$${totalCosto.toLocaleString('es-AR')}</div><div class="stat-l">Costo Mayorista</div></div>
+        <div class="stat"><div class="stat-n" style="color:#2ecc71; font-size:1.4rem; font-weight:900;">$${totalGanancia.toLocaleString('es-AR')}</div><div class="stat-l">Ganancia Neta</div></div>
+        <div class="stat"><div class="stat-n" style="color:var(--gris3); font-size:1.3rem;">$${Math.round(ticketPromedio).toLocaleString('es-AR')}</div><div class="stat-l">Ticket Promedio</div></div>
+      `
+
+      let oh = '<thead><tr><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Ganancia</th><th>Acción</th></tr></thead><tbody>'
+      const sortedOrders = [...adminOrders].sort((a, b) => b.id - a.id)
+      sortedOrders.forEach(o => {
+        const fechaObj = new Date(o.fecha)
+        const fechaStr = isNaN(fechaObj.getTime()) ? '' : `${fechaObj.getDate().toString().padStart(2, '0')}/${(fechaObj.getMonth() + 1).toString().padStart(2, '0')} ${fechaObj.getHours().toString().padStart(2, '0')}:${fechaObj.getMinutes().toString().padStart(2, '0')}`
+
+        const prodList = (o.productos || []).map(p => {
+          let details = `${p.qty}x ${p.nombre}`
+          if (p.detalle) details += ` (${p.detalle})`
+          return details
+        }).join(', ')
+
+        const gan = (o.total || 0) - (o.costoTotal || 0)
+
+        oh += `<tr>
+          <td>${fechaStr}</td>
+          <td><strong>${o.cliente || 'Anónimo'}</strong></td>
+          <td style="font-size:.82rem; color:var(--gris2); max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${prodList}">${prodList}</td>
+          <td><strong style="color:var(--verde)">$${(o.total || 0).toLocaleString('es-AR')}</strong></td>
+          <td><span style="color:#2ecc71; font-weight:700;">$${gan.toLocaleString('es-AR')}</span></td>
+          <td><button class="btn-danger" style="padding: 3px 8px; font-size: .75rem; width: auto; margin-bottom: 0;" onclick="eliminarVenta(${o.id})">✕ Completar</button></td>
+        </tr>`
+      })
+      oh += '</tbody>'
+      document.getElementById('ordenesTbl').innerHTML = oh
+    } else {
+      ordersCard.style.display = 'none'
+    }
+  }
+
   let h = '<thead><tr><th>Producto</th><th>Tipo</th><th>Categoría</th><th>Precio / Detalles</th><th>Estado</th></tr></thead><tbody>'
   prods.forEach(p => {
     const catObj = adminCats.find(c => c.id === p.cat)
@@ -2628,7 +2847,17 @@ function addEpTalleRow(pid, nombre = '', stock = 0) {
 }
 
 function renderTblProductos() {
-  const prods = adminProds
+  let prods = adminProds
+  const q = (document.getElementById('admin-busqueda-prods')?.value || '').toLowerCase().trim()
+  if (q) {
+    prods = prods.filter(p => {
+      const nombre = (p.nombre || '').toLowerCase()
+      const marca = (p.marca || '').toLowerCase()
+      const id = String(p.id)
+      const tipo = (p.tipo || '').toLowerCase()
+      return nombre.includes(q) || marca.includes(q) || id.includes(q) || tipo.includes(q)
+    })
+  }
   let h = ''
   prods.forEach(p => {
     const catsOpts = adminCats.map(c => `<option value="${c.id}" ${p.cat === c.id ? 'selected' : ''}>${c.emoji} ${c.nombre}</option>`).join('')
