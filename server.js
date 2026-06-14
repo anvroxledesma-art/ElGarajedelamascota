@@ -207,6 +207,7 @@ async function deleteProduct(id) {
   const index = db.products.findIndex(p => p.id === id);
   if (index !== -1) {
     db.products.splice(index, 1);
+    writeLocalDB(db);
   }
 }
 
