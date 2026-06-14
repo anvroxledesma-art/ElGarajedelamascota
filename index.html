@@ -2798,13 +2798,17 @@ function verDetalle(id) {
   const p = productos.find(x => x.id === id)
   if (!p) return
   const tieneOferta = p.precioAnterior && p.precioAnterior > 0
-  const imgSrc = (isLocalFallback && p.localImage) ? p.localImage : `/api/images/${p.id}`
-  const imgEl = p.hasImage
-    ? `<img src="${imgSrc}" alt="${p.nombre}" style="max-width:100%; max-height:350px; object-fit:contain; border-radius:10px;" onerror="this.style.display='none'">`
+  
+  let imgSrc = `/api/images/${p.id}`
+  if (p.imageUrl) {
+    imgSrc = p.imageUrl
+  } else if (isLocalFallback && p.localImage) {
+    imgSrc = p.localImage
+  }
+  const hasImg = p.hasImage || p.imageUrl
+  const imgEl = hasImg
+    ? `<img src="${imgSrc}" alt="${p.nombre}" style="max-width:100%; max-height:350px; object-fit:contain; border-radius:10px;" onerror="this.parentElement.innerHTML='<span style=\\'font-size:7rem;\\'>${p.emoji || '🐾'}</span>'">`
     : `<div style="font-size:7rem; display:flex; align-items:center; justify-content:center; min-height:200px;">${p.emoji || '🐾'}</div>`
-
-  // Stable pseudo-random review count based on product ID
-  const ratingOpiniones = (p.id * 17) % 240 + 25;
 
   let promoDetailHtml = ''
   if (p.promoEnabled && p.promoQty > 0 && p.promoPrice > 0) {
@@ -2906,20 +2910,11 @@ function verDetalle(id) {
             <div class="ml-estado">Nuevo | Destacado</div>
             <h1 class="ml-titulo">${p.nombre}</h1>
             
-            <div class="ml-rating">
-              <span class="ml-rating-stars">★★★★★</span>
-              <span>4.7</span>
-              <span class="ml-opiniones">(${ratingOpiniones} opiniones)</span>
-            </div>
-            
             <div class="ml-precio-wrap">
               ${precioTachadoHtml}
               <div class="ml-precio-actual" id="ml-precio-display">
                 $${precioInicial.toLocaleString('es-AR')}
                 ${descuentoHtml}
-              </div>
-              <div class="ml-precio-cuotas">
-                Mismos medios de pago que <strong style="color:#00a650;">Mercado Pago</strong>
               </div>
             </div>
             
@@ -2934,8 +2929,10 @@ function verDetalle(id) {
             </div>
             
             <!-- Stock disponible -->
-            <div class="ml-stock-disponible" id="ml-stock-display">
-              ${stockInfoHtml}
+            <div class="ml-stock-display-wrapper" style="margin-top:10px;">
+              <div class="ml-stock-disponible" id="ml-stock-display">
+                ${stockInfoHtml}
+              </div>
             </div>
             
             <!-- Acciones de Compra -->
