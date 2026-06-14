@@ -741,7 +741,7 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
       🐶 ¡Solo Perros y Gatos!
     </div>
     <div class="desktop-decor-card" style="--rot: 3deg; animation: floatDecor 4.5s ease-in-out infinite 0.5s;">
-      🚚 Envíos a Domicilio
+      🛍️ Retiro en el Local
     </div>
     <div class="desktop-decor-card" style="--rot: -2deg; animation: floatDecor 5s ease-in-out infinite 1s;">
       💬 Escribinos al WhatsApp
@@ -1000,6 +1000,9 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
               <div id="np-foto-prev">📷 Clic para subir foto</div>
               <input type="file" id="np-foto-inp" accept="image/*" style="display:none" onchange="prevFotoNuevo(event)">
             </div>
+          </div>
+          <div class="fg full"><label>O enlace/URL de imagen directo (ej: de ImgBB, Postimages, etc.)</label>
+            <input type="text" id="np-image-url" placeholder="https://i.ibb.co/..." class="inp">
           </div>
           <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:.5rem; align-items:center; grid-column:1/-1;">
             <label style="display:inline-flex; align-items:center; gap:5px;"><input type="checkbox" id="np-destacado"> Producto destacado</label>
@@ -1919,8 +1922,14 @@ function renderCart() {
     
     total += itemTotal
     
-    const imgSrc = (isLocalFallback && p && p.localImage) ? p.localImage : `/api/images/${item.id}`
-    const imgEl = item.hasImage
+    let imgSrc = `/api/images/${item.id}`
+    if (p && p.imageUrl) {
+      imgSrc = p.imageUrl
+    } else if (isLocalFallback && p && p.localImage) {
+      imgSrc = p.localImage
+    }
+    const hasImg = item.hasImage || (p && p.imageUrl)
+    const imgEl = hasImg
       ? `<img src="${imgSrc}" alt="" onerror="this.style.display='none'">` + `<span style="display:none">${item.emoji}</span>`
       : `<span>${item.emoji}</span>`
       
@@ -2039,8 +2048,14 @@ function setFiltro(cat, btn) {
 }
 
 function renderCardHtml(p) {
-  const imgSrc = (isLocalFallback && p.localImage) ? p.localImage : `/api/images/${p.id}`
-  const imgEl = p.hasImage
+  let imgSrc = `/api/images/${p.id}`
+  if (p.imageUrl) {
+    imgSrc = p.imageUrl
+  } else if (isLocalFallback && p.localImage) {
+    imgSrc = p.localImage
+  }
+  const hasImg = p.hasImage || p.imageUrl
+  const imgEl = hasImg
     ? `<img src="${imgSrc}" alt="${p.nombre}" onerror="this.parentElement.innerHTML='<span class=\\'card-img-placeholder\\'>${p.emoji || '🐾'}</span>'">`
     : `<span class="card-img-placeholder">${p.emoji || '🐾'}</span>`
     
@@ -2574,7 +2589,7 @@ function renderResumen() {
       precioInfo = `Unitario: $${p.precioUnidad.toLocaleString('es-AR')}`
     }
     
-    h += `<tr><td>${fotoEl}<strong>${p.nombre}</strong></td><td>${p.tipo.toUpperCase()}</td><td>${catObj ? catObj.emoji + ' ' + catObj.nombre : p.cat}</td><td>${precioInfo}</td><td>${estado}</td></tr>`
+    h += `<tr><td>${fotoEl}<strong>${p.nombre}</strong> <small style="color:var(--gris3)">(ID: ${p.id})</small></td><td>${p.tipo.toUpperCase()}</td><td>${catObj ? catObj.emoji + ' ' + catObj.nombre : p.cat}</td><td>${precioInfo}</td><td>${estado}</td></tr>`
   })
   h += '</tbody>'
   document.getElementById('resumenTbl').innerHTML = h
@@ -2647,6 +2662,7 @@ function renderTblProductos() {
         </div>
         <div style="flex:1;min-width:0;">
           <div class="form-grid" style="gap:8px;">
+            <div class="fg"><label>ID del Producto (nombre de la foto)</label><input type="text" value="${p.id}" readonly style="background:var(--gris1); font-weight:700;"></div>
             <div class="fg"><label>Tipo de producto</label>
               <select id="ep-tipo-${p.id}" onchange="onEpTipoChange(${p.id}, this.value)">
                 <option value="alimento" ${p.tipo === 'alimento' ? 'selected' : ''}>Alimento</option>
@@ -2703,6 +2719,7 @@ function renderTblProductos() {
             </div>
 
             <div class="fg full"><label>Descripción</label><textarea id="ep-desc-${p.id}" rows="2" style="resize:vertical;">${p.desc || ''}</textarea></div>
+            <div class="fg full"><label>O enlace/URL de la foto (ej: de ImgBB)</label><input type="text" id="ep-image-url-${p.id}" value="${p.imageUrl || ''}" placeholder="https://..." class="inp" style="padding: 8px 10px;"></div>
           </div>
           <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:.7rem;align-items:center;font-size:.82rem;">
             <label style="display:flex;align-items:center;gap:5px;"><label class="sw"><input type="checkbox" id="ep-destacado-${p.id}" ${p.destacado ? 'checked' : ''}><span class="sw-sl"></span></label> Destacado</label>
@@ -2806,6 +2823,7 @@ async function guardarProd(id) {
       precioUnidad: tipo !== 'alimento' ? (parseFloat(document.getElementById('ep-unidad-' + id).value) || 0) : 0,
       precioAnterior: parseFloat(document.getElementById('ep-ant-' + id).value) || 0,
       desc: document.getElementById('ep-desc-' + id).value.trim(),
+      imageUrl: document.getElementById('ep-image-url-' + id).value.trim(),
       stock: stockVal,
       talles: talles,
       promoEnabled: document.getElementById('ep-promo-enabled-' + id).checked,
@@ -3040,6 +3058,7 @@ async function agregarProducto() {
       precioUnidad: tipo !== 'alimento' ? (parseFloat(document.getElementById('np-unidad').value) || 0) : 0,
       precioAnterior: parseFloat(document.getElementById('np-anterior').value) || 0,
       desc: document.getElementById('np-desc').value.trim(),
+      imageUrl: document.getElementById('np-image-url').value.trim(),
       nuevo: document.getElementById('np-nuevo').checked,
       destacado: document.getElementById('np-destacado').checked,
       stock: stockVal,
@@ -3078,7 +3097,7 @@ async function agregarProducto() {
     }
 
     // Reset inputs
-    ;['np-nombre', 'np-marca', 'np-emoji', 'np-costo', 'np-peso', 'np-bolsa', 'np-kg', 'np-unidad', 'np-stock-general', 'np-anterior', 'np-desc', 'np-promo-qty', 'np-promo-price'].forEach(id => {
+    ;['np-nombre', 'np-marca', 'np-emoji', 'np-costo', 'np-peso', 'np-bolsa', 'np-kg', 'np-unidad', 'np-stock-general', 'np-anterior', 'np-desc', 'np-promo-qty', 'np-promo-price', 'np-image-url'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = ''
     })
     document.getElementById('np-tipo').value = 'alimento'

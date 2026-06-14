@@ -396,7 +396,8 @@ app.post('/api/products', authorizeAdmin, async (req, res) => {
       oculto: newProd.oculto || false,
       oferta: newProd.oferta || false,
       nuevo: newProd.nuevo || false,
-      hasImage: false
+      hasImage: false,
+      imageUrl: newProd.imageUrl || ''
     };
     
     await saveProduct(product);
@@ -439,7 +440,8 @@ app.put('/api/products/:id', authorizeAdmin, async (req, res) => {
       oculto: update.oculto !== undefined ? update.oculto : current.oculto,
       oferta: update.oferta !== undefined ? update.oferta : current.oferta,
       nuevo: update.nuevo !== undefined ? update.nuevo : current.nuevo,
-      hasImage: update.hasImage !== undefined ? update.hasImage : current.hasImage
+      hasImage: update.hasImage !== undefined ? update.hasImage : current.hasImage,
+      imageUrl: update.imageUrl !== undefined ? update.imageUrl : current.imageUrl
     };
     
     // Preserve imageData if present in mongo
