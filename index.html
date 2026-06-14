@@ -850,7 +850,7 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
     </div>
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
-      <input class="search-inp" type="search" id="searchInp" placeholder="Buscar producto..." oninput="onSearch(this.value)" autocomplete="off" name="search-query">
+      <input class="search-inp" type="search" id="searchInp" placeholder="Buscar producto..." oninput="onSearch(this.value)" autocomplete="one-time-code" name="search-query">
     </div>
   </div>
 
@@ -881,9 +881,11 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
     <div class="icon">🔐</div>
     <h2>Panel Admin</h2>
     <p>Ingresá tu usuario y contraseña</p>
-    <input class="inp" type="text" id="loginUser" placeholder="Usuario" onkeydown="if(event.key==='Enter')doLogin()">
-    <input class="inp" type="password" id="loginPass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn-prim" id="loginBtn" onclick="doLogin()">Ingresar</button>
+    <form onsubmit="event.preventDefault(); doLogin();" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 0; border: none; background: none;">
+      <input class="inp" type="text" id="loginUser" placeholder="Usuario" autocomplete="username">
+      <input class="inp" type="password" id="loginPass" placeholder="Contraseña" autocomplete="current-password">
+      <button class="btn-prim" id="loginBtn" type="submit">Ingresar</button>
+    </form>
     <div class="err-msg" id="loginErr">Usuario o contraseña incorrectos.</div>
     <button class="btn-cancel-login" onclick="closeLogin()">Cancelar</button>
   </div>
