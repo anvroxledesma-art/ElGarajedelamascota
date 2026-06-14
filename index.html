@@ -538,6 +538,265 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
 .calc-col h4{font-size:.82rem;font-weight:700;color:var(--verdeOsc);margin-bottom:.5rem;padding-bottom:.3rem;border-bottom:2px solid var(--verde3);}
 .calc-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.8rem;border-bottom:1px solid var(--gris1);}
 .calc-row:last-child{border-bottom:none;}
+
+/* BOTÓN FLOTANTE Y DETALLES ESTILO MERCADO LIBRE */
+.btn-card-cart-float{
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #3498db;
+  border: 1.5px solid var(--borde);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--borde);
+  transition: transform 0.15s, background-color 0.15s;
+  z-index: 10;
+}
+.btn-card-cart-float:hover{
+  transform: scale(1.1);
+  background: #2980b9;
+}
+.btn-wsp-small{
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #25D366;
+  border: 1.2px solid var(--borde);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 1px 1px 0 var(--borde);
+  transition: transform 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+.btn-wsp-small:hover{
+  transform: scale(1.1);
+  background: #1ebe5d;
+}
+.card-precio-clean{
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--verde);
+  margin-top: auto;
+  padding-top: 4px;
+}
+.precios-wrap-clean{
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+/* LAYOUT EN DOS COLUMNAS */
+.ml-modal-wrap {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 768px) {
+  .ml-modal-wrap {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+.ml-col-izq {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--gris1);
+  border-radius: 12px;
+  border: 2px solid var(--borde);
+  padding: 15px;
+}
+.ml-col-der {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+.ml-estado {
+  font-size: 0.75rem;
+  color: var(--gris3);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.ml-titulo {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.ml-rating {
+  font-size: 0.82rem;
+  color: var(--gris3);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ml-rating-stars {
+  color: #f1c40f; /* gold */
+}
+.ml-opiniones {
+  color: #3498db; /* blue link */
+  cursor: pointer;
+}
+.ml-precio-wrap {
+  margin-top: 5px;
+}
+.ml-precio-tachado {
+  font-size: 0.9rem;
+  color: var(--gris3);
+  text-decoration: line-through;
+  display: block;
+}
+.ml-precio-actual {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--negro);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ml-precio-dcto {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--verde);
+}
+.ml-precio-cuotas {
+  font-size: 0.85rem;
+  color: var(--negro);
+  margin-top: 4px;
+}
+.ml-cuotas-link {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+}
+.ml-stock-disponible {
+  font-size: 0.9rem;
+  color: var(--negro);
+  font-weight: 700;
+  margin-top: 10px;
+}
+.ml-stock-qty {
+  font-size: 0.85rem;
+  color: var(--gris3);
+  margin-top: 2px;
+}
+
+/* CHIPS DE SELECCIÓN DE VARIANTE */
+.ml-chips-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gris4);
+  margin-bottom: 5px;
+}
+.ml-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ml-chip-btn {
+  padding: 8px 14px;
+  background: var(--blanco);
+  border: 2px solid var(--borde);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.ml-chip-btn:hover:not(:disabled) {
+  border-color: var(--negro);
+  background: var(--gris1);
+}
+.ml-chip-btn.active {
+  border-color: #3498db;
+  background: rgba(52, 152, 219, 0.08);
+  color: #2980b9;
+  box-shadow: 0 0 0 1px #3498db;
+}
+.ml-chip-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--gris2);
+  border-color: var(--borde);
+}
+.ml-chip-btn:disabled::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #e74c3c;
+  transform: translateY(-50%) rotate(-30deg);
+}
+
+/* BOTONES DE ACCION ESTILO MERCADO LIBRE */
+.btn-ml-comprar {
+  width: 100%;
+  padding: 12px;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.btn-ml-comprar:hover {
+  background: #2980b9;
+}
+.btn-ml-agregar {
+  width: 100%;
+  padding: 12px;
+  background: rgba(52, 152, 219, 0.15);
+  color: #3498db;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.btn-ml-agregar:hover {
+  background: rgba(52, 152, 219, 0.25);
+}
+.btn-ml-wsp {
+  width: 100%;
+  padding: 12px;
+  background: #25D366;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-ml-wsp:hover {
+  background: #1ebe5d;
+}
+
 .calc-gan{color:var(--verde);font-weight:700;}
 .calc-rec{background:var(--ambar2);border-radius:6px;padding:2px 6px;font-weight:700;}
 
@@ -1833,7 +2092,18 @@ function addToCart(id, tipo, talle) {
       toast('⚠️ Por favor selecciona un talle', true)
       return
     }
-    const stockDisponible = p.talles[talle] || 0
+    const tVal = p.talles[talle]
+    let stockDisponible = 0
+    let precio = p.precioUnidad || 0
+    
+    if (typeof tVal === 'object' && tVal !== null) {
+      stockDisponible = tVal.stock || 0
+      precio = tVal.precio || p.precioUnidad
+    } else {
+      stockDisponible = parseInt(tVal) || 0
+      precio = p.precioUnidad || 0
+    }
+    
     const exists = carrito.find(x => x.id === id && x.talle === talle)
     const currentQty = exists ? exists.qty : 0
     
@@ -1849,7 +2119,7 @@ function addToCart(id, tipo, talle) {
         id,
         nombre: p.nombre,
         emoji: p.emoji || '🐾',
-        precio: p.precioUnidad,
+        precio: precio,
         tipo: 'unidad',
         talle,
         detalle: 'Talle: ' + talle,
@@ -2215,6 +2485,10 @@ function renderCardHtml(p) {
     imgSrc = p.localImage
   }
   const hasImg = p.hasImage || p.imageUrl
+  
+  // Botón flotante azul del carrito
+  const cartIcon = `<button class="btn-card-cart-float" onclick="event.stopPropagation(); quickAdd(${p.id})" title="Agregar al carrito">🛒</button>`
+  
   const imgEl = hasImg
     ? `<img src="${imgSrc}" alt="${p.nombre}" onerror="this.parentElement.innerHTML='<span class=\\'card-img-placeholder\\'>${p.emoji || '🐾'}</span>'">`
     : `<span class="card-img-placeholder">${p.emoji || '🐾'}</span>`
@@ -2223,7 +2497,10 @@ function renderCardHtml(p) {
   let isAvailable = false
   
   if (p.tipo === 'poncho' || p.tipo === 'ropa') {
-    isAvailable = p.talles && Object.values(p.talles).some(s => s > 0)
+    isAvailable = p.talles && Object.values(p.talles).some(s => {
+      if (typeof s === 'object' && s !== null) return (s.stock || 0) > 0
+      return (parseInt(s) || 0) > 0
+    })
   } else if (p.tipo === 'alimento') {
     isAvailable = p.stock
   } else {
@@ -2238,7 +2515,7 @@ function renderCardHtml(p) {
   const badgeOferta = tieneOferta ? `<div class="badge-oferta">🔥 Oferta</div>` : ''
   const descPreview = p.desc ? `<div class="card-desc-preview">${p.desc}</div>` : ''
   
-  // Promotion display
+  // Promociones
   let promoBadge = ''
   if (p.promoEnabled && p.promoQty > 0 && p.promoPrice > 0) {
     promoBadge = `<div style="background:var(--ambar2); border:1.5px dashed var(--ambar); border-radius:8px; padding:6px; font-size:0.75rem; text-align:center; font-weight:700; color:var(--ambar); margin-top:5px;">
@@ -2246,101 +2523,84 @@ function renderCardHtml(p) {
     </div>`
   }
 
-  // Price area based on product type
-  let priceAreaHtml = ''
-  let actionBtnHtml = ''
-  
+  // Precios limpios en tarjetas
+  let priceHtml = ''
   if (p.tipo === 'alimento') {
-    const pBolsaAntes = tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''
-    priceAreaHtml = `
-      <div class="precios-wrap">
-        <div class="precio-box">
-          <span class="lbl">Por kilo</span>
-          <span class="val">$${p.precioKg.toLocaleString('es-AR')}</span>
-        </div>
-        <div class="precio-box">
-          <span class="lbl">Bolsa ${p.peso}kg</span>
-          ${pBolsaAntes}
-          <span class="val">$${p.precioBolsa.toLocaleString('es-AR')}</span>
-        </div>
+    priceHtml = `
+      <div class="precios-wrap-clean">
+        <div style="font-size:0.8rem;color:var(--gris3);">Bolsa ${p.peso}kg: <strong style="color:var(--negro); font-size:0.95rem;">$${p.precioBolsa.toLocaleString('es-AR')}</strong></div>
+        <div style="font-size:0.75rem;color:var(--gris3);">Kilo: $${p.precioKg.toLocaleString('es-AR')}</div>
       </div>`
-    actionBtnHtml = `
-      <button class="btn-agregar" onclick="openAddModal(${p.id})" ${!isAvailable ? 'disabled' : ''}>
-        ${isAvailable ? '🛒 Agregar' : 'Sin stock'}
-      </button>`
   } else if (p.tipo === 'poncho' || p.tipo === 'ropa') {
-    const pAntes = tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''
-    
-    // Talle select options
-    let talleOpts = '<option value="">Elegir Talle</option>'
-    if (p.talles) {
-      Object.entries(p.talles).forEach(([tName, tQty]) => {
-        if (tQty > 0) {
-          talleOpts += `<option value="${tName}">${tName} (${tQty} disp.)</option>`
+    let minPrice = Infinity
+    let maxPrice = -Infinity
+    if (p.talles && typeof p.talles === 'object') {
+      Object.values(p.talles).forEach(tVal => {
+        let price = 0
+        if (typeof tVal === 'object' && tVal !== null) {
+          price = tVal.precio || 0
         } else {
-          talleOpts += `<option value="${tName}" disabled>${tName} (Sin stock)</option>`
+          price = p.precioUnidad || 0
+        }
+        if (price > 0) {
+          if (price < minPrice) minPrice = price
+          if (price > maxPrice) maxPrice = price
         }
       })
     }
+    if (minPrice === Infinity) {
+      minPrice = p.precioUnidad || 0
+      maxPrice = p.precioUnidad || 0
+    }
     
-    priceAreaHtml = `
-      <div class="precios-wrap" style="grid-template-columns: 1fr;">
-        <div class="precio-box" style="display:flex; justify-content:space-between; align-items:center; padding:5px 10px;">
-          <span class="lbl" style="text-align:left;">Precio unitario</span>
-          <div style="text-align:right;">
-            ${pAntes}
-            <span class="val">$${p.precioUnidad.toLocaleString('es-AR')}</span>
-          </div>
-        </div>
-      </div>
-      <div style="margin-top:5px;">
-        <select id="card-talle-${p.id}" class="inp" style="padding:5px 8px; font-size:.8rem; margin-bottom:0; height:32px;">
-          ${talleOpts}
-        </select>
-      </div>`
-    
-    actionBtnHtml = `
-      <button class="btn-agregar" onclick="agregarRopaDesdeCard(${p.id})" ${!isAvailable ? 'disabled' : ''}>
-        ${isAvailable ? '🛒 Agregar' : 'Sin stock'}
-      </button>`
+    let priceText = ''
+    if (minPrice === maxPrice) {
+      priceText = `$${minPrice.toLocaleString('es-AR')}`
+    } else {
+      priceText = `$${minPrice.toLocaleString('es-AR')} - $${maxPrice.toLocaleString('es-AR')}`
+    }
+    priceHtml = `<div class="card-precio-clean">${priceText}</div>`
   } else {
-    // toys, accessories, etc.
-    const pAntes = tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''
-    priceAreaHtml = `
-      <div class="precios-wrap" style="grid-template-columns: 1fr;">
-        <div class="precio-box" style="display:flex; justify-content:space-between; align-items:center; padding:5px 10px;">
-          <span class="lbl" style="text-align:left;">Precio unitario</span>
-          <div style="text-align:right;">
-            ${pAntes}
-            <span class="val">$${p.precioUnidad.toLocaleString('es-AR')}</span>
-          </div>
-        </div>
-      </div>`
-    actionBtnHtml = `
-      <button class="btn-agregar" onclick="addToCart(${p.id}, 'unidad')" ${!isAvailable ? 'disabled' : ''}>
-        ${isAvailable ? '🛒 Agregar' : 'Sin stock'}
-      </button>`
+    const pAntes = tieneOferta ? `<span class="val-tachado" style="font-size:0.75rem;margin-right:5px;text-decoration:line-through;color:var(--gris3);">$${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''
+    priceHtml = `<div class="card-precio-clean">${pAntes}$${p.precioUnidad.toLocaleString('es-AR')}</div>`
   }
 
+  // Botón verde chico de WhatsApp
+  const wspButton = `
+    <button class="btn-wsp-small" onclick="event.stopPropagation(); wspProd(${p.id})" title="Consultar por WhatsApp">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+  </button>`
+
   return `
-    <div class="card" data-tipo="${p.tipo}">
-      <div class="card-img" onclick="verDetalle(${p.id})">
+    <div class="card" data-tipo="${p.tipo}" onclick="verDetalle(${p.id})">
+      <div class="card-img">
         ${imgEl}${badgeNuevo}${badgeOferta}${sinStock}
+        ${isAvailable ? cartIcon : ''}
       </div>
       <div class="card-body">
-        <div class="card-nombre" onclick="verDetalle(${p.id})">${p.nombre}</div>
-        <div class="card-marca">${p.marca || ''}${p.tipo === 'alimento' && p.peso ? ' · ' + p.peso + 'kg' : ''}${stockInfo}</div>
-        ${descPreview}
-        ${priceAreaHtml}
-        ${promoBadge}
-        <div class="card-acciones" style="margin-top:auto; padding-top:8px;">
-          ${actionBtnHtml}
-          <button class="btn-wsp-prod" onclick="wspProd(${p.id})" title="Consultar por WhatsApp">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-          </button>
+        <div class="card-nombre">${p.nombre}</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+          <div class="card-marca">${p.marca || ''}${p.tipo === 'alimento' && p.peso ? ' · ' + p.peso + 'kg' : ''}${stockInfo}</div>
+          ${wspButton}
         </div>
+        ${descPreview}
+        ${priceHtml}
+        ${promoBadge}
       </div>
     </div>`
+}
+
+function quickAdd(id) {
+  const p = productos.find(x => x.id === id)
+  if (!p) return
+  if (p.tipo === 'alimento' || p.tipo === 'poncho' || p.tipo === 'ropa') {
+    // Si requiere configuración, abrimos la ficha de detalle para elegir
+    verDetalle(id)
+  } else {
+    // Si es simple, lo metemos directo
+    addToCart(id, 'unidad')
+    toast('✓ ' + p.nombre + ' agregado al carrito')
+  }
 }
 
 function renderCatalogo() {
@@ -2403,126 +2663,311 @@ function renderCatalogo() {
 }
 
 // Modal detalle producto
+function selectTalleOption(btn, talle, precio, stock) {
+  const chips = btn.parentElement.querySelectorAll('.ml-chip-btn');
+  chips.forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  
+  const modalEl = document.getElementById('ovDetalle');
+  if (modalEl) {
+    modalEl.setAttribute('data-selected-talle', talle);
+  }
+  
+  const priceDisplay = document.getElementById('ml-precio-display');
+  if (priceDisplay) {
+    priceDisplay.innerHTML = `$${precio.toLocaleString('es-AR')}`;
+  }
+  
+  const stockDisplay = document.getElementById('ml-stock-display');
+  if (stockDisplay) {
+    if (stock > 0) {
+      stockDisplay.innerHTML = `Stock disponible <span class="ml-stock-qty">(${stock} disponibles)</span>`;
+      document.getElementById('btn-ml-buy-now').disabled = false;
+      document.getElementById('btn-ml-add-cart').disabled = false;
+    } else {
+      stockDisplay.innerHTML = `<span style="color:var(--rojo); font-weight:700;">⚠ Sin stock disponible</span>`;
+      document.getElementById('btn-ml-buy-now').disabled = true;
+      document.getElementById('btn-ml-add-cart').disabled = true;
+    }
+  }
+}
+
+function selectAlimentoOption(btn, tipo, precio, stock) {
+  const chips = btn.parentElement.querySelectorAll('.ml-chip-btn');
+  chips.forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  
+  const modalEl = document.getElementById('ovDetalle');
+  if (modalEl) {
+    modalEl.setAttribute('data-selected-alimento-tipo', tipo);
+  }
+  
+  const priceDisplay = document.getElementById('ml-precio-display');
+  if (priceDisplay) {
+    priceDisplay.innerHTML = `$${precio.toLocaleString('es-AR')}`;
+  }
+  
+  const stockDisplay = document.getElementById('ml-stock-display');
+  if (stockDisplay) {
+    if (stock) {
+      stockDisplay.innerHTML = `Stock disponible`;
+      document.getElementById('btn-ml-buy-now').disabled = false;
+      document.getElementById('btn-ml-add-cart').disabled = false;
+    } else {
+      stockDisplay.innerHTML = `<span style="color:var(--rojo); font-weight:700;">⚠ Sin stock disponible</span>`;
+      document.getElementById('btn-ml-buy-now').disabled = true;
+      document.getElementById('btn-ml-add-cart').disabled = true;
+    }
+  }
+}
+
+function mlComprarAhora(id) {
+  const p = productos.find(x => x.id === id);
+  if (!p) return;
+  
+  const modalEl = document.getElementById('ovDetalle');
+  let talle = null;
+  let tipo = 'unidad';
+  
+  if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    talle = modalEl.getAttribute('data-selected-talle');
+    if (!talle) {
+      toast('⚠️ Por favor selecciona un talle', true);
+      return;
+    }
+  } else if (p.tipo === 'alimento') {
+    tipo = modalEl.getAttribute('data-selected-alimento-tipo');
+    if (!tipo) {
+      toast('⚠️ Por favor selecciona una opción', true);
+      return;
+    }
+  }
+  
+  addToCart(id, tipo, talle);
+  modalEl.remove();
+  openCart();
+}
+
+function mlAgregarCarrito(id) {
+  const p = productos.find(x => x.id === id);
+  if (!p) return;
+  
+  const modalEl = document.getElementById('ovDetalle');
+  let talle = null;
+  let tipo = 'unidad';
+  
+  if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    talle = modalEl.getAttribute('data-selected-talle');
+    if (!talle) {
+      toast('⚠️ Por favor selecciona un talle', true);
+      return;
+    }
+  } else if (p.tipo === 'alimento') {
+    tipo = modalEl.getAttribute('data-selected-alimento-tipo');
+    if (!tipo) {
+      toast('⚠️ Por favor selecciona una opción', true);
+      return;
+    }
+  }
+  
+  addToCart(id, tipo, talle);
+  modalEl.remove();
+}
+
+function mlConsultarWsp(id) {
+  const p = productos.find(x => x.id === id);
+  if (!p) return;
+  
+  const modalEl = document.getElementById('ovDetalle');
+  let detail = '';
+  
+  if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    const talle = modalEl.getAttribute('data-selected-talle');
+    detail = talle ? ` (Talle: ${talle})` : '';
+  } else if (p.tipo === 'alimento') {
+    const tipo = modalEl.getAttribute('data-selected-alimento-tipo');
+    detail = tipo === 'bolsa' ? ` (Bolsa ${p.peso}kg)` : ' (Por kilo)';
+  }
+  
+  const msg = encodeURIComponent('Hola! Quisiera consultar por: ' + (p.emoji || '🐾') + ' ' + p.nombre + detail + '. Muchas gracias! 😊');
+  window.open('https://wa.me/' + getWsp() + '?text=' + msg, '_blank');
+  modalEl.remove();
+}
+
 function verDetalle(id) {
   const p = productos.find(x => x.id === id)
   if (!p) return
   const tieneOferta = p.precioAnterior && p.precioAnterior > 0
   const imgSrc = (isLocalFallback && p.localImage) ? p.localImage : `/api/images/${p.id}`
   const imgEl = p.hasImage
-    ? `<img src="${imgSrc}" alt="${p.nombre}" style="width:100%;height:200px;object-fit:cover;border-radius:10px;margin-bottom:.8rem;" onerror="this.style.display='none'">`
-    : `<div style="width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:4rem;">${p.emoji || '🐾'}</div>`
+    ? `<img src="${imgSrc}" alt="${p.nombre}" style="max-width:100%; max-height:350px; object-fit:contain; border-radius:10px;" onerror="this.style.display='none'">`
+    : `<div style="font-size:7rem; display:flex; align-items:center; justify-content:center; min-height:200px;">${p.emoji || '🐾'}</div>`
 
-  let stockVal = false
-  if (p.tipo === 'poncho' || p.tipo === 'ropa') {
-    stockVal = p.talles && Object.values(p.talles).some(s => s > 0)
-  } else if (p.tipo === 'alimento') {
-    stockVal = p.stock
-  } else {
-    stockVal = (typeof p.stock === 'number' ? p.stock : 0) > 0
-  }
+  // Stable pseudo-random review count based on product ID
+  const ratingOpiniones = (p.id * 17) % 240 + 25;
 
-  let preciosHtml = ''
-  let footerHtml = ''
   let promoDetailHtml = ''
-  
   if (p.promoEnabled && p.promoQty > 0 && p.promoPrice > 0) {
-    promoDetailHtml = `<div style="background:var(--ambar2); border:1.5px dashed var(--ambar); border-radius:10px; padding:10px; font-size:0.85rem; text-align:center; font-weight:700; color:var(--ambar); margin-top:10px; margin-bottom:10px;">
+    promoDetailHtml = `<div style="background:var(--ambar2); border:1.5px dashed var(--ambar); border-radius:10px; padding:10px; font-size:0.85rem; text-align:center; font-weight:700; color:var(--ambar); margin-top:5px; margin-bottom:5px;">
       🔥 Promoción Especial: Llevando ${p.promoQty} ${p.tipo === 'alimento' ? 'bolsas' : 'unidades'} por solo $${p.promoPrice.toLocaleString('es-AR')}
     </div>`
   }
 
-  if (p.tipo === 'alimento') {
-    preciosHtml = `
-      <div class="precios-wrap" style="margin-top:.8rem;">
-        <div class="precio-box">
-          <span class="lbl">Por kilo</span>
-          <span class="val">$${p.precioKg.toLocaleString('es-AR')}</span>
-        </div>
-        <div class="precio-box">
-          <span class="lbl">Bolsa ${p.peso}kg</span>
-          ${tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''}
-          <span class="val">$${p.precioBolsa.toLocaleString('es-AR')}</span>
-        </div>
-      </div>`
-      
-    footerHtml = `
-      <button class="btn-agregar" style="padding:12px;font-size:.92rem;" onclick="addToCart(${p.id},'bolsa');document.getElementById('ovDetalle').remove();openCart()">
-        📦 Bolsa ${p.peso}kg — $${p.precioBolsa.toLocaleString('es-AR')}
+  // Precios iniciales y selectores
+  let precioInicial = p.precioUnidad || 0;
+  let selectorHtml = '';
+  let stockInfoHtml = '';
+  let isOutOfStockInitial = false;
+
+  if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    selectorHtml += `<div class="ml-chips-title">Talle</div><div class="ml-chips-grid">`;
+    const tEntries = Object.entries(p.talles || {});
+    tEntries.forEach(([tName, tVal]) => {
+      let stock = 0;
+      let precio = p.precioUnidad || 0;
+      if (typeof tVal === 'object' && tVal !== null) {
+        stock = tVal.stock || 0;
+        precio = tVal.precio || p.precioUnidad || 0;
+      } else {
+        stock = parseInt(tVal) || 0;
+        precio = p.precioUnidad || 0;
+      }
+      const disabledAttr = stock <= 0 ? 'disabled' : '';
+      selectorHtml += `
+        <button class="ml-chip-btn" ${disabledAttr} onclick="selectTalleOption(this, '${tName}', ${precio}, ${stock})">
+          ${tName}
+        </button>`;
+    });
+    selectorHtml += `</div>`;
+    
+    // Check if there's any stock at all
+    const hasAnyStock = tEntries.some(([_, tVal]) => {
+      if (typeof tVal === 'object' && tVal !== null) return (tVal.stock || 0) > 0;
+      return (parseInt(tVal) || 0) > 0;
+    });
+    isOutOfStockInitial = !hasAnyStock;
+  } else if (p.tipo === 'alimento') {
+    precioInicial = p.precioBolsa || 0;
+    selectorHtml += `<div class="ml-chips-title">Presentación</div><div class="ml-chips-grid">`;
+    const stockAlimento = p.stock ? 10 : 0;
+    selectorHtml += `
+      <button class="ml-chip-btn" onclick="selectAlimentoOption(this, 'bolsa', ${p.precioBolsa}, ${stockAlimento})">
+        Bolsa ${p.peso}kg
       </button>
-      <button class="btn-agregar" style="padding:12px;font-size:.92rem;background:var(--ambar);" onclick="addToCart(${p.id},'kg');document.getElementById('ovDetalle').remove();openCart()">
-        ⚖ Por kilo — $${p.precioKg.toLocaleString('es-AR')}/kg
-      </button>`
-  } else if (p.tipo === 'poncho' || p.tipo === 'ropa') {
-    preciosHtml = `
-      <div class="precios-wrap" style="margin-top:.8rem; grid-template-columns:1fr;">
-        <div class="precio-box" style="display:flex; justify-content:space-between; align-items:center; padding:8px 15px;">
-          <span class="lbl">Precio Unitario</span>
-          <div>
-            ${tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''}
-            <span class="val">$${p.precioUnidad.toLocaleString('es-AR')}</span>
-          </div>
-        </div>
-      </div>
-      <div style="margin-top:12px;">
-        <label style="font-size:0.8rem; font-weight:700; color:var(--gris4);">Selecciona un talle:</label>
-        <select id="modal-talle-${p.id}" class="inp" style="margin-top:4px; padding:8px;">
-          <option value="">Elegir Talle</option>
-          ${Object.entries(p.talles || {}).map(([tName, tQty]) => {
-            return tQty > 0 
-              ? `<option value="${tName}">${tName} (${tQty} disponible)</option>`
-              : `<option value="${tName}" disabled>${tName} (Sin stock)</option>`
-          }).join('')}
-        </select>
-      </div>`
-      
-    footerHtml = `
-      <button class="btn-agregar" style="padding:12px;font-size:.92rem;" onclick="const t = document.getElementById('modal-talle-${p.id}').value; if(!t){alert('Por favor selecciona un talle');return;} addToCart(${p.id},'unidad',t);document.getElementById('ovDetalle').remove();openCart()">
-        🛒 Agregar al Carrito
-      </button>`
+      <button class="ml-chip-btn" onclick="selectAlimentoOption(this, 'kg', ${p.precioKg}, ${stockAlimento})">
+        Por Kilo
+      </button>`;
+    selectorHtml += `</div>`;
+    isOutOfStockInitial = !p.stock;
   } else {
-    preciosHtml = `
-      <div class="precios-wrap" style="margin-top:.8rem; grid-template-columns:1fr;">
-        <div class="precio-box" style="display:flex; justify-content:space-between; align-items:center; padding:8px 15px;">
-          <span class="lbl">Precio Unitario</span>
-          <div>
-            ${tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''}
-            <span class="val">$${p.precioUnidad.toLocaleString('es-AR')}</span>
-          </div>
-        </div>
-      </div>`
-      
-    footerHtml = `
-      <button class="btn-agregar" style="padding:12px;font-size:.92rem;" onclick="addToCart(${p.id},'unidad');document.getElementById('ovDetalle').remove();openCart()">
-        🛒 Agregar al Carrito
-      </button>`
+    // Simple product
+    const stockQty = typeof p.stock === 'number' ? p.stock : 0;
+    isOutOfStockInitial = stockQty <= 0;
+    if (stockQty > 0) {
+      stockInfoHtml = `Stock disponible <span class="ml-stock-qty">(${stockQty} disponibles)</span>`;
+    } else {
+      stockInfoHtml = `<span style="color:var(--rojo); font-weight:700;">⚠ Sin stock disponible</span>`;
+    }
   }
+
+  // Precios tachados y descuentos
+  let precioTachadoHtml = '';
+  let descuentoHtml = '';
+  if (tieneOferta) {
+    precioTachadoHtml = `<span class="ml-precio-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>`;
+    const pct = Math.round((1 - (precioInicial / p.precioAnterior)) * 100);
+    if (pct > 0) {
+      descuentoHtml = `<span class="ml-precio-dcto">${pct}% OFF</span>`;
+    }
+  }
+
+  const disableAttr = isOutOfStockInitial ? 'disabled' : '';
 
   const ov = document.createElement('div')
   ov.className = 'overlay on'
   ov.id = 'ovDetalle'
   ov.innerHTML = `
-    <div class="modal" style="max-width:400px;">
+    <div class="modal" style="max-width:850px; width:95%;">
       <div class="modal-hdr">
-        <h2>${p.emoji || '🐾'} ${p.nombre}</h2>
+        <h2 style="font-size: 1.1rem; color: var(--gris3); display: flex; align-items: center; gap: 8px;">
+          <span>${p.emoji || '🐾'}</span> ${p.nombre}
+        </h2>
         <button class="btn-x" onclick="document.getElementById('ovDetalle').remove()">✕</button>
       </div>
-      <div class="modal-body">
-        ${imgEl}
-        ${p.marca ? `<div style="font-size:.8rem;color:var(--gris3);margin-bottom:.5rem;">${p.marca}${p.tipo === 'alimento' && p.peso ? ' · ' + p.peso + 'kg' : ''}</div>` : ''}
-        ${p.desc ? `<p class="prod-detail-desc">${p.desc}</p>` : ''}
-        ${preciosHtml}
-        ${promoDetailHtml}
-        ${!stockVal ? '<p style="color:var(--rojo);font-weight:700;margin-top:.7rem;text-align:center;">⚠ Sin stock</p>' : ''}
+      <div class="modal-body" style="padding: 20px;">
+        <div class="ml-modal-wrap">
+          <!-- Columna Izquierda: Imagen -->
+          <div class="ml-col-izq">
+            ${imgEl}
+          </div>
+          
+          <!-- Columna Derecha: Detalles -->
+          <div class="ml-col-der">
+            <div class="ml-estado">Nuevo | Destacado</div>
+            <h1 class="ml-titulo">${p.nombre}</h1>
+            
+            <div class="ml-rating">
+              <span class="ml-rating-stars">★★★★★</span>
+              <span>4.7</span>
+              <span class="ml-opiniones">(${ratingOpiniones} opiniones)</span>
+            </div>
+            
+            <div class="ml-precio-wrap">
+              ${precioTachadoHtml}
+              <div class="ml-precio-actual" id="ml-precio-display">
+                $${precioInicial.toLocaleString('es-AR')}
+                ${descuentoHtml}
+              </div>
+              <div class="ml-precio-cuotas">
+                Mismos medios de pago que <strong style="color:#00a650;">Mercado Pago</strong>
+              </div>
+            </div>
+            
+            ${p.marca ? `<div style="font-size:.85rem;color:var(--gris3);margin-top:2px;">Marca: <strong>${p.marca}</strong></div>` : ''}
+            ${p.desc ? `<p class="prod-detail-desc" style="font-size:0.88rem; line-height:1.4; color:var(--texto); margin-top:5px; margin-bottom:5px;">${p.desc}</p>` : ''}
+            
+            ${promoDetailHtml}
+            
+            <!-- Selector de variante (Chips) -->
+            <div id="ml-variant-selector-area">
+              ${selectorHtml}
+            </div>
+            
+            <!-- Stock disponible -->
+            <div class="ml-stock-disponible" id="ml-stock-display">
+              ${stockInfoHtml}
+            </div>
+            
+            <!-- Acciones de Compra -->
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+              <button class="btn-ml-comprar" id="btn-ml-buy-now" ${disableAttr} onclick="mlComprarAhora(${p.id})">
+                Comprar ahora
+              </button>
+              <button class="btn-ml-agregar" id="btn-ml-add-cart" ${disableAttr} onclick="mlAgregarCarrito(${p.id})">
+                Agregar al carrito
+              </button>
+              <button class="btn-ml-wsp" onclick="mlConsultarWsp(${p.id})">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                Consultar por WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      ${stockVal ? `<div class="modal-ftr" style="display:flex;flex-direction:column;gap:8px;">
-        ${footerHtml}
-        <button class="btn-wsp-big" onclick="wspProd(${p.id});document.getElementById('ovDetalle').remove()">
-          Consultar directamente por WhatsApp
-        </button>
-      </div>` : ''}
     </div>`
   ov.addEventListener('click', e => { if (e.target === ov) ov.remove() })
   document.body.appendChild(ov)
+
+  // Auto-select first available chip/variant by default
+  if (p.tipo === 'poncho' || p.tipo === 'ropa' || p.tipo === 'alimento') {
+    const chips = ov.querySelectorAll('.ml-chip-btn');
+    const firstEnabled = Array.from(chips).find(c => !c.disabled);
+    if (firstEnabled) {
+      firstEnabled.click();
+    } else if (chips.length > 0) {
+      chips[0].click();
+    }
+  }
 }
 
 function openAddModal(id) {
@@ -2540,7 +2985,7 @@ function wspProd(id) {
     const talle = select ? select.value : ''
     detail = talle ? ` (Talle: ${talle})` : ''
   }
-  const msg = encodeURIComponent('Hola! Quisiera consultar por: ' + p.emoji + ' ' + p.nombre + detail + '. Muchas gracias! 😊')
+  const msg = encodeURIComponent('Hola! Quisiera consultar por: ' + (p.emoji || '🐾') + ' ' + p.nombre + detail + '. Muchas gracias! 😊')
   window.open('https://wa.me/' + getWsp() + '?text=' + msg, '_blank')
 }
 
@@ -2831,7 +3276,7 @@ function onEpTipoChange(pid, tipo) {
   }
 }
 
-function addEpTalleRow(pid, nombre = '', stock = 0) {
+function addEpTalleRow(pid, nombre = '', stock = 0, precio = 0) {
   const container = document.getElementById(`ep-talles-lista-${pid}`)
   const row = document.createElement('div')
   row.className = 'talle-row'
@@ -2842,6 +3287,7 @@ function addEpTalleRow(pid, nombre = '', stock = 0) {
   row.innerHTML = `
     <input type="text" placeholder="Talle" class="inp ep-talle-nombre-${pid}" value="${nombre}" style="flex:2; padding:5px; margin-bottom:0; height:32px;">
     <input type="number" placeholder="Stock" class="inp ep-talle-stock-${pid}" value="${stock}" min="0" style="flex:1; padding:5px; margin-bottom:0; height:32px;">
+    <input type="number" placeholder="Precio ($)" class="inp ep-talle-precio-${pid}" value="${precio}" min="0" style="flex:1.5; padding:5px; margin-bottom:0; height:32px;">
     <button class="btn-danger" onclick="this.parentElement.remove()" style="padding:5px 10px; height:32px;">✕</button>
   `
   container.appendChild(row)
@@ -2870,11 +3316,21 @@ function renderTblProductos() {
 
     let tallesRows = ''
     if (p.talles && typeof p.talles === 'object') {
-      Object.entries(p.talles).forEach(([tName, tStock]) => {
+      Object.entries(p.talles).forEach(([tName, tVal]) => {
+        let stock = 0
+        let precio = 0
+        if (typeof tVal === 'object' && tVal !== null) {
+          stock = tVal.stock || 0
+          precio = tVal.precio || 0
+        } else {
+          stock = parseInt(tVal) || 0
+          precio = p.precioUnidad || 0
+        }
         tallesRows += `
           <div class="talle-row" style="display:flex; gap:8px; align-items:center; margin-top:4px;">
             <input type="text" placeholder="Talle" class="inp ep-talle-nombre-${p.id}" value="${tName}" style="flex:2; padding:5px; margin-bottom:0; height:32px;">
-            <input type="number" placeholder="Stock" class="inp ep-talle-stock-${p.id}" value="${tStock}" min="0" style="flex:1; padding:5px; margin-bottom:0; height:32px;">
+            <input type="number" placeholder="Stock" class="inp ep-talle-stock-${p.id}" value="${stock}" min="0" style="flex:1; padding:5px; margin-bottom:0; height:32px;">
+            <input type="number" placeholder="Precio ($)" class="inp ep-talle-precio-${p.id}" value="${precio}" min="0" style="flex:1.5; padding:5px; margin-bottom:0; height:32px;">
             <button class="btn-danger" onclick="this.parentElement.remove()" style="padding:5px 10px; height:32px;">✕</button>
           </div>`
       })
@@ -3018,11 +3474,13 @@ async function guardarProdSilent(id) {
   if (tipo === 'poncho' || tipo === 'ropa') {
     const names = document.querySelectorAll(`.ep-talle-nombre-${id}`)
     const stocks = document.querySelectorAll(`.ep-talle-stock-${id}`)
+    const precios = document.querySelectorAll(`.ep-talle-precio-${id}`)
     for (let i = 0; i < names.length; i++) {
       const name = names[i].value.trim()
       const stock = parseInt(stocks[i].value) || 0
+      const precio = parseFloat(precios[i].value) || 0
       if (name) {
-        talles[name] = stock
+        talles[name] = { stock, precio }
       }
     }
   }
