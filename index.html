@@ -204,14 +204,97 @@ img{max-width:100%;height:auto;}
 }
 
 /* FILTROS + SEARCH */
-.search-wrap{margin-left:auto;flex-shrink:0;position:relative;}
-.search-inp{padding:6px 12px 6px 32px;border:2px solid var(--borde);border-radius:20px;font-size:.85rem;outline:none;width:180px;transition:.2s;background:var(--blanco);color:var(--texto);}
-.search-inp:focus{border-color:var(--verde);width:220px;box-shadow: 3px 3px 0 var(--borde);}
-.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gris3);font-size:.9rem;pointer-events:none;}
-.filtros-bar::-webkit-scrollbar{display:none;}
-.filtro{padding:6px 16px;border-radius:20px;border:2px solid var(--borde);background:var(--blanco);font-size:.85rem;white-space:nowrap;transition:.15s;color:var(--texto);flex-shrink:0;}
-.filtro:hover{border-color:var(--verde);color:var(--verde);}
-.filtro.on{background:var(--verde);color:#fff;border-color:var(--verde);box-shadow: 2px 2px 0 var(--borde);}
+.filtros-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  max-width: 1100px;
+  margin: 1.5rem auto 0.5rem;
+  padding: 0 1.2rem;
+}
+.filtros-lista {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  flex: 1;
+  padding: 4px 0;
+}
+.filtros-lista::-webkit-scrollbar {
+  display: none;
+}
+.search-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.search-inp {
+  padding: 8px 12px 8px 34px;
+  border: 2px solid var(--borde);
+  border-radius: 20px;
+  font-size: .85rem;
+  outline: none;
+  width: 190px;
+  transition: .2s;
+  background: var(--blanco);
+  color: var(--texto);
+}
+.search-inp:focus {
+  border-color: var(--verde);
+  width: 240px;
+  box-shadow: 3px 3px 0 var(--borde);
+}
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gris3);
+  font-size: .9rem;
+  pointer-events: none;
+}
+.filtro {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 2px solid var(--borde);
+  background: var(--blanco);
+  font-size: .85rem;
+  white-space: nowrap;
+  transition: .15s;
+  color: var(--texto);
+  flex-shrink: 0;
+}
+.filtro:hover {
+  border-color: var(--verde);
+  color: var(--verde);
+  transform: translateY(-1px);
+}
+.filtro.on {
+  background: var(--verde);
+  color: #fff;
+  border-color: var(--verde);
+  box-shadow: 2px 2px 0 var(--borde);
+}
+
+@media(max-width: 768px) {
+  .filtros-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .filtros-lista {
+    width: 100%;
+    padding-bottom: 6px;
+  }
+  .search-wrap {
+    width: 100%;
+  }
+  .search-inp {
+    width: 100% !important;
+  }
+}
 
 /* CATÁLOGO */
 .catalogo{padding:1.2rem;max-width:1100px;margin:0 auto;}
@@ -498,6 +581,7 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
   </div>
 
   <div class="filtros-bar" id="filtrosBar">
+    <div class="filtros-lista" id="filtrosLista"></div>
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
       <input class="search-inp" type="text" id="searchInp" placeholder="Buscar producto..." oninput="onSearch(this.value)">
@@ -752,7 +836,8 @@ const defaultLocalData = {
     adminPass: "admin123"
   },
   categories: [
-    { id: "cat_alimentos", nombre: "Alimentos", emoji: "🦴" },
+    { id: "cat_alimentos_perros", nombre: "Alimentos Perros", emoji: "🐶" },
+    { id: "cat_alimentos_gatos", nombre: "Alimentos Gatos", emoji: "🐱" },
     { id: "cat_ropa", nombre: "Ropa y Ponchos", emoji: "🧥" },
     { id: "cat_juguetes", nombre: "Juguetes", emoji: "🧸" },
     { id: "cat_accesorios", nombre: "Accesorios", emoji: "🎒" },
@@ -1268,15 +1353,22 @@ const defaultLocalData = {
   ]
 }
 
+// Automatically migrate defaultLocalData food products category
+defaultLocalData.products.forEach(p => {
+  if (p.cat === 'cat_alimentos') {
+    p.cat = p.emoji === '🐱' ? 'cat_alimentos_gatos' : 'cat_alimentos_perros';
+  }
+});
+
 function loadLocalData() {
   isLocalFallback = true
   console.log("Servidor API no detectado. Iniciando en modo localStorage.")
   
-  if (localStorage.getItem('elgarage_db_version') !== '2') {
+  if (localStorage.getItem('elgarage_db_version') !== '3') {
     localStorage.removeItem('elgarage_config');
     localStorage.removeItem('elgarage_categories');
     localStorage.removeItem('elgarage_products');
-    localStorage.setItem('elgarage_db_version', '2');
+    localStorage.setItem('elgarage_db_version', '3');
   }
   
   if (!localStorage.getItem('elgarage_config')) {
@@ -1605,18 +1697,24 @@ function onSearch(val) {
 // CATÁLOGO CLIENTE
 // ================================================================
 function renderFiltros() {
+  const todosBtn = `<button class="filtro ${filtroActual === 'todos' ? 'on' : ''}" onclick="setFiltro('todos',this)">Todos</button>`
+  const alimentosAllBtn = `<button class="filtro ${filtroActual === 'alimentos_all' ? 'on' : ''}" onclick="setFiltro('alimentos_all',this)">🦴 Alimentos (Todos)</button>`
+  
   const filtrosBtns = categorias.map(c =>
     `<button class="filtro ${filtroActual === c.id ? 'on' : ''}" onclick="setFiltro('${c.id}',this)">${c.emoji} ${c.nombre}</button>`
   ).join('')
-  const todosBtn = `<button class="filtro ${filtroActual === 'todos' ? 'on' : ''}" onclick="setFiltro('todos',this)">Todos</button>`
 
-  const bar = document.getElementById('filtrosBar')
-  const searchWrap = bar.querySelector('.search-wrap')
-  bar.innerHTML = todosBtn + filtrosBtns
-  bar.appendChild(searchWrap)
+  const lista = document.getElementById('filtrosLista')
+  if (lista) {
+    lista.innerHTML = todosBtn + alimentosAllBtn + filtrosBtns
+  }
 
-  let chips = ''
-  categorias.forEach(c => { chips += `<span class="chip">${c.emoji} ${c.nombre}</span>` })
+  let chips = `<span class="chip">🦴 Alimentos</span>`
+  categorias.forEach(c => {
+    if (c.id !== 'cat_alimentos_perros' && c.id !== 'cat_alimentos_gatos') {
+      chips += `<span class="chip">${c.emoji} ${c.nombre}</span>`
+    }
+  })
   document.getElementById('heroChips').innerHTML = chips
 }
 
@@ -1762,14 +1860,20 @@ function renderCatalogo() {
   let html = ''
 
   const filtered = productos.filter(p => {
-    if (filtroActual !== 'todos' && p.cat !== filtroActual) return false
+    if (filtroActual !== 'todos') {
+      if (filtroActual === 'alimentos_all') {
+        return p.cat === 'cat_alimentos_perros' || p.cat === 'cat_alimentos_gatos'
+      } else {
+        if (p.cat !== filtroActual) return false
+      }
+    }
     if (busqueda && !p.nombre.toLowerCase().includes(busqueda) && !(p.marca || '').toLowerCase().includes(busqueda)) return false
     return true
   })
 
-  // Render Destacados first if in "Todos" tab
+  // Render Destacados first if in "Todos" or "Alimentos" tab
   const featured = filtered.filter(p => p.destacado)
-  if (filtroActual === 'todos' && featured.length > 0) {
+  if ((filtroActual === 'todos' || filtroActual === 'alimentos_all') && featured.length > 0) {
     html += `<div class="sec-label">🌟 Productos Destacados</div><div class="grid">`
     featured.forEach(p => {
       html += renderCardHtml(p)
@@ -1783,7 +1887,14 @@ function renderCatalogo() {
     byCat[p.cat].push(p)
   })
 
-  const catsToShow = filtroActual === 'todos' ? categorias : categorias.filter(c => c.id === filtroActual)
+  let catsToShow = []
+  if (filtroActual === 'todos') {
+    catsToShow = categorias
+  } else if (filtroActual === 'alimentos_all') {
+    catsToShow = categorias.filter(c => c.id === 'cat_alimentos_perros' || c.id === 'cat_alimentos_gatos')
+  } else {
+    catsToShow = categorias.filter(c => c.id === filtroActual)
+  }
 
   catsToShow.forEach(cat => {
     const items = byCat[cat.id]
