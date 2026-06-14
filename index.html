@@ -213,12 +213,36 @@ img{max-width:100%;height:auto;}
   margin: 1.5rem auto 0.5rem;
   padding: 0 1.2rem;
 }
+.filtros-lista-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  margin-right: 12px;
+}
+.filtros-fade-left, .filtros-fade-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  pointer-events: none;
+  z-index: 2;
+}
+.filtros-fade-left {
+  left: 0;
+  background: linear-gradient(to right, var(--gris1), transparent);
+}
+.filtros-fade-right {
+  right: 0;
+  background: linear-gradient(to left, var(--gris1), transparent);
+}
 .filtros-lista {
   display: flex;
   align-items: center;
   gap: 8px;
   overflow-x: auto;
-  flex: 1;
+  width: 100%;
   padding: 4px 0 8px;
   scrollbar-width: thin;
   scrollbar-color: var(--borde) transparent;
@@ -683,7 +707,11 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
   </div>
 
   <div class="filtros-bar" id="filtrosBar">
-    <div class="filtros-lista" id="filtrosLista"></div>
+    <div class="filtros-lista-wrapper">
+      <div class="filtros-lista" id="filtrosLista"></div>
+      <div class="filtros-fade-left"></div>
+      <div class="filtros-fade-right"></div>
+    </div>
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
       <input class="search-inp" type="search" id="searchInp" placeholder="Buscar producto..." oninput="onSearch(this.value)" autocomplete="off" name="search-query">
