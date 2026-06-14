@@ -39,7 +39,7 @@ function readLocalDB() {
         nombre: "El Garage de la Mascota",
         whatsapp: "5491126976444",
         instagram: "elgaragedelamascota",
-        bienvenida: "Alimentos de calidad para perros, gatos y más. Precios directos, con atención personalizada.",
+        bienvenida: "Alimentos de calidad para perros y gatos. Precios directos, con atención personalizada.",
         adminUser: "admin",
         adminPass: "admin123"
       },

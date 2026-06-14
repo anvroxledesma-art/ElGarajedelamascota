@@ -109,6 +109,7 @@ img{max-width:100%;height:auto;}
   justify-content: center;
   font-size: 1.05rem;
   cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
 }
 .btn-theme-toggle:hover {
   background: rgba(255, 255, 255, 0.22);
@@ -124,7 +125,19 @@ img{max-width:100%;height:auto;}
 .header-right{display:flex;align-items:center;gap:8px;}
 .btn-cart-header{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 13px;border-radius:20px;font-size:.85rem;display:flex;align-items:center;gap:6px;transition:.2s;}
 .btn-cart-header:hover{background:rgba(255,255,255,.28);}
-.cart-badge{background:var(--ambar3);color:var(--verdeOsc);border-radius:50%;width:19px;height:19px;font-size:.72rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;}
+.cart-badge {
+  background: var(--ambar3);
+  color: var(--verdeOsc);
+  border-radius: 50%;
+  width: 19px;
+  height: 19px;
+  font-size: .72rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
 .btn-admin-top{background:transparent;border:1px solid rgba(255,255,255,.4);color:rgba(255,255,255,.85);padding:5px 11px;border-radius:7px;font-size:.78rem;transition:.2s;}
 .btn-admin-top:hover{background:rgba(255,255,255,.12);color:#fff;}
 
@@ -435,6 +448,22 @@ img{max-width:100%;height:auto;}
 .admin-wrap{display:none;min-height:100vh;background:var(--gris1);color:var(--texto);}
 .admin-wrap.on{display:block;}
 .cliente-wrap{display:block;}
+@media(min-width: 1200px) {
+  .cliente-wrap {
+    max-width: 1150px;
+    margin: 2rem auto;
+    border: 3px solid var(--borde);
+    border-radius: 24px;
+    box-shadow: 8px 8px 0 var(--borde);
+    background-color: var(--blanco);
+  }
+  .site-header {
+    border-radius: 20px 20px 0 0;
+  }
+  .site-footer {
+    border-radius: 0 0 20px 20px;
+  }
+}
 .cliente-wrap.off{display:none;}
 
 .admin-hdr{background:var(--verdeOsc);color:#fff;padding:.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
@@ -629,6 +658,70 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
   0% { transform: scale(1) translateY(0); }
   100% { transform: scale(1.15) translateY(1.5px); }
 }
+
+/* DESKTOP FLOATING DECORATIONS */
+.desktop-decor {
+  display: none;
+}
+@media (min-width: 1480px) {
+  .desktop-decor {
+    display: block;
+    position: fixed;
+    width: 200px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .desktop-decor-card {
+    background: var(--blanco);
+    border: 2.5px solid var(--borde);
+    border-radius: 12px;
+    box-shadow: 4px 4px 0 var(--borde);
+    padding: 10px 14px;
+    margin-bottom: 24px;
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--texto);
+    text-align: center;
+    transition: transform 0.3s ease, background-color 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+  }
+  .decor-left {
+    left: calc(50% - 800px);
+    top: 200px;
+  }
+  .decor-right {
+    right: calc(50% - 800px);
+    top: 240px;
+  }
+  @keyframes floatDecor {
+    0%, 100% { transform: translateY(0) rotate(var(--rot)); }
+    50% { transform: translateY(-8px) rotate(var(--rot)); }
+  }
+}
+
+.toy-mouse {
+  transform-origin: 32px 142px;
+  transition: transform 0.2s ease-in-out;
+}
+.pet-svg:hover .toy-mouse {
+  animation: wiggleMouse 0.5s ease-in-out infinite alternate;
+}
+@keyframes wiggleMouse {
+  0% { transform: rotate(-5deg); }
+  100% { transform: rotate(5deg); }
+}
+
+.toy-bone {
+  transform-origin: 210px 143px;
+  transition: transform 0.2s ease-in-out;
+}
+.pet-svg:hover .toy-bone {
+  animation: wiggleBone 0.6s ease-in-out infinite alternate;
+}
+@keyframes wiggleBone {
+  0% { transform: rotate(-8deg) translateY(0); }
+  100% { transform: rotate(8deg) translateY(-1px); }
+}
 </style>
 </head>
 <body>
@@ -641,6 +734,31 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
 
 <!-- ===================== VISTA CLIENTE ===================== -->
 <div class="cliente-wrap" id="clienteWrap">
+
+  <!-- Decoraciones Flotantes para Pantallas Grandes (Desktop) -->
+  <div class="desktop-decor decor-left">
+    <div class="desktop-decor-card" style="--rot: -5deg; animation: floatDecor 4s ease-in-out infinite;">
+      🐶 ¡Solo Perros y Gatos!
+    </div>
+    <div class="desktop-decor-card" style="--rot: 3deg; animation: floatDecor 4.5s ease-in-out infinite 0.5s;">
+      🚚 Envíos a Domicilio
+    </div>
+    <div class="desktop-decor-card" style="--rot: -2deg; animation: floatDecor 5s ease-in-out infinite 1s;">
+      💬 Escribinos al WhatsApp
+    </div>
+  </div>
+  
+  <div class="desktop-decor decor-right">
+    <div class="desktop-decor-card" style="--rot: 4deg; animation: floatDecor 4.2s ease-in-out infinite 0.2s;">
+      🐱 Calidad Seleccionada
+    </div>
+    <div class="desktop-decor-card" style="--rot: -6deg; animation: floatDecor 4.8s ease-in-out infinite 0.7s;">
+      💰 Precios de Locos
+    </div>
+    <div class="desktop-decor-card" style="--rot: 2deg; animation: floatDecor 5.2s ease-in-out infinite 1.2s;">
+      ⭐ 100% de Confianza
+    </div>
+  </div>
 
   <header class="site-header">
     <div class="logo-wrap">
@@ -663,7 +781,7 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
     <div class="hero-content">
       <div class="hero-text">
         <h1>🐾 <span id="heroTitle">El Garage de la Mascota</span></h1>
-        <p id="heroDesc">Alimentos de calidad para perros, gatos y más. Precios directos, con atención personalizada.</p>
+        <p id="heroDesc">Alimentos de calidad para perros y gatos. Precios directos, con atención personalizada.</p>
         <div class="hero-chips" id="heroChips"></div>
         <div class="hero-promo-banner" id="heroPromoBanner"></div>
         <div class="social-bar">
@@ -678,6 +796,24 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
       </div>
       <div class="hero-illustration">
         <svg viewBox="0 0 240 160" class="pet-svg">
+          <!-- Toy Mouse -->
+          <g class="toy-mouse">
+            <!-- Tail -->
+            <path d="M 15 145 Q 22 148 25 143" fill="none" stroke="var(--borde)" stroke-width="1.5" />
+            <!-- Body -->
+            <ellipse cx="32" cy="142" rx="8" ry="5" fill="var(--gris2)" stroke="var(--borde)" stroke-width="2" />
+            <!-- Ears -->
+            <circle cx="28" cy="138" r="3" fill="var(--gris2)" stroke="var(--borde)" stroke-width="2" />
+            <circle cx="34" cy="138" r="2.5" fill="#fbcfe8" stroke="var(--borde)" stroke-width="1.5" />
+            <!-- Nose/Whiskers -->
+            <circle cx="40" cy="142" r="1.5" fill="var(--borde)" />
+            <!-- Eye -->
+            <circle cx="36" cy="141" r="1.0" fill="var(--borde)" />
+          </g>
+          <!-- Dog Bone -->
+          <g class="toy-bone">
+            <path d="M 205 138 L 215 138 C 218 135 222 135 224 138 C 226 141 224 145 222 144 C 224 147 221 151 217 149 L 205 149 C 201 151 198 147 200 144 C 198 145 196 141 198 138 C 200 135 204 135 207 138 Z" fill="var(--blanco)" stroke="var(--borde)" stroke-width="2" />
+          </g>
           <!-- Cat -->
           <g class="cat-group">
             <path d="M50,140 C50,85 85,75 105,140 Z" fill="var(--blanco)" stroke="var(--borde)" stroke-width="2.5" />
@@ -944,6 +1080,11 @@ let isLocalFallback = false
 
 // Theme Helper Logic
 function toggleTheme() {
+  const btn = document.getElementById('themeToggleBtn');
+  if (btn) {
+    btn.style.transform = 'scale(1.2) rotate(360deg)';
+    setTimeout(() => { btn.style.transform = 'none'; }, 400);
+  }
   const isDark = document.documentElement.classList.toggle('dark-mode')
   localStorage.setItem('theme', isDark ? 'dark' : 'light')
   actualizarIconoTema()
@@ -961,7 +1102,7 @@ const defaultLocalData = {
     nombre: "El Garage de la Mascota",
     whatsapp: "5491126976444",
     instagram: "elgaragedelamascota",
-    bienvenida: "Alimentos de calidad para perros, gatos y más. Precios directos, con atención personalizada.",
+    bienvenida: "Alimentos de calidad para perros y gatos. Precios directos, con atención personalizada.",
     adminUser: "admin",
     adminPass: "admin123"
   },
@@ -1736,7 +1877,12 @@ function agregarRopaDesdeCard(id) {
 }
 
 function updateBadge() {
-  document.getElementById('cartBadge').textContent = carrito.reduce((a, b) => a + b.qty, 0)
+  const badge = document.getElementById('cartBadge');
+  if (badge) {
+    badge.textContent = carrito.reduce((a, b) => a + b.qty, 0);
+    badge.style.transform = 'scale(1.4) translateY(-2px)';
+    setTimeout(() => { badge.style.transform = 'none'; }, 200);
+  }
 }
 
 function openCart() { document.getElementById('ovCart').classList.add('on'); renderCart() }
