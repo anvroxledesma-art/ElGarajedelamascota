@@ -946,9 +946,10 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
       <div class="acard">
         <div class="acard-hdr" style="flex-wrap: wrap; gap: 10px;">
           <h3>📦 Editar productos</h3>
-          <div style="display: flex; gap: 8px; align-items: center; width: 100%; max-width: 350px;">
+          <div style="display: flex; gap: 8px; align-items: center; width: 100%; max-width: 500px;">
             <input type="text" id="admin-busqueda-prods" placeholder="🔍 Buscar por nombre, marca o ID..." oninput="renderTblProductos()" class="inp" style="margin-bottom: 0; padding: 7px 10px; font-size: 0.85rem; height: 36px; flex: 1;">
             <button class="btn-save" onclick="recargarProductosAdmin()" style="margin-bottom: 0; height: 36px; padding: 0 12px; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">🔄 Recargar</button>
+            <button class="btn-save" id="btnGuardarTodos" onclick="guardarTodos()" style="margin-bottom: 0; height: 36px; padding: 0 12px; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; background-color: var(--verdeOsc);">💾 Guardar todo</button>
           </div>
         </div>
         <div id="tblProductosWrap"></div>
@@ -3010,126 +3011,176 @@ function updateRecEnTabla(id) {
   document.getElementById('rec-' + id).innerHTML = renderRec(recPrecio(costo, peso))
 }
 
-async function guardarProd(id) {
-  const btn = document.querySelector(`[data-pid="${id}"] .btn-save`)
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando...' }
-  try {
-    const tipo = document.getElementById('ep-tipo-' + id).value
-    
-    const talles = {}
-    if (tipo === 'poncho' || tipo === 'ropa') {
-      const names = document.querySelectorAll(`.ep-talle-nombre-${id}`)
-      const stocks = document.querySelectorAll(`.ep-talle-stock-${id}`)
-      for (let i = 0; i < names.length; i++) {
-        const name = names[i].value.trim()
-        const stock = parseInt(stocks[i].value) || 0
-        if (name) {
-          talles[name] = stock
-        }
+async function guardarProdSilent(id) {
+  const tipo = document.getElementById('ep-tipo-' + id).value
+  
+  const talles = {}
+  if (tipo === 'poncho' || tipo === 'ropa') {
+    const names = document.querySelectorAll(`.ep-talle-nombre-${id}`)
+    const stocks = document.querySelectorAll(`.ep-talle-stock-${id}`)
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i].value.trim()
+      const stock = parseInt(stocks[i].value) || 0
+      if (name) {
+        talles[name] = stock
       }
     }
-    
-    let stockVal = false
-    if (tipo === 'poncho' || tipo === 'ropa') {
-      stockVal = Object.values(talles).some(s => s > 0)
-    } else if (tipo === 'alimento') {
-      stockVal = document.getElementById('ep-stock-' + id).checked
+  }
+  
+  let stockVal = false
+  if (tipo === 'poncho' || tipo === 'ropa') {
+    stockVal = Object.values(talles).some(s => s > 0)
+  } else if (tipo === 'alimento') {
+    stockVal = document.getElementById('ep-stock-' + id).checked
+  } else {
+    stockVal = parseInt(document.getElementById('ep-stock-general-' + id).value) || 0
+  }
+
+  const body = {
+    id: id,
+    nombre: document.getElementById('ep-nombre-' + id).value.trim(),
+    marca: document.getElementById('ep-marca-' + id).value.trim(),
+    cat: document.getElementById('ep-cat-' + id).value,
+    emoji: document.getElementById('ep-emoji-' + id).value.trim() || '🐾',
+    tipo: tipo,
+    costo: parseFloat(document.getElementById('ep-costo-' + id).value) || 0,
+    peso: tipo === 'alimento' ? (parseFloat(document.getElementById('ep-peso-' + id).value) || 0) : 0,
+    precioBolsa: tipo === 'alimento' ? (parseFloat(document.getElementById('ep-bolsa-' + id).value) || 0) : 0,
+    precioKg: tipo === 'alimento' ? (parseFloat(document.getElementById('ep-kg-' + id).value) || 0) : 0,
+    precioUnidad: tipo !== 'alimento' ? (parseFloat(document.getElementById('ep-unidad-' + id).value) || 0) : 0,
+    precioAnterior: parseFloat(document.getElementById('ep-ant-' + id).value) || 0,
+    desc: document.getElementById('ep-desc-' + id).value.trim(),
+    imageUrl: document.getElementById('ep-image-url-' + id).value.trim(),
+    stock: stockVal,
+    talles: talles,
+    promoEnabled: document.getElementById('ep-promo-enabled-' + id).checked,
+    promoQty: parseInt(document.getElementById('ep-promo-qty-' + id).value) || 0,
+    promoPrice: parseFloat(document.getElementById('ep-promo-price-' + id).value) || 0,
+    destacado: document.getElementById('ep-destacado-' + id).checked,
+    oculto: document.getElementById('ep-oculto-' + id).checked,
+    oferta: document.getElementById('ep-oferta-' + id).checked,
+    nuevo: document.getElementById('ep-nuevo-' + id).checked,
+    hasImage: false
+  }
+
+  // Determine the correct hasImage state BEFORE saving
+  const currentProd = adminProds.find(x => x.id === id)
+  if (pendingPhotos[id]) {
+    // A new photo is about to be uploaded
+    body.hasImage = true
+  } else if (removedPhotos.has(id)) {
+    // The photo is being removed
+    body.hasImage = false
+  } else if (currentProd && currentProd.hasImage) {
+    // Preserve existing image state
+    body.hasImage = true
+  }
+
+  if (isLocalFallback) {
+    const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
+    const idx = localProds.findIndex(x => x.id === id)
+    if (idx !== -1) {
+      if (!pendingPhotos[id] && !removedPhotos.has(id)) {
+        body.hasImage = localProds[idx].hasImage || false
+      }
+      if (localProds[idx].localImage && !removedPhotos.has(id)) {
+        body.localImage = localProds[idx].localImage
+      }
+      localProds[idx] = body
+      localStorage.setItem('elgarage_products', JSON.stringify(localProds))
+    }
+  } else {
+    const res = await apiFetch(`/api/products/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    if (!res.ok) throw new Error('Error al guardar')
+  }
+
+  if (pendingPhotos[id]) {
+    if (isLocalFallback) {
+      await savePhotoLocally(id, pendingPhotos[id])
     } else {
-      stockVal = parseInt(document.getElementById('ep-stock-general-' + id).value) || 0
+      await subirFoto(id, pendingPhotos[id])
     }
-
-    const body = {
-      id: id,
-      nombre: document.getElementById('ep-nombre-' + id).value.trim(),
-      marca: document.getElementById('ep-marca-' + id).value.trim(),
-      cat: document.getElementById('ep-cat-' + id).value,
-      emoji: document.getElementById('ep-emoji-' + id).value.trim() || '🐾',
-      tipo: tipo,
-      costo: parseFloat(document.getElementById('ep-costo-' + id).value) || 0,
-      peso: tipo === 'alimento' ? (parseFloat(document.getElementById('ep-peso-' + id).value) || 0) : 0,
-      precioBolsa: tipo === 'alimento' ? (parseFloat(document.getElementById('ep-bolsa-' + id).value) || 0) : 0,
-      precioKg: tipo === 'alimento' ? (parseFloat(document.getElementById('ep-kg-' + id).value) || 0) : 0,
-      precioUnidad: tipo !== 'alimento' ? (parseFloat(document.getElementById('ep-unidad-' + id).value) || 0) : 0,
-      precioAnterior: parseFloat(document.getElementById('ep-ant-' + id).value) || 0,
-      desc: document.getElementById('ep-desc-' + id).value.trim(),
-      imageUrl: document.getElementById('ep-image-url-' + id).value.trim(),
-      stock: stockVal,
-      talles: talles,
-      promoEnabled: document.getElementById('ep-promo-enabled-' + id).checked,
-      promoQty: parseInt(document.getElementById('ep-promo-qty-' + id).value) || 0,
-      promoPrice: parseFloat(document.getElementById('ep-promo-price-' + id).value) || 0,
-      destacado: document.getElementById('ep-destacado-' + id).checked,
-      oculto: document.getElementById('ep-oculto-' + id).checked,
-      oferta: document.getElementById('ep-oferta-' + id).checked,
-      nuevo: document.getElementById('ep-nuevo-' + id).checked,
-      hasImage: false
-    }
-
-    // Determine the correct hasImage state BEFORE saving
-    const currentProd = adminProds.find(x => x.id === id)
-    if (pendingPhotos[id]) {
-      // A new photo is about to be uploaded
-      body.hasImage = true
-    } else if (removedPhotos.has(id)) {
-      // The photo is being removed
-      body.hasImage = false
-    } else if (currentProd && currentProd.hasImage) {
-      // Preserve existing image state
-      body.hasImage = true
-    }
-
+    delete pendingPhotos[id]
+  }
+  if (removedPhotos.has(id)) {
     if (isLocalFallback) {
       const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
       const idx = localProds.findIndex(x => x.id === id)
       if (idx !== -1) {
-        if (!pendingPhotos[id] && !removedPhotos.has(id)) {
-          body.hasImage = localProds[idx].hasImage || false
-        }
-        if (localProds[idx].localImage && !removedPhotos.has(id)) {
-          body.localImage = localProds[idx].localImage
-        }
-        localProds[idx] = body
+        localProds[idx].hasImage = false
+        delete localProds[idx].localImage
         localStorage.setItem('elgarage_products', JSON.stringify(localProds))
       }
     } else {
-      const res = await apiFetch(`/api/products/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      })
-      if (!res.ok) throw new Error('Error al guardar')
+      await apiFetch(`/api/images/${id}`, { method: 'DELETE' })
     }
+    removedPhotos.delete(id)
+  }
+  return true
+}
 
-    if (pendingPhotos[id]) {
-      if (isLocalFallback) {
-        await savePhotoLocally(id, pendingPhotos[id])
-      } else {
-        await subirFoto(id, pendingPhotos[id])
-      }
-      delete pendingPhotos[id]
+async function guardarProd(id) {
+  const btn = document.querySelector(`[data-pid="${id}"] .btn-save`)
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando...' }
+  try {
+    const ok = await guardarProdSilent(id)
+    if (ok) {
+      toast('✓ Producto guardado')
+      await recargarProductosAdmin()
     }
-    if (removedPhotos.has(id)) {
-      if (isLocalFallback) {
-        const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
-        const idx = localProds.findIndex(x => x.id === id)
-        if (idx !== -1) {
-          localProds[idx].hasImage = false
-          delete localProds[idx].localImage
-          localStorage.setItem('elgarage_products', JSON.stringify(localProds))
-        }
-      } else {
-        await apiFetch(`/api/images/${id}`, { method: 'DELETE' })
-      }
-      removedPhotos.delete(id)
-    }
-
-    toast('✓ ' + body.nombre + ' guardado')
-    await recargarProductosAdmin()
   } catch (err) {
     console.error(err)
     toast('Error al guardar el producto', true)
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar' }
+  }
+}
+
+async function guardarTodos() {
+  const btn = document.getElementById('btnGuardarTodos')
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando todo...' }
+  try {
+    const cards = document.querySelectorAll('.acard')
+    const ids = Array.from(cards).map(c => parseInt(c.getAttribute('data-pid'))).filter(id => !isNaN(id))
+    
+    if (ids.length === 0) {
+      toast('No hay productos para guardar')
+      return
+    }
+    
+    let guardados = 0
+    let errores = 0
+    
+    // Guardamos en secuencia para no saturar al servidor de Render con peticiones simultáneas
+    for (const id of ids) {
+      try {
+        const ok = await guardarProdSilent(id)
+        if (ok) {
+          guardados++
+        } else {
+          errores++
+        }
+      } catch (e) {
+        console.error("Error al guardar producto ID " + id, e)
+        errores++
+      }
+    }
+    
+    if (errores > 0) {
+      toast(`Se guardaron ${guardados} productos, pero fallaron ${errores}`, true)
+    } else {
+      toast(`✓ Se guardaron los ${guardados} productos con éxito`)
+    }
+    await recargarProductosAdmin()
+  } catch (err) {
+    console.error(err)
+    toast('Error al guardar todos los productos', true)
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar todo' }
   }
 }
 
