@@ -1,0 +1,2757 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Garage de la Mascota</title>
+<style>
+:root {
+  --verde:#2d6a1f;--verde2:#3d8a2a;--verde3:#e8f5e0;--verdeOsc:#1a4011;
+  --ambar:#c17f24;--ambar2:#faecd6;--ambar3:#f5c842;
+  --rojo:#c0392b;--rojo2:#fdecea;
+  --gris1:#f7f6f2;--gris2:#e9e7e0;--gris3:#a8a49a;--gris4:#4a4740;
+  --blanco:#ffffff;--texto:#2c2a26;--borde:#ddd9d0;
+  --sombra:0 2px 12px rgba(0,0,0,0.09);
+  --radio:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gris1);color:var(--texto);min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+img{max-width:100%;height:auto;}
+
+/* HEADER */
+.site-header{background:var(--verde);color:#fff;padding:0 1rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.18);}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{font-size:1.8rem;line-height:1;}
+.logo-name{font-size:1.05rem;font-weight:800;line-height:1.2;}
+.logo-sub{font-size:0.65rem;opacity:.75;letter-spacing:.8px;text-transform:uppercase;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.btn-cart-header{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 13px;border-radius:20px;font-size:.85rem;display:flex;align-items:center;gap:6px;transition:.2s;}
+.btn-cart-header:hover{background:rgba(255,255,255,.28);}
+.cart-badge{background:var(--ambar3);color:var(--verdeOsc);border-radius:50%;width:19px;height:19px;font-size:.72rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;}
+.btn-admin-top{background:transparent;border:1px solid rgba(255,255,255,.4);color:rgba(255,255,255,.85);padding:5px 11px;border-radius:7px;font-size:.78rem;transition:.2s;}
+.btn-admin-top:hover{background:rgba(255,255,255,.12);color:#fff;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--verdeOsc) 0%,var(--verde) 100%);color:#fff;padding:2.5rem 1.2rem 2rem;text-align:center;}
+.hero h1{font-size:1.9rem;font-weight:800;margin-bottom:.4rem;line-height:1.2;}
+.hero p{font-size:.95rem;opacity:.88;max-width:440px;margin:.3rem auto 1.2rem;}
+.hero-chips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;}
+.chip{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:5px 13px;border-radius:20px;font-size:.8rem;}
+.social-bar{display:flex;justify-content:center;gap:10px;margin-top:1rem;}
+.btn-social{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:20px;font-size:.82rem;font-weight:600;border:none;cursor:pointer;transition:.2s;}
+.btn-wsp-social{background:#25D366;color:#fff;}
+.btn-wsp-social:hover{background:#1ebe5d;}
+.btn-ig-social{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;}
+.btn-ig-social:hover{opacity:.9;}
+
+/* FILTROS + SEARCH */
+.filtros-bar{background:#fff;border-bottom:1px solid var(--borde);padding:.7rem 1rem;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;position:sticky;top:60px;z-index:90;align-items:center;}
+.filtros-bar::-webkit-scrollbar{display:none;}
+.filtro{padding:6px 16px;border-radius:20px;border:1.5px solid var(--borde);background:#fff;font-size:.85rem;white-space:nowrap;transition:.15s;color:var(--texto);flex-shrink:0;}
+.filtro:hover{border-color:var(--verde);color:var(--verde);}
+.filtro.on{background:var(--verde);color:#fff;border-color:var(--verde);}
+.search-wrap{margin-left:auto;flex-shrink:0;position:relative;}
+.search-inp{padding:6px 12px 6px 32px;border:1.5px solid var(--borde);border-radius:20px;font-size:.85rem;outline:none;width:180px;transition:.2s;background:#fff;}
+.search-inp:focus{border-color:var(--verde);width:220px;}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gris3);font-size:.9rem;pointer-events:none;}
+
+/* CATÁLOGO */
+.catalogo{padding:1.2rem;max-width:1100px;margin:0 auto;}
+.sec-label{font-size:1rem;font-weight:700;color:var(--verde);margin:1.2rem 0 .8rem;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--borde);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+
+/* CARD PRODUCTO */
+.card{background:#fff;border-radius:var(--radio);border:1px solid var(--borde);box-shadow:var(--sombra);overflow:hidden;transition:.2s;display:flex;flex-direction:column;}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.12);}
+.card-img{height:140px;overflow:hidden;background:var(--verde3);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;}
+.card-img img{width:100%;height:100%;object-fit:cover;}
+.card-img-placeholder{font-size:3.2rem;}
+.badge-nuevo{position:absolute;top:8px;left:8px;background:var(--ambar3);color:var(--verdeOsc);font-size:.68rem;font-weight:800;padding:3px 8px;border-radius:10px;}
+.badge-oferta{position:absolute;top:8px;right:8px;background:#e74c3c;color:#fff;font-size:.68rem;font-weight:800;padding:3px 8px;border-radius:10px;}
+.badge-sinstock{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem;}
+.card-body{padding:.85rem;flex:1;display:flex;flex-direction:column;gap:6px;}
+.card-nombre{font-weight:700;font-size:.95rem;line-height:1.3;cursor:pointer;}
+.card-nombre:hover{color:var(--verde);}
+.card-marca{font-size:.75rem;color:var(--gris3);}
+.card-desc-preview{font-size:.75rem;color:var(--gris3);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.precios-wrap{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:.2rem 0;}
+.precio-box{background:var(--gris1);border-radius:8px;padding:5px 7px;text-align:center;}
+.precio-box .lbl{font-size:.62rem;color:var(--gris3);display:block;text-transform:uppercase;letter-spacing:.3px;}
+.precio-box .val{font-size:1rem;font-weight:800;color:var(--verde);display:block;}
+.precio-box .val-tachado{font-size:.75rem;color:var(--gris3);text-decoration:line-through;display:block;}
+.card-acciones{display:flex;gap:6px;margin-top:auto;}
+.btn-agregar{flex:1;padding:8px;background:var(--verde);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;transition:.2s;}
+.btn-agregar:hover{background:var(--verde2);}
+.btn-agregar:disabled{background:var(--borde);color:var(--gris3);cursor:default;}
+.btn-wsp-prod{padding:8px 10px;background:#25D366;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;transition:.2s;}
+.btn-wsp-prod:hover{background:#1ebe5d;}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(247,246,242,.85);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.loading-overlay.hidden{display:none;}
+.spinner{width:40px;height:40px;border:4px solid var(--verde3);border-top-color:var(--verde);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{color:var(--verde);font-size:.9rem;font-weight:600;}
+
+/* FOOTER */
+.site-footer{background:var(--verde);color:rgba(255,255,255,.75);text-align:center;padding:1.5rem 1rem;font-size:.82rem;margin-top:2rem;}
+.site-footer strong{color:#fff;}
+
+/* OVERLAYS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center;padding:.8rem;}
+.overlay.on{display:flex;}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:490px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.modal-hdr{padding:1rem 1.2rem;border-bottom:1px solid var(--borde);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0;z-index:1;}
+.modal-hdr h2{font-size:1rem;font-weight:700;}
+.btn-x{background:none;border:none;font-size:1.3rem;color:var(--gris3);padding:4px;border-radius:6px;line-height:1;}
+.btn-x:hover{background:var(--gris1);}
+.modal-body{padding:1rem 1.2rem;}
+.modal-ftr{padding:.9rem 1.2rem;border-top:1px solid var(--borde);}
+
+/* DETAIL MODAL */
+.prod-detail-img{width:100%;height:200px;object-fit:cover;border-radius:10px;background:var(--verde3);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:4rem;margin-bottom:.8rem;}
+.prod-detail-img img{width:100%;height:100%;object-fit:cover;}
+.prod-detail-desc{font-size:.9rem;color:var(--gris4);line-height:1.6;margin:.5rem 0;}
+
+/* CARRITO */
+.cart-item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--gris1);}
+.cart-item:last-child{border-bottom:none;}
+.cart-item-img{width:42px;height:42px;border-radius:8px;object-fit:cover;background:var(--verde3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;overflow:hidden;}
+.cart-item-img img{width:100%;height:100%;object-fit:cover;}
+.cart-item-info{flex:1;min-width:0;}
+.cart-item-nombre{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cart-item-det{font-size:.74rem;color:var(--gris3);}
+.qty-ctrl{display:flex;align-items:center;gap:4px;}
+.qty-btn{width:25px;height:25px;border:1px solid var(--borde);background:#fff;border-radius:6px;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:.15s;}
+.qty-btn:hover{border-color:var(--verde);}
+.qty-n{font-size:.88rem;font-weight:700;min-width:18px;text-align:center;}
+.cart-precio{font-size:.95rem;font-weight:700;color:var(--verde);white-space:nowrap;}
+.btn-del{background:none;border:none;color:#e74c3c;font-size:1.1rem;padding:3px;}
+.btn-del:hover{color:var(--rojo);}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.2rem;right:1.2rem;background:var(--verde);color:#fff;padding:9px 16px;border-radius:10px;font-size:.88rem;font-weight:600;z-index:600;box-shadow:0 4px 20px rgba(0,0,0,.2);transform:translateY(70px);opacity:0;transition:.3s;pointer-events:none;}
+.toast.on{transform:translateY(0);opacity:1;}
+.toast.err{background:var(--rojo);}
+
+/* BTN WSP GRANDE */
+.btn-wsp-big{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;transition:.2s;text-decoration:none;}
+.btn-wsp-big:hover{background:#1ebe5d;}
+.btn-vaciar{background:none;border:1px solid var(--borde);padding:7px 14px;border-radius:8px;font-size:.82rem;color:var(--gris3);transition:.2s;}
+.btn-vaciar:hover{border-color:var(--rojo);color:var(--rojo);}
+.carrito-vacio{text-align:center;padding:2.5rem 1rem;}
+.carrito-vacio div{font-size:2.8rem;margin-bottom:.5rem;}
+.carrito-vacio p{color:var(--gris3);font-size:.9rem;}
+
+/* LOGIN ADMIN */
+.login-box{background:#fff;border-radius:16px;padding:2rem 1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.login-box .icon{font-size:2.5rem;margin-bottom:.5rem;}
+.login-box h2{font-size:1.2rem;font-weight:800;color:var(--verde);margin-bottom:.3rem;}
+.login-box p{font-size:.82rem;color:var(--gris3);margin-bottom:1.2rem;}
+.inp{width:100%;padding:9px 12px;border:1.5px solid var(--borde);border-radius:8px;font-size:.92rem;margin-bottom:8px;outline:none;transition:.2s;}
+.inp:focus{border-color:var(--verde);}
+.btn-prim{width:100%;padding:10px;background:var(--verde);color:#fff;border:none;border-radius:8px;font-size:.92rem;font-weight:700;transition:.2s;}
+.btn-prim:hover{background:var(--verde2);}
+.btn-prim:disabled{opacity:.6;cursor:default;}
+.err-msg{color:var(--rojo);font-size:.8rem;margin-top:5px;display:none;}
+.btn-cancel-login{background:none;border:none;color:var(--gris3);font-size:.82rem;margin-top:8px;text-decoration:underline;cursor:pointer;}
+
+/* ===== PANEL ADMIN ===== */
+.admin-wrap{display:none;min-height:100vh;background:#f0efe9;}
+.admin-wrap.on{display:block;}
+.cliente-wrap{display:block;}
+.cliente-wrap.off{display:none;}
+
+.admin-hdr{background:var(--verdeOsc);color:#fff;padding:.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.admin-hdr h1{font-size:1rem;font-weight:800;}
+.admin-hdr span{font-size:.75rem;opacity:.7;}
+.btn-salir{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 14px;border-radius:8px;font-size:.82rem;transition:.2s;}
+.btn-salir:hover{background:rgba(255,255,255,.25);}
+
+.admin-tabs{background:#fff;border-bottom:1px solid var(--borde);padding:0 1rem;display:flex;overflow-x:auto;scrollbar-width:none;}
+.admin-tabs::-webkit-scrollbar{display:none;}
+.atab{padding:13px 17px;border:none;background:none;font-size:.83rem;font-weight:600;color:var(--gris3);border-bottom:2.5px solid transparent;white-space:nowrap;transition:.15s;}
+.atab:hover{color:var(--verde);}
+.atab.on{color:var(--verde);border-bottom-color:var(--verde);}
+
+.admin-cont{padding:1.2rem;max-width:960px;margin:0 auto;}
+.asec{display:none;}
+.asec.on{display:block;}
+
+/* CARDS ADMIN */
+.acard{background:#fff;border-radius:var(--radio);border:1px solid var(--borde);padding:1.1rem;margin-bottom:1rem;}
+.acard-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;flex-wrap:wrap;gap:8px;}
+.acard-hdr h3{font-size:.95rem;font-weight:700;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin-bottom:1rem;}
+.stat{background:#fff;border:1px solid var(--borde);border-radius:10px;padding:.9rem;text-align:center;}
+.stat-n{font-size:1.5rem;font-weight:800;color:var(--verde);}
+.stat-l{font-size:.72rem;color:var(--gris3);margin-top:2px;}
+
+/* TABLA PRODUCTOS */
+.tbl-wrap{overflow-x:auto;}
+table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;}
+table.tbl th{text-align:left;padding:7px 9px;background:var(--gris1);font-weight:700;color:var(--gris3);font-size:.72rem;text-transform:uppercase;white-space:nowrap;}
+table.tbl td{padding:8px 9px;border-bottom:1px solid var(--gris1);vertical-align:middle;}
+table.tbl tr:last-child td{border-bottom:none;}
+table.tbl input[type=text],table.tbl input[type=number],table.tbl select{width:100%;padding:5px 7px;border:1.5px solid var(--borde);border-radius:6px;font-size:.8rem;outline:none;min-width:80px;}
+table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
+.sw{position:relative;display:inline-block;width:38px;height:21px;}
+.sw input{opacity:0;width:0;height:0;}
+.sw-sl{position:absolute;inset:0;background:#ccc;border-radius:20px;transition:.3s;}
+.sw-sl::before{content:'';position:absolute;width:15px;height:15px;border-radius:50%;background:#fff;left:3px;top:3px;transition:.3s;}
+.sw input:checked+.sw-sl{background:var(--verde);}
+.sw input:checked+.sw-sl::before{transform:translateX(17px);}
+.sw-warn input:checked+.sw-sl{background:#e74c3c;}
+
+/* RECOMENDACIONES PRECIO */
+.rec-box{background:var(--ambar2);border:1px solid #f5c842;border-radius:9px;padding:9px 11px;font-size:.77rem;min-width:200px;}
+.rec-titulo{font-size:.7rem;font-weight:700;color:var(--ambar);margin-bottom:5px;}
+.rec-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;}
+.rec-gan{font-weight:700;color:var(--verde);font-size:.75rem;}
+
+/* FORM NUEVO PROD */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fg{display:flex;flex-direction:column;gap:3px;}
+.fg label{font-size:.76rem;font-weight:600;color:var(--gris3);}
+.fg input,.fg select,.fg textarea{padding:8px 10px;border:1.5px solid var(--borde);border-radius:8px;font-size:.88rem;outline:none;width:100%;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--verde);}
+.fg.full{grid-column:1/-1;}
+.btn-save{padding:9px 20px;background:var(--verde);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;transition:.2s;}
+.btn-save:hover{background:var(--verde2);}
+.btn-save:disabled{opacity:.6;cursor:default;}
+.btn-danger{padding:5px 11px;border:1px solid #f09595;color:#e74c3c;background:none;border-radius:7px;font-size:.78rem;transition:.15s;}
+.btn-danger:hover{background:var(--rojo2);}
+
+/* IMAGEN PROD ADMIN */
+.img-upload-area{border:2px dashed var(--borde);border-radius:8px;padding:1rem;text-align:center;cursor:pointer;transition:.2s;background:var(--gris1);}
+.img-upload-area:hover{border-color:var(--verde);}
+.img-preview{width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--borde);}
+
+/* CALCULADORA */
+.calc-result{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1rem;}
+.calc-col h4{font-size:.82rem;font-weight:700;color:var(--verdeOsc);margin-bottom:.5rem;padding-bottom:.3rem;border-bottom:2px solid var(--verde3);}
+.calc-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.8rem;border-bottom:1px solid var(--gris1);}
+.calc-row:last-child{border-bottom:none;}
+.calc-gan{color:var(--verde);font-weight:700;}
+.calc-rec{background:var(--ambar2);border-radius:6px;padding:2px 6px;font-weight:700;}
+
+/* CONFIG */
+.cfg-grupo{margin-bottom:1rem;}
+.cfg-grupo label{font-size:.78rem;font-weight:600;color:var(--gris3);display:block;margin-bottom:4px;}
+.cfg-grupo input,.cfg-grupo textarea{width:100%;padding:8px 11px;border:1.5px solid var(--borde);border-radius:8px;font-size:.9rem;outline:none;}
+.cfg-grupo input:focus,.cfg-grupo textarea:focus{border-color:var(--verde);}
+
+/* CATEGORÍAS */
+.cat-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--gris1);border-radius:8px;margin-bottom:6px;}
+.cat-item input{border:1.5px solid var(--borde);border-radius:6px;padding:4px 8px;font-size:.85rem;width:180px;outline:none;}
+.cat-item input:focus{border-color:var(--verde);}
+
+/* IMPORT/EXPORT */
+.btn-sec{padding:9px 18px;border-radius:8px;font-size:.88rem;font-weight:700;border:none;cursor:pointer;transition:.2s;}
+.btn-export{background:var(--verde3);color:var(--verdeOsc);border:1px solid var(--verde);}
+.btn-export:hover{background:#d0eebd;}
+.btn-import{background:var(--ambar2);color:#7a4e00;border:1px solid var(--ambar);}
+.btn-import:hover{background:#f5dca8;}
+
+@media(max-width:600px){
+  .hero h1{font-size:1.4rem;}
+  .form-grid{grid-template-columns:1fr;}
+  .calc-result{grid-template-columns:1fr;}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));}
+  .logo-name{font-size:.92rem;}
+  .search-inp{width:130px;}
+  .search-inp:focus{width:160px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-txt">Cargando catálogo...</div>
+</div>
+
+<!-- ===================== VISTA CLIENTE ===================== -->
+<div class="cliente-wrap" id="clienteWrap">
+
+  <header class="site-header">
+    <div class="logo-wrap">
+      <span class="logo-icon">🐾</span>
+      <div>
+        <div class="logo-name" id="cfg-logo-name">El Garage de la Mascota</div>
+        <div class="logo-sub">Alimentos para tu mascota</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-cart-header" onclick="openCart()">
+        🛒 <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+      <button class="btn-admin-top" onclick="openLogin()">⚙</button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <h1>🐾 <span id="heroTitle">El Garage de la Mascota</span></h1>
+    <p id="heroDesc">Alimentos de calidad para perros, gatos y más. Precios directos, con atención personalizada.</p>
+    <div class="hero-chips" id="heroChips"></div>
+    <div class="social-bar">
+      <button class="btn-social btn-wsp-social" onclick="abrirWspGeneral()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        WhatsApp
+      </button>
+      <button class="btn-social btn-ig-social" onclick="abrirIG()">
+        📸 Instagram
+      </button>
+    </div>
+  </div>
+
+  <div class="filtros-bar" id="filtrosBar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-inp" type="text" id="searchInp" placeholder="Buscar producto..." oninput="onSearch(this.value)">
+    </div>
+  </div>
+
+  <div class="catalogo" id="catalogoMain"></div>
+
+  <footer class="site-footer">
+    <strong id="footerNombre">El Garage de la Mascota</strong> · Alimentos para mascotas con amor 🐾<br>
+    <small style="opacity:.6">WhatsApp: <span id="footerWsp"></span> · Instagram: <span id="footerIg"></span></small>
+  </footer>
+
+</div>
+
+<!-- ===================== OVERLAY CARRITO ===================== -->
+<div class="overlay" id="ovCart">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2>🛒 Tu consulta</h2>
+      <button class="btn-x" onclick="closeCart()">✕</button>
+    </div>
+    <div class="modal-body" id="cartBody"></div>
+    <div class="modal-ftr" id="cartFtr"></div>
+  </div>
+</div>
+
+<!-- ===================== LOGIN ADMIN ===================== -->
+<div class="overlay" id="ovLogin">
+  <div class="login-box">
+    <div class="icon">🔐</div>
+    <h2>Panel Admin</h2>
+    <p>Ingresá tu usuario y contraseña</p>
+    <input class="inp" type="text" id="loginUser" placeholder="Usuario" onkeydown="if(event.key==='Enter')doLogin()">
+    <input class="inp" type="password" id="loginPass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-prim" id="loginBtn" onclick="doLogin()">Ingresar</button>
+    <div class="err-msg" id="loginErr">Usuario o contraseña incorrectos.</div>
+    <button class="btn-cancel-login" onclick="closeLogin()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ===================== PANEL ADMIN ===================== -->
+<div class="admin-wrap" id="adminWrap">
+
+  <div class="admin-hdr">
+    <div>
+      <h1>⚙ Panel de Administración</h1>
+      <span>El Garage de la Mascota — solo vos ves esto</span>
+    </div>
+    <button class="btn-salir" onclick="salirAdmin()">← Volver a la tienda</button>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="atab on" onclick="aTab('resumen',this)">📊 Resumen</button>
+    <button class="atab" onclick="aTab('productos',this)">📦 Productos</button>
+    <button class="atab" onclick="aTab('nuevo',this)">➕ Agregar</button>
+    <button class="atab" onclick="aTab('calc',this)">🧮 Calculadora</button>
+    <button class="atab" onclick="aTab('categorias',this)">🏷 Categorías</button>
+    <button class="atab" onclick="aTab('config',this)">⚙ Config</button>
+  </div>
+
+  <div class="admin-cont">
+
+    <!-- RESUMEN -->
+    <div class="asec on" id="asec-resumen">
+      <div class="stats" id="adminStats"></div>
+      <div class="acard">
+        <div class="acard-hdr">
+          <h3>📋 Todos los productos</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-sec btn-export" onclick="exportarCatalogo()">⬇ Exportar</button>
+            <button class="btn-sec btn-import" onclick="document.getElementById('fileImport').click()">⬆ Importar</button>
+            <input type="file" id="fileImport" accept=".json" style="display:none" onchange="importarCatalogo(event)">
+          </div>
+        </div>
+        <div class="tbl-wrap"><table class="tbl" id="resumenTbl"></table></div>
+      </div>
+    </div>
+
+    <!-- PRODUCTOS -->
+    <div class="asec" id="asec-productos">
+      <div class="acard">
+        <div class="acard-hdr">
+          <h3>📦 Editar productos</h3>
+          <button class="btn-save" onclick="recargarProductosAdmin()">🔄 Recargar</button>
+        </div>
+        <div id="tblProductosWrap"></div>
+      </div>
+    </div>
+
+    <!-- NUEVO PRODUCTO -->
+    <div class="asec" id="asec-nuevo">
+      <div class="acard">
+        <div class="acard-hdr"><h3>➕ Agregar nuevo producto</h3></div>
+        <div class="form-grid">
+          <div class="fg"><label>Tipo de producto *</label>
+            <select id="np-tipo" onchange="onNpTipoChange(this.value)">
+              <option value="alimento">Alimento</option>
+              <option value="poncho">Poncho</option>
+              <option value="ropa">Ropa</option>
+              <option value="juguete">Juguete</option>
+              <option value="accesorio">Accesorio</option>
+              <option value="higiene">Higiene</option>
+              <option value="medicacion">Medicación</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="fg"><label>Nombre *</label><input type="text" id="np-nombre" placeholder="Ej: Infinity Adulto"></div>
+          <div class="fg"><label>Marca</label><input type="text" id="np-marca" placeholder="Ej: Infinity"></div>
+          <div class="fg"><label>Categoría</label><select id="np-cat"></select></div>
+          <div class="fg"><label>Emoji (opcional)</label><input type="text" id="np-emoji" placeholder="🐶" maxlength="4"></div>
+          <div class="fg"><label>Costo mayorista ($) — privado</label><input type="number" id="np-costo" placeholder="0"></div>
+          <div class="fg"><label>Precio anterior (si hay oferta, 0 = ninguno)</label><input type="number" id="np-anterior" placeholder="0"></div>
+
+          <!-- Campos específicos para Alimentos -->
+          <div id="np-seccion-alimento" class="form-grid full" style="grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+            <div class="fg"><label>Peso de la bolsa (kg)</label><input type="number" id="np-peso" placeholder="15" step="0.5"></div>
+            <div class="fg"><label>Precio bolsa (cliente)</label><input type="number" id="np-bolsa" placeholder="0"></div>
+            <div class="fg"><label>Precio por kilo (cliente)</label><input type="number" id="np-kg" placeholder="0"></div>
+          </div>
+
+          <!-- Campos específicos para Ropa / Poncho / Unidad -->
+          <div id="np-seccion-unidad" class="form-grid full" style="grid-column:1/-1; display:none; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="fg"><label>Precio por unidad (cliente)</label><input type="number" id="np-unidad" placeholder="0"></div>
+            <div class="fg" id="np-stock-general-div"><label>Stock (unidades disponibles)</label><input type="number" id="np-stock-general" placeholder="10"></div>
+          </div>
+
+          <!-- Seccion Talles para Ponchos / Ropa -->
+          <div id="np-seccion-talles" class="fg full" style="display:none; border:1px solid var(--borde); padding:10px; border-radius:8px;">
+            <label style="font-weight:700; color:var(--verde);">Talles y Stock independiente</label>
+            <div id="np-talles-lista" style="margin-top:5px; display:flex; flex-direction:column; gap:6px;"></div>
+            <button class="btn-sec" onclick="addNpTalleRow()" style="margin-top:8px; width:fit-content; padding:5px 12px; font-size:.8rem;">+ Agregar talle</button>
+          </div>
+
+          <!-- Sección de Promociones -->
+          <div class="fg full" style="border:1px solid var(--borde); padding:10px; border-radius:8px; margin-top:5px;">
+            <label style="font-weight:700; color:var(--verde); display:flex; align-items:center; gap:5px;">
+              <input type="checkbox" id="np-promo-enabled" onchange="document.getElementById('np-promo-campos').style.display = this.checked ? 'grid' : 'none'">
+              Habilitar Promoción
+            </label>
+            <div id="np-promo-campos" class="form-grid" style="display:none; margin-top:10px; gap:8px;">
+              <div class="fg"><label>Cantidad mínima requerida</label><input type="number" id="np-promo-qty" value="2" min="1"></div>
+              <div class="fg"><label>Precio total promocional ($)</label><input type="number" id="np-promo-price" placeholder="0"></div>
+            </div>
+          </div>
+
+          <div class="fg full"><label>Descripción</label><textarea id="np-desc" rows="2" placeholder="Descripción del producto..."></textarea></div>
+          <div class="fg full"><label>Foto del producto</label>
+            <div class="img-upload-area" onclick="document.getElementById('np-foto-inp').click()">
+              <div id="np-foto-prev">📷 Clic para subir foto</div>
+              <input type="file" id="np-foto-inp" accept="image/*" style="display:none" onchange="prevFotoNuevo(event)">
+            </div>
+          </div>
+          <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:.5rem; align-items:center; grid-column:1/-1;">
+            <label style="display:inline-flex; align-items:center; gap:5px;"><input type="checkbox" id="np-destacado"> Producto destacado</label>
+            <label style="display:inline-flex; align-items:center; gap:5px;"><input type="checkbox" id="np-nuevo"> Marcar como "Nuevo"</label>
+            <label style="display:inline-flex; align-items:center; gap:5px;" id="np-stock-checkbox-div"><input type="checkbox" id="np-stock" checked> Con stock</label>
+          </div>
+          <div class="fg full">
+            <button class="btn-save" id="btn-agregar-prod" style="width:100%;padding:11px" onclick="agregarProducto()">✅ Agregar producto al catálogo</button>
+          </div>
+        </div>
+        <div id="np-calc-prev" style="margin-top:1rem;display:none"></div>
+      </div>
+    </div>
+
+    <!-- CALCULADORA -->
+    <div class="asec" id="asec-calc">
+      <div class="acard">
+        <div class="acard-hdr"><h3>🧮 Calculadora de precios</h3></div>
+        <div class="form-grid">
+          <div class="fg"><label>Nombre del producto</label><input type="text" id="c-nombre" placeholder="Ej: Simply Adulto"></div>
+          <div class="fg"><label>Costo mayorista ($)</label><input type="number" id="c-costo" placeholder="0" oninput="calcular()"></div>
+          <div class="fg"><label>Peso de la bolsa (kg)</label><input type="number" id="c-peso" placeholder="15" step="0.5" oninput="calcular()"></div>
+        </div>
+        <div id="calc-resultado" style="margin-top:1rem;"></div>
+        <div style="margin-top:1rem;" id="calc-add-btn"></div>
+      </div>
+    </div>
+
+    <!-- CATEGORÍAS -->
+    <div class="asec" id="asec-categorias">
+      <div class="acard">
+        <div class="acard-hdr"><h3>🏷 Categorías</h3></div>
+        <div id="cats-lista"></div>
+        <div style="display:flex;gap:8px;margin-top:.8rem;">
+          <input class="inp" type="text" id="nueva-cat-nombre" placeholder="Nueva categoría..." style="flex:1;padding:7px 10px;">
+          <input class="inp" type="text" id="nueva-cat-emoji" placeholder="Emoji" style="width:60px;padding:7px;text-align:center;" maxlength="4">
+          <button class="btn-save" onclick="agregarCategoria()">➕ Agregar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="asec" id="asec-config">
+      <div class="acard">
+        <div class="acard-hdr"><h3>⚙ Configuración de la tienda</h3></div>
+        <div class="cfg-grupo"><label>Nombre de la tienda</label><input type="text" id="cfg-nombre" value="El Garage de la Mascota"></div>
+        <div class="cfg-grupo"><label>WhatsApp (con código de país, sin + ni espacios)</label><input type="text" id="cfg-wsp" value="5491126976444"></div>
+        <div class="cfg-grupo"><label>Instagram (sin @)</label><input type="text" id="cfg-ig" value="elgaragedelamascota"></div>
+        <div class="cfg-grupo"><label>Texto de bienvenida (hero)</label><textarea id="cfg-bienvenida" rows="2"></textarea></div>
+        <div class="cfg-grupo"><label>Nueva contraseña admin (dejar vacío para no cambiar)</label><input type="password" id="cfg-pass" placeholder="Nueva contraseña..."></div>
+        <div class="cfg-grupo"><label>Nuevo usuario admin (dejar vacío para no cambiar)</label><input type="text" id="cfg-user" placeholder="Nuevo usuario..."></div>
+        <button class="btn-save" onclick="guardarConfig()">💾 Guardar configuración</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ================================================================
+// STATE
+// ================================================================
+let productos = []
+let categorias = []
+let cfgData = {}
+let carrito = []
+let filtroActual = 'todos'
+let busqueda = ''
+let adminToken = sessionStorage.getItem('admin_token') || null
+let pendingPhotos = {}   // productId -> File
+let removedPhotos = new Set()
+let np_fotoFile = null
+
+// Fallback Local
+let isLocalFallback = false
+
+const defaultLocalData = {
+  config: {
+    nombre: "El Garage de la Mascota",
+    whatsapp: "5491126976444",
+    instagram: "elgaragedelamascota",
+    bienvenida: "Alimentos de calidad para perros, gatos y más. Precios directos, con atención personalizada.",
+    adminUser: "admin",
+    adminPass: "admin123"
+  },
+  categories: [
+    { id: "cat_alimentos", nombre: "Alimentos", emoji: "🦴" },
+    { id: "cat_ropa", nombre: "Ropa y Ponchos", emoji: "🧥" },
+    { id: "cat_juguetes", nombre: "Juguetes", emoji: "🧸" },
+    { id: "cat_accesorios", nombre: "Accesorios", emoji: "🎒" },
+    { id: "cat_higiene", nombre: "Higiene", emoji: "🧼" },
+    { id: "cat_medicacion", nombre: "Medicación", emoji: "💊" }
+  ],
+  products: [
+    {
+      "id": 2,
+      "nombre": "Poncho Boca Juniors",
+      "marca": "PetFashion",
+      "cat": "cat_ropa",
+      "emoji": "👕",
+      "tipo": "poncho",
+      "costo": 7000,
+      "peso": 0,
+      "precioBolsa": 0,
+      "precioKg": 0,
+      "precioUnidad": 12000,
+      "precioAnterior": 0,
+      "desc": "Poncho abrigado con los colores de Boca Juniors.",
+      "stock": true,
+      "talles": {
+        "S": 5,
+        "M": 3,
+        "L": 0,
+        "XL": 2
+      },
+      "promoEnabled": true,
+      "promoQty": 2,
+      "promoPrice": 22000,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": true,
+      "hasImage": false
+    },
+    {
+      "id": 3,
+      "nombre": "Pelota de Goma con Sonido",
+      "marca": "Kong",
+      "cat": "cat_juguetes",
+      "emoji": "🎾",
+      "tipo": "juguete",
+      "costo": 3000,
+      "peso": 0,
+      "precioBolsa": 0,
+      "precioKg": 0,
+      "precioUnidad": 5000,
+      "precioAnterior": 5500,
+      "desc": "Pelota de goma irrompible con sonido integrado.",
+      "stock": 10,
+      "talles": {},
+      "promoEnabled": true,
+      "promoQty": 2,
+      "promoPrice": 9000,
+      "destacado": false,
+      "oculto": false,
+      "oferta": true,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 4,
+      "nombre": "Infinity Adulto 21kg",
+      "marca": "Infinity",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 21,
+      "precioBolsa": 49000,
+      "precioKg": 3000,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado premium para perros adultos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 5,
+      "nombre": "Infinity Raza Pequeña 15kg",
+      "marca": "Infinity",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 15,
+      "precioBolsa": 42000,
+      "precioKg": 3500,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado premium para perros de raza pequeña.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 6,
+      "nombre": "Kongo Adulto 21kg",
+      "marca": "Kongo",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 21,
+      "precioBolsa": 37000,
+      "precioKg": 3000,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para perros adultos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 7,
+      "nombre": "Kongo Cachorro 21kg",
+      "marca": "Kongo",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 21,
+      "precioBolsa": 43000,
+      "precioKg": 3500,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para perros cachorros.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 8,
+      "nombre": "Kongo Raza Pequeña 15kg",
+      "marca": "Kongo",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 15,
+      "precioBolsa": 35000,
+      "precioKg": 3000,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para perros de raza pequeña.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 9,
+      "nombre": "Maintenance Adulto 22kg",
+      "marca": "Maintenance",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 22,
+      "precioBolsa": 36000,
+      "precioKg": 2000,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para perros adultos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 10,
+      "nombre": "Maintenance Cachorro 15kg",
+      "marca": "Maintenance",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 15,
+      "precioBolsa": 33000,
+      "precioKg": 2500,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para perros cachorros.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 11,
+      "nombre": "Old Prince Premium Gato 7.5kg",
+      "marca": "Old Prince",
+      "cat": "cat_alimentos",
+      "emoji": "🐱",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 7.5,
+      "precioBolsa": 40000,
+      "precioKg": 6500,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado premium para gatos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 12,
+      "nombre": "Whiskas Pescado 10kg",
+      "marca": "Whiskas",
+      "cat": "cat_alimentos",
+      "emoji": "🐱",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 10,
+      "precioBolsa": 49000,
+      "precioKg": 5500,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado sabor pescado para gatos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 13,
+      "nombre": "Nutribon 8kg",
+      "marca": "Nutribon",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 8,
+      "precioBolsa": 31000,
+      "precioKg": 3800,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para perros.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 14,
+      "nombre": "Arroz saborizado 15kg",
+      "marca": "Arroz saborizado",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 15,
+      "precioBolsa": 19000,
+      "precioKg": 1800,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Arroz saborizado para acompañar el alimento de tus mascotas.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 15,
+      "nombre": "Pacha Adulto 22kg",
+      "marca": "Pacha",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 22,
+      "precioBolsa": 33000,
+      "precioKg": 1800,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para perros adultos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 16,
+      "nombre": "Raza Adulto 20kg",
+      "marca": "Raza",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 20,
+      "precioBolsa": 38000,
+      "precioKg": 2500,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para perros adultos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 17,
+      "nombre": "Dogui Adulto 21kg",
+      "marca": "Dogui",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 21,
+      "precioBolsa": 49000,
+      "precioKg": 3000,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para perros adultos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 18,
+      "nombre": "Pedigree Adulto 21kg",
+      "marca": "Pedigree",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 21,
+      "precioBolsa": 62000,
+      "precioKg": 3800,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado premium para perros adultos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 19,
+      "nombre": "Bio Pet Premium Adulto Raza Pequeña 15kg",
+      "marca": "Bio Pet",
+      "cat": "cat_alimentos",
+      "emoji": "🐶",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 15,
+      "precioBolsa": 36000,
+      "precioKg": 3000,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado premium para perros de raza pequeña.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 20,
+      "nombre": "Sabrosito Gato 11kg",
+      "marca": "Sabrosito",
+      "cat": "cat_alimentos",
+      "emoji": "🐱",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 11,
+      "precioBolsa": 33000,
+      "precioKg": 3000,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado para gatos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    },
+    {
+      "id": 21,
+      "nombre": "Eukanuba Gato 7.5kg",
+      "marca": "Eukanuba",
+      "cat": "cat_alimentos",
+      "emoji": "🐱",
+      "tipo": "alimento",
+      "costo": 0,
+      "peso": 7.5,
+      "precioBolsa": 80000,
+      "precioKg": 10000,
+      "precioUnidad": 0,
+      "precioAnterior": 0,
+      "desc": "Alimento balanceado súper premium para gatos.",
+      "stock": true,
+      "talles": {},
+      "promoEnabled": false,
+      "promoQty": 0,
+      "promoPrice": 0,
+      "destacado": false,
+      "oculto": false,
+      "oferta": false,
+      "nuevo": false,
+      "hasImage": false
+    }
+  ]
+}
+
+function loadLocalData() {
+  isLocalFallback = true
+  console.log("Servidor API no detectado. Iniciando en modo localStorage.")
+  
+  if (localStorage.getItem('elgarage_db_version') !== '2') {
+    localStorage.removeItem('elgarage_config');
+    localStorage.removeItem('elgarage_categories');
+    localStorage.removeItem('elgarage_products');
+    localStorage.setItem('elgarage_db_version', '2');
+  }
+  
+  if (!localStorage.getItem('elgarage_config')) {
+    localStorage.setItem('elgarage_config', JSON.stringify(defaultLocalData.config))
+  }
+  if (!localStorage.getItem('elgarage_categories')) {
+    localStorage.setItem('elgarage_categories', JSON.stringify(defaultLocalData.categories))
+  }
+  if (!localStorage.getItem('elgarage_products')) {
+    localStorage.setItem('elgarage_products', JSON.stringify(defaultLocalData.products))
+  }
+  
+  cfgData = JSON.parse(localStorage.getItem('elgarage_config'))
+  categorias = JSON.parse(localStorage.getItem('elgarage_categories'))
+  productos = JSON.parse(localStorage.getItem('elgarage_products'))
+}
+
+function savePhotoLocally(id, file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = e => {
+      const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
+      const idx = localProds.findIndex(x => x.id === id)
+      if (idx !== -1) {
+        localProds[idx].hasImage = true
+        localProds[idx].localImage = e.target.result
+        localStorage.setItem('elgarage_products', JSON.stringify(localProds))
+      }
+      resolve()
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+// ================================================================
+// API HELPERS
+// ================================================================
+function authHeader() {
+  return adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {}
+}
+
+async function apiFetch(url, opts = {}) {
+  if (isLocalFallback) {
+    return {
+      ok: true,
+      json: async () => ({ success: true })
+    }
+  }
+  try {
+    const res = await fetch(url, {
+      ...opts,
+      headers: { ...authHeader(), ...(opts.headers || {}) }
+    })
+    return res
+  } catch (e) {
+    console.error('API error:', e)
+    throw e
+  }
+}
+
+// ================================================================
+// INIT
+// ================================================================
+async function initApp() {
+  showLoading()
+  try {
+    const [cfgRes, catsRes, prodsRes] = await Promise.all([
+      fetch('/api/config').then(r => { if(!r.ok) throw new Error(); return r.json() }),
+      fetch('/api/categories').then(r => { if(!r.ok) throw new Error(); return r.json() }),
+      fetch('/api/products').then(r => { if(!r.ok) throw new Error(); return r.json() }),
+    ])
+    cfgData = cfgRes
+    categorias = catsRes
+    productos = prodsRes
+    isLocalFallback = false
+  } catch (e) {
+    loadLocalData()
+  } finally {
+    applyConfig(cfgData)
+    renderFiltros()
+    renderCatalogo()
+    hideLoading()
+  }
+}
+
+function applyConfig(cfg) {
+  const nombre = cfg.nombre || 'El Garage de la Mascota'
+  const wsp = cfg.whatsapp || ''
+  const ig = cfg.instagram || ''
+  document.getElementById('cfg-logo-name').textContent = nombre
+  document.getElementById('heroTitle').textContent = nombre
+  document.getElementById('footerNombre').textContent = nombre
+  document.getElementById('footerWsp').textContent = wsp ? '+' + wsp : ''
+  document.getElementById('footerIg').textContent = ig ? '@' + ig : ''
+  if (cfg.bienvenida) document.getElementById('heroDesc').textContent = cfg.bienvenida
+}
+
+function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden') }
+function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden') }
+
+// ================================================================
+// CARRITO
+// ================================================================
+function getWsp() { return cfgData.whatsapp || '5491126976444' }
+function getIg() { return cfgData.instagram || 'elgaragedelamascota' }
+
+function abrirWspGeneral() {
+  window.open('https://wa.me/' + getWsp() + '?text=Hola!+Quiero+consultar+sobre+sus+productos+😊', '_blank')
+}
+function abrirIG() {
+  window.open('https://instagram.com/' + getIg(), '_blank')
+}
+
+function addToCart(id, tipo, talle) {
+  const p = productos.find(x => x.id === id)
+  if (!p) return
+
+  if (p.tipo === 'alimento') {
+    if (!p.stock) return
+    const precio = tipo === 'bolsa' ? p.precioBolsa : p.precioKg
+    const detalle = tipo === 'bolsa' ? 'Bolsa ' + p.peso + 'kg' : 'Por kilo'
+    const exists = carrito.find(x => x.id === id && x.tipo === tipo)
+    if (exists) { exists.qty++ }
+    else { carrito.push({ id, nombre: p.nombre, emoji: p.emoji || '🐾', precio, tipo, detalle, qty: 1, hasImage: p.hasImage }) }
+  } else if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    if (!talle) {
+      toast('⚠️ Por favor selecciona un talle', true)
+      return
+    }
+    const stockDisponible = p.talles[talle] || 0
+    const exists = carrito.find(x => x.id === id && x.talle === talle)
+    const currentQty = exists ? exists.qty : 0
+    
+    if (currentQty >= stockDisponible) {
+      toast(`⚠️ No hay más stock disponible del talle ${talle}`, true)
+      return
+    }
+    
+    if (exists) {
+      exists.qty++
+    } else {
+      carrito.push({
+        id,
+        nombre: p.nombre,
+        emoji: p.emoji || '🐾',
+        precio: p.precioUnidad,
+        tipo: 'unidad',
+        talle,
+        detalle: 'Talle: ' + talle,
+        qty: 1,
+        hasImage: p.hasImage
+      })
+    }
+  } else {
+    // toys, accessories, etc.
+    const stockDisponible = typeof p.stock === 'number' ? p.stock : 9999
+    const exists = carrito.find(x => x.id === id)
+    const currentQty = exists ? exists.qty : 0
+    
+    if (currentQty >= stockDisponible) {
+      toast('⚠️ No hay más stock disponible', true)
+      return
+    }
+    
+    if (exists) {
+      exists.qty++
+    } else {
+      carrito.push({
+        id,
+        nombre: p.nombre,
+        emoji: p.emoji || '🐾',
+        precio: p.precioUnidad,
+        tipo: 'unidad',
+        detalle: 'Unidad',
+        qty: 1,
+        hasImage: p.hasImage
+      })
+    }
+  }
+  updateBadge()
+  toast('✓ ' + p.nombre + ' agregado')
+}
+
+function agregarRopaDesdeCard(id) {
+  const select = document.getElementById(`card-talle-${id}`)
+  const talle = select.value
+  if (!talle) {
+    toast('⚠️ Por favor selecciona un talle', true)
+    return
+  }
+  addToCart(id, 'unidad', talle)
+}
+
+function updateBadge() {
+  document.getElementById('cartBadge').textContent = carrito.reduce((a, b) => a + b.qty, 0)
+}
+
+function openCart() { document.getElementById('ovCart').classList.add('on'); renderCart() }
+function closeCart() { document.getElementById('ovCart').classList.remove('on') }
+
+function renderCart() {
+  const body = document.getElementById('cartBody')
+  const ftr = document.getElementById('cartFtr')
+  if (!carrito.length) {
+    body.innerHTML = '<div class="carrito-vacio"><div>🛒</div><p>No hay productos en tu carrito.<br>¡Explorá el catálogo y agregá algo!</p></div>'
+    ftr.innerHTML = ''
+    return
+  }
+  
+  let h = ''
+  let total = 0
+  let msg = 'Hola! Quisiera consultar por estos productos desde ' + encodeURIComponent(cfgData.nombre || 'El Garage de la Mascota') + ':%0A%0A'
+  
+  carrito.forEach((item, i) => {
+    const p = productos.find(x => x.id === item.id)
+    let itemTotal = item.precio * item.qty
+    let promoLabel = ''
+    let hasPromoApplied = false
+    
+    if (p && p.promoEnabled && p.promoQty > 0 && p.promoPrice > 0) {
+      const bundles = Math.floor(item.qty / p.promoQty)
+      const rem = item.qty % p.promoQty
+      if (bundles > 0) {
+        itemTotal = (bundles * p.promoPrice) + (rem * item.precio)
+        hasPromoApplied = true
+        promoLabel = `<div style="font-size:0.7rem; color:var(--ambar); font-weight:700; margin-top:2px;">🔥 Promo aplicada: ${bundles}x (Llevando ${p.promoQty} -> $${p.promoPrice.toLocaleString('es-AR')})</div>`
+      }
+    }
+    
+    total += itemTotal
+    
+    const imgSrc = (isLocalFallback && p && p.localImage) ? p.localImage : `/api/images/${item.id}`
+    const imgEl = item.hasImage
+      ? `<img src="${imgSrc}" alt="" onerror="this.style.display='none'">` + `<span style="display:none">${item.emoji}</span>`
+      : `<span>${item.emoji}</span>`
+      
+    h += `<div class="cart-item">
+      <div class="cart-item-img">${imgEl}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-nombre">${item.nombre}</div>
+        <div class="cart-item-det">${item.detalle} — Subtotal: $${itemTotal.toLocaleString('es-AR')}</div>
+        ${promoLabel}
+      </div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="chgQty(${i},-1)">−</button>
+        <span class="qty-n">${item.qty}</span>
+        <button class="qty-btn" onclick="chgQty(${i},1)">+</button>
+      </div>
+      <button class="btn-del" onclick="delItem(${i})">🗑</button>
+    </div>`
+    
+    let itemDetailStr = `• ${item.emoji} ${item.nombre} (${item.detalle}) x${item.qty}`
+    if (hasPromoApplied) {
+      const bundles = Math.floor(item.qty / p.promoQty)
+      const rem = item.qty % p.promoQty
+      let breakdown = `${bundles}x Promo ($${p.promoPrice.toLocaleString('es-AR')})`
+      if (rem > 0) {
+        breakdown += ` + ${rem}x Individual ($${(item.precio * rem).toLocaleString('es-AR')})`
+      }
+      itemDetailStr += ` [Promo: ${breakdown}]`
+    }
+    itemDetailStr += ` - Subtotal: $${itemTotal.toLocaleString('es-AR')}`
+    msg += encodeURIComponent(itemDetailStr) + '%0A'
+  })
+  
+  body.innerHTML = h
+  msg += '%0A' + encodeURIComponent('Total de referencia: $' + total.toLocaleString('es-AR')) + '%0A' + encodeURIComponent('Muchas gracias! 😊')
+
+  ftr.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
+      <button class="btn-vaciar" onclick="vaciarCarrito()">🗑 Vaciar</button>
+      <div style="font-size:.85rem;color:var(--gris3)">Total: <strong style="font-size:1.05rem;color:var(--verde)">$${total.toLocaleString('es-AR')}</strong></div>
+    </div>
+    <a class="btn-wsp-big" href="https://wa.me/${getWsp()}?text=${msg}" target="_blank">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      Consultar por WhatsApp
+    </a>`
+}
+
+function chgQty(i, d) {
+  const item = carrito[i]
+  const p = productos.find(x => x.id === item.id)
+  if (!p) return
+  
+  if (p.tipo === 'alimento') {
+    item.qty = Math.max(1, item.qty + d)
+  } else if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    const talle = item.talle
+    const stockDisponible = p.talles[talle] || 0
+    if (d > 0 && item.qty >= stockDisponible) {
+      toast(`⚠️ No hay más stock disponible del talle ${talle}`, true)
+      return
+    }
+    item.qty = Math.max(1, item.qty + d)
+  } else {
+    const stockDisponible = typeof p.stock === 'number' ? p.stock : 9999
+    if (d > 0 && item.qty >= stockDisponible) {
+      toast('⚠️ No hay más stock disponible', true)
+      return
+    }
+    item.qty = Math.max(1, item.qty + d)
+  }
+  
+  renderCart()
+  updateBadge()
+}
+
+function delItem(i) { carrito.splice(i, 1); renderCart(); updateBadge() }
+function vaciarCarrito() { if (confirm('¿Vaciar el carrito?')) { carrito = []; renderCart(); updateBadge() } }
+
+// ================================================================
+// BÚSQUEDA
+// ================================================================
+function onSearch(val) {
+  busqueda = val.toLowerCase().trim()
+  renderCatalogo()
+}
+
+// ================================================================
+// CATÁLOGO CLIENTE
+// ================================================================
+function renderFiltros() {
+  const filtrosBtns = categorias.map(c =>
+    `<button class="filtro ${filtroActual === c.id ? 'on' : ''}" onclick="setFiltro('${c.id}',this)">${c.emoji} ${c.nombre}</button>`
+  ).join('')
+  const todosBtn = `<button class="filtro ${filtroActual === 'todos' ? 'on' : ''}" onclick="setFiltro('todos',this)">Todos</button>`
+
+  const bar = document.getElementById('filtrosBar')
+  const searchWrap = bar.querySelector('.search-wrap')
+  bar.innerHTML = todosBtn + filtrosBtns
+  bar.appendChild(searchWrap)
+
+  let chips = ''
+  categorias.forEach(c => { chips += `<span class="chip">${c.emoji} ${c.nombre}</span>` })
+  document.getElementById('heroChips').innerHTML = chips
+}
+
+function setFiltro(cat, btn) {
+  filtroActual = cat
+  document.querySelectorAll('.filtro').forEach(b => b.classList.remove('on'))
+  if (btn) btn.classList.add('on')
+  renderCatalogo()
+}
+
+function renderCardHtml(p) {
+  const imgSrc = (isLocalFallback && p.localImage) ? p.localImage : `/api/images/${p.id}`
+  const imgEl = p.hasImage
+    ? `<img src="${imgSrc}" alt="${p.nombre}" onerror="this.parentElement.innerHTML='<span class=\\'card-img-placeholder\\'>${p.emoji || '🐾'}</span>'">`
+    : `<span class="card-img-placeholder">${p.emoji || '🐾'}</span>`
+    
+  let stockInfo = ''
+  let isAvailable = false
+  
+  if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    isAvailable = p.talles && Object.values(p.talles).some(s => s > 0)
+  } else if (p.tipo === 'alimento') {
+    isAvailable = p.stock
+  } else {
+    const stockQty = typeof p.stock === 'number' ? p.stock : 0
+    isAvailable = stockQty > 0
+    stockInfo = ` · Stock: ${stockQty}`
+  }
+  
+  const sinStock = !isAvailable ? `<div class="badge-sinstock">Sin stock</div>` : ''
+  const badgeNuevo = p.nuevo ? `<div class="badge-nuevo">✨ Nuevo</div>` : ''
+  const tieneOferta = p.precioAnterior && p.precioAnterior > 0
+  const badgeOferta = tieneOferta ? `<div class="badge-oferta">🔥 Oferta</div>` : ''
+  const descPreview = p.desc ? `<div class="card-desc-preview">${p.desc}</div>` : ''
+  
+  // Promotion display
+  let promoBadge = ''
+  if (p.promoEnabled && p.promoQty > 0 && p.promoPrice > 0) {
+    promoBadge = `<div style="background:var(--ambar2); border:1.5px dashed var(--ambar); border-radius:8px; padding:6px; font-size:0.75rem; text-align:center; font-weight:700; color:var(--ambar); margin-top:5px;">
+      🔥 Llevando ${p.promoQty} ${p.tipo === 'alimento' ? 'bolsas' : 'unidades'} → $${p.promoPrice.toLocaleString('es-AR')}
+    </div>`
+  }
+
+  // Price area based on product type
+  let priceAreaHtml = ''
+  let actionBtnHtml = ''
+  
+  if (p.tipo === 'alimento') {
+    const pBolsaAntes = tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''
+    priceAreaHtml = `
+      <div class="precios-wrap">
+        <div class="precio-box">
+          <span class="lbl">Por kilo</span>
+          <span class="val">$${p.precioKg.toLocaleString('es-AR')}</span>
+        </div>
+        <div class="precio-box">
+          <span class="lbl">Bolsa ${p.peso}kg</span>
+          ${pBolsaAntes}
+          <span class="val">$${p.precioBolsa.toLocaleString('es-AR')}</span>
+        </div>
+      </div>`
+    actionBtnHtml = `
+      <button class="btn-agregar" onclick="openAddModal(${p.id})" ${!isAvailable ? 'disabled' : ''}>
+        ${isAvailable ? '🛒 Agregar' : 'Sin stock'}
+      </button>`
+  } else if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    const pAntes = tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''
+    
+    // Talle select options
+    let talleOpts = '<option value="">Elegir Talle</option>'
+    if (p.talles) {
+      Object.entries(p.talles).forEach(([tName, tQty]) => {
+        if (tQty > 0) {
+          talleOpts += `<option value="${tName}">${tName} (${tQty} disp.)</option>`
+        } else {
+          talleOpts += `<option value="${tName}" disabled>${tName} (Sin stock)</option>`
+        }
+      })
+    }
+    
+    priceAreaHtml = `
+      <div class="precios-wrap" style="grid-template-columns: 1fr;">
+        <div class="precio-box" style="display:flex; justify-content:space-between; align-items:center; padding:5px 10px;">
+          <span class="lbl" style="text-align:left;">Precio unitario</span>
+          <div style="text-align:right;">
+            ${pAntes}
+            <span class="val">$${p.precioUnidad.toLocaleString('es-AR')}</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:5px;">
+        <select id="card-talle-${p.id}" class="inp" style="padding:5px 8px; font-size:.8rem; margin-bottom:0; height:32px;">
+          ${talleOpts}
+        </select>
+      </div>`
+    
+    actionBtnHtml = `
+      <button class="btn-agregar" onclick="agregarRopaDesdeCard(${p.id})" ${!isAvailable ? 'disabled' : ''}>
+        ${isAvailable ? '🛒 Agregar' : 'Sin stock'}
+      </button>`
+  } else {
+    // toys, accessories, etc.
+    const pAntes = tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''
+    priceAreaHtml = `
+      <div class="precios-wrap" style="grid-template-columns: 1fr;">
+        <div class="precio-box" style="display:flex; justify-content:space-between; align-items:center; padding:5px 10px;">
+          <span class="lbl" style="text-align:left;">Precio unitario</span>
+          <div style="text-align:right;">
+            ${pAntes}
+            <span class="val">$${p.precioUnidad.toLocaleString('es-AR')}</span>
+          </div>
+        </div>
+      </div>`
+    actionBtnHtml = `
+      <button class="btn-agregar" onclick="addToCart(${p.id}, 'unidad')" ${!isAvailable ? 'disabled' : ''}>
+        ${isAvailable ? '🛒 Agregar' : 'Sin stock'}
+      </button>`
+  }
+
+  return `
+    <div class="card" data-tipo="${p.tipo}">
+      <div class="card-img" onclick="verDetalle(${p.id})">
+        ${imgEl}${badgeNuevo}${badgeOferta}${sinStock}
+      </div>
+      <div class="card-body">
+        <div class="card-nombre" onclick="verDetalle(${p.id})">${p.nombre}</div>
+        <div class="card-marca">${p.marca || ''}${p.tipo === 'alimento' && p.peso ? ' · ' + p.peso + 'kg' : ''}${stockInfo}</div>
+        ${descPreview}
+        ${priceAreaHtml}
+        ${promoBadge}
+        <div class="card-acciones" style="margin-top:auto; padding-top:8px;">
+          ${actionBtnHtml}
+          <button class="btn-wsp-prod" onclick="wspProd(${p.id})" title="Consultar por WhatsApp">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`
+}
+
+function renderCatalogo() {
+  const cont = document.getElementById('catalogoMain')
+  let html = ''
+
+  const filtered = productos.filter(p => {
+    if (filtroActual !== 'todos' && p.cat !== filtroActual) return false
+    if (busqueda && !p.nombre.toLowerCase().includes(busqueda) && !(p.marca || '').toLowerCase().includes(busqueda)) return false
+    return true
+  })
+
+  // Render Destacados first if in "Todos" tab
+  const featured = filtered.filter(p => p.destacado)
+  if (filtroActual === 'todos' && featured.length > 0) {
+    html += `<div class="sec-label">🌟 Productos Destacados</div><div class="grid">`
+    featured.forEach(p => {
+      html += renderCardHtml(p)
+    })
+    html += '</div>'
+  }
+
+  const byCat = {}
+  filtered.forEach(p => {
+    if (!byCat[p.cat]) byCat[p.cat] = []
+    byCat[p.cat].push(p)
+  })
+
+  const catsToShow = filtroActual === 'todos' ? categorias : categorias.filter(c => c.id === filtroActual)
+
+  catsToShow.forEach(cat => {
+    const items = byCat[cat.id]
+    if (!items || !items.length) return
+    html += `<div class="sec-label">${cat.emoji} ${cat.nombre}</div><div class="grid">`
+    items.forEach(p => {
+      html += renderCardHtml(p)
+    })
+    html += '</div>'
+  })
+
+  if (!html) {
+    html = busqueda
+      ? `<p style="text-align:center;padding:3rem;color:var(--gris3)">No se encontraron productos para "<strong>${busqueda}</strong>"</p>`
+      : '<p style="text-align:center;padding:3rem;color:var(--gris3)">No hay productos disponibles en esta categoría.</p>'
+  }
+  cont.innerHTML = html
+}
+
+// Modal detalle producto
+function verDetalle(id) {
+  const p = productos.find(x => x.id === id)
+  if (!p) return
+  const tieneOferta = p.precioAnterior && p.precioAnterior > 0
+  const imgSrc = (isLocalFallback && p.localImage) ? p.localImage : `/api/images/${p.id}`
+  const imgEl = p.hasImage
+    ? `<img src="${imgSrc}" alt="${p.nombre}" style="width:100%;height:200px;object-fit:cover;border-radius:10px;margin-bottom:.8rem;" onerror="this.style.display='none'">`
+    : `<div style="width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:4rem;">${p.emoji || '🐾'}</div>`
+
+  let stockVal = false
+  if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    stockVal = p.talles && Object.values(p.talles).some(s => s > 0)
+  } else if (p.tipo === 'alimento') {
+    stockVal = p.stock
+  } else {
+    stockVal = (typeof p.stock === 'number' ? p.stock : 0) > 0
+  }
+
+  let preciosHtml = ''
+  let footerHtml = ''
+  let promoDetailHtml = ''
+  
+  if (p.promoEnabled && p.promoQty > 0 && p.promoPrice > 0) {
+    promoDetailHtml = `<div style="background:var(--ambar2); border:1.5px dashed var(--ambar); border-radius:10px; padding:10px; font-size:0.85rem; text-align:center; font-weight:700; color:var(--ambar); margin-top:10px; margin-bottom:10px;">
+      🔥 Promoción Especial: Llevando ${p.promoQty} ${p.tipo === 'alimento' ? 'bolsas' : 'unidades'} por solo $${p.promoPrice.toLocaleString('es-AR')}
+    </div>`
+  }
+
+  if (p.tipo === 'alimento') {
+    preciosHtml = `
+      <div class="precios-wrap" style="margin-top:.8rem;">
+        <div class="precio-box">
+          <span class="lbl">Por kilo</span>
+          <span class="val">$${p.precioKg.toLocaleString('es-AR')}</span>
+        </div>
+        <div class="precio-box">
+          <span class="lbl">Bolsa ${p.peso}kg</span>
+          ${tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''}
+          <span class="val">$${p.precioBolsa.toLocaleString('es-AR')}</span>
+        </div>
+      </div>`
+      
+    footerHtml = `
+      <button class="btn-agregar" style="padding:12px;font-size:.92rem;" onclick="addToCart(${p.id},'bolsa');document.getElementById('ovDetalle').remove();openCart()">
+        📦 Bolsa ${p.peso}kg — $${p.precioBolsa.toLocaleString('es-AR')}
+      </button>
+      <button class="btn-agregar" style="padding:12px;font-size:.92rem;background:var(--ambar);" onclick="addToCart(${p.id},'kg');document.getElementById('ovDetalle').remove();openCart()">
+        ⚖ Por kilo — $${p.precioKg.toLocaleString('es-AR')}/kg
+      </button>`
+  } else if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    preciosHtml = `
+      <div class="precios-wrap" style="margin-top:.8rem; grid-template-columns:1fr;">
+        <div class="precio-box" style="display:flex; justify-content:space-between; align-items:center; padding:8px 15px;">
+          <span class="lbl">Precio Unitario</span>
+          <div>
+            ${tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''}
+            <span class="val">$${p.precioUnidad.toLocaleString('es-AR')}</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label style="font-size:0.8rem; font-weight:700; color:var(--gris4);">Selecciona un talle:</label>
+        <select id="modal-talle-${p.id}" class="inp" style="margin-top:4px; padding:8px;">
+          <option value="">Elegir Talle</option>
+          ${Object.entries(p.talles || {}).map(([tName, tQty]) => {
+            return tQty > 0 
+              ? `<option value="${tName}">${tName} (${tQty} disponible)</option>`
+              : `<option value="${tName}" disabled>${tName} (Sin stock)</option>`
+          }).join('')}
+        </select>
+      </div>`
+      
+    footerHtml = `
+      <button class="btn-agregar" style="padding:12px;font-size:.92rem;" onclick="const t = document.getElementById('modal-talle-${p.id}').value; if(!t){alert('Por favor selecciona un talle');return;} addToCart(${p.id},'unidad',t);document.getElementById('ovDetalle').remove();openCart()">
+        🛒 Agregar al Carrito
+      </button>`
+  } else {
+    preciosHtml = `
+      <div class="precios-wrap" style="margin-top:.8rem; grid-template-columns:1fr;">
+        <div class="precio-box" style="display:flex; justify-content:space-between; align-items:center; padding:8px 15px;">
+          <span class="lbl">Precio Unitario</span>
+          <div>
+            ${tieneOferta ? `<span class="val-tachado">Antes $${p.precioAnterior.toLocaleString('es-AR')}</span>` : ''}
+            <span class="val">$${p.precioUnidad.toLocaleString('es-AR')}</span>
+          </div>
+        </div>
+      </div>`
+      
+    footerHtml = `
+      <button class="btn-agregar" style="padding:12px;font-size:.92rem;" onclick="addToCart(${p.id},'unidad');document.getElementById('ovDetalle').remove();openCart()">
+        🛒 Agregar al Carrito
+      </button>`
+  }
+
+  const ov = document.createElement('div')
+  ov.className = 'overlay on'
+  ov.id = 'ovDetalle'
+  ov.innerHTML = `
+    <div class="modal" style="max-width:400px;">
+      <div class="modal-hdr">
+        <h2>${p.emoji || '🐾'} ${p.nombre}</h2>
+        <button class="btn-x" onclick="document.getElementById('ovDetalle').remove()">✕</button>
+      </div>
+      <div class="modal-body">
+        ${imgEl}
+        ${p.marca ? `<div style="font-size:.8rem;color:var(--gris3);margin-bottom:.5rem;">${p.marca}${p.tipo === 'alimento' && p.peso ? ' · ' + p.peso + 'kg' : ''}</div>` : ''}
+        ${p.desc ? `<p class="prod-detail-desc">${p.desc}</p>` : ''}
+        ${preciosHtml}
+        ${promoDetailHtml}
+        ${!stockVal ? '<p style="color:var(--rojo);font-weight:700;margin-top:.7rem;text-align:center;">⚠ Sin stock</p>' : ''}
+      </div>
+      ${stockVal ? `<div class="modal-ftr" style="display:flex;flex-direction:column;gap:8px;">
+        ${footerHtml}
+        <button class="btn-wsp-big" onclick="wspProd(${p.id});document.getElementById('ovDetalle').remove()">
+          Consultar directamente por WhatsApp
+        </button>
+      </div>` : ''}
+    </div>`
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove() })
+  document.body.appendChild(ov)
+}
+
+function openAddModal(id) {
+  verDetalle(id)
+}
+
+function wspProd(id) {
+  const p = productos.find(x => x.id === id)
+  if (!p) return
+  let detail = ''
+  if (p.tipo === 'alimento') {
+    detail = ` (${p.peso}kg)`
+  } else if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+    const select = document.getElementById(`card-talle-${id}`)
+    const talle = select ? select.value : ''
+    detail = talle ? ` (Talle: ${talle})` : ''
+  }
+  const msg = encodeURIComponent('Hola! Quisiera consultar por: ' + p.emoji + ' ' + p.nombre + detail + '. Muchas gracias! 😊')
+  window.open('https://wa.me/' + getWsp() + '?text=' + msg, '_blank')
+}
+
+// ================================================================
+// LOGIN ADMIN
+// ================================================================
+function openLogin() {
+  document.getElementById('ovLogin').classList.add('on')
+  document.getElementById('loginUser').value = ''
+  document.getElementById('loginPass').value = ''
+  document.getElementById('loginErr').style.display = 'none'
+  setTimeout(() => document.getElementById('loginUser').focus(), 100)
+}
+function closeLogin() { document.getElementById('ovLogin').classList.remove('on') }
+
+async function doLogin() {
+  const user = document.getElementById('loginUser').value.trim()
+  const pass = document.getElementById('loginPass').value
+  const btn = document.getElementById('loginBtn')
+  btn.disabled = true
+  btn.textContent = 'Ingresando...'
+  
+  if (isLocalFallback) {
+    btn.disabled = false
+    btn.textContent = 'Ingresar'
+    if (user === (cfgData.adminUser || 'admin') && pass === (cfgData.adminPass || 'admin123')) {
+      adminToken = 'local-admin-token-123'
+      sessionStorage.setItem('admin_token', adminToken)
+      closeLogin()
+      document.getElementById('clienteWrap').classList.add('off')
+      document.getElementById('adminWrap').classList.add('on')
+      renderAdmin()
+    } else {
+      document.getElementById('loginErr').style.display = 'block'
+      document.getElementById('loginPass').value = ''
+      document.getElementById('loginPass').focus()
+    }
+    return
+  }
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user, pass })
+    })
+    const data = await res.json()
+    if (res.ok && data.token) {
+      adminToken = data.token
+      sessionStorage.setItem('admin_token', adminToken)
+      closeLogin()
+      document.getElementById('clienteWrap').classList.add('off')
+      document.getElementById('adminWrap').classList.add('on')
+      renderAdmin()
+    } else {
+      document.getElementById('loginErr').style.display = 'block'
+      document.getElementById('loginPass').value = ''
+      document.getElementById('loginPass').focus()
+    }
+  } catch {
+    document.getElementById('loginErr').textContent = 'Error de conexión. Intentá de nuevo.'
+    document.getElementById('loginErr').style.display = 'block'
+  } finally {
+    btn.disabled = false
+    btn.textContent = 'Ingresar'
+  }
+}
+
+function salirAdmin() {
+  document.getElementById('adminWrap').classList.remove('on')
+  document.getElementById('clienteWrap').classList.remove('off')
+  refreshPublicCatalog()
+}
+
+async function refreshPublicCatalog() {
+  if (isLocalFallback) {
+    productos = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
+    categorias = JSON.parse(localStorage.getItem('elgarage_categories') || '[]')
+    renderFiltros()
+    renderCatalogo()
+    return
+  }
+  try {
+    const [prodsRes, catsRes] = await Promise.all([
+      fetch('/api/products').then(r => r.json()),
+      fetch('/api/categories').then(r => r.json()),
+    ])
+    productos = prodsRes
+    categorias = catsRes
+    renderFiltros()
+    renderCatalogo()
+  } catch {}
+}
+
+// ================================================================
+// ADMIN TABS
+// ================================================================
+function aTab(name, btn) {
+  document.querySelectorAll('.atab').forEach(b => b.classList.remove('on'))
+  document.querySelectorAll('.asec').forEach(s => s.classList.remove('on'))
+  btn.classList.add('on')
+  document.getElementById('asec-' + name).classList.add('on')
+  if (name === 'resumen') renderResumen()
+  if (name === 'productos') renderTblProductos()
+  if (name === 'categorias') renderCategorias()
+  if (name === 'nuevo') poblarSelectCats()
+  if (name === 'config') cargarConfigAdmin()
+}
+
+// ================================================================
+// ADMIN — LOAD DATA
+// ================================================================
+let adminProds = []
+let adminCats = []
+
+async function renderAdmin() {
+  await recargarProductosAdmin()
+  renderResumen()
+  renderCategorias()
+  poblarSelectCats()
+  cargarConfigAdmin()
+}
+
+async function recargarProductosAdmin() {
+  if (isLocalFallback) {
+    adminProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
+    adminCats = JSON.parse(localStorage.getItem('elgarage_categories') || '[]')
+    renderResumen()
+    renderTblProductos()
+    renderCategorias()
+    poblarSelectCats()
+    return
+  }
+  try {
+    const [prodsRes, catsRes] = await Promise.all([
+      apiFetch('/api/products?admin=true').then(r => r.json()),
+      apiFetch('/api/categories').then(r => r.json()),
+    ])
+    adminProds = prodsRes
+    adminCats = catsRes
+    renderResumen()
+    renderTblProductos()
+    renderCategorias()
+    poblarSelectCats()
+  } catch {
+    toast('Error al cargar datos de administración', true)
+  }
+}
+
+// ================================================================
+// ADMIN RESUMEN
+// ================================================================
+function renderResumen() {
+  const prods = adminProds
+  const enStock = prods.filter(p => {
+    if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+      return p.talles && Object.values(p.talles).some(s => s > 0)
+    } else if (p.tipo === 'alimento') {
+      return p.stock
+    } else {
+      return (typeof p.stock === 'number' ? p.stock : 0) > 0
+    }
+  }).length
+  const sinS = prods.length - enStock
+  const ocultos = prods.filter(p => p.oculto).length
+  document.getElementById('adminStats').innerHTML = `
+    <div class="stat"><div class="stat-n">${prods.length}</div><div class="stat-l">Productos</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--verde)">${enStock}</div><div class="stat-l">Con stock</div></div>
+    <div class="stat"><div class="stat-n" style="color:#e74c3c">${sinS}</div><div class="stat-l">Sin stock</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--gris3)">${ocultos}</div><div class="stat-l">Ocultos</div></div>
+  `
+  let h = '<thead><tr><th>Producto</th><th>Tipo</th><th>Categoría</th><th>Precio / Detalles</th><th>Estado</th></tr></thead><tbody>'
+  prods.forEach(p => {
+    const catObj = adminCats.find(c => c.id === p.cat)
+    let isAvailable = false
+    let stockLabel = ''
+    
+    if (p.tipo === 'poncho' || p.tipo === 'ropa') {
+      isAvailable = p.talles && Object.values(p.talles).some(s => s > 0)
+      const totalTalles = p.talles ? Object.entries(p.talles).map(([n, q]) => `${n}:${q}`).join(', ') : ''
+      stockLabel = totalTalles ? `(${totalTalles})` : 'Sin talles'
+    } else if (p.tipo === 'alimento') {
+      isAvailable = p.stock
+      stockLabel = isAvailable ? '✓ Stock' : '✗ Sin stock'
+    } else {
+      const sq = typeof p.stock === 'number' ? p.stock : 0
+      isAvailable = sq > 0
+      stockLabel = `Stock: ${sq}`
+    }
+    
+    const estado = p.oculto
+      ? '<span style="color:var(--gris3)">Oculto</span>'
+      : isAvailable ? `<span style="color:var(--verde)">✓ Disponible ${stockLabel}</span>` : `<span style="color:#e74c3c">✗ Sin stock ${stockLabel}</span>`
+      
+    const imgSrc = (isLocalFallback && p.localImage) ? p.localImage : `/api/images/${p.id}`
+    const fotoEl = p.hasImage
+      ? `<img src="${imgSrc}" style="width:28px;height:28px;object-fit:cover;border-radius:5px;vertical-align:middle;margin-right:5px;" alt="" onerror="this.style.display='none'">`
+      : p.emoji + ' '
+      
+    let precioInfo = ''
+    if (p.tipo === 'alimento') {
+      precioInfo = `Bolsa: $${p.precioBolsa.toLocaleString('es-AR')} · Kg: $${p.precioKg.toLocaleString('es-AR')}`
+    } else {
+      precioInfo = `Unitario: $${p.precioUnidad.toLocaleString('es-AR')}`
+    }
+    
+    h += `<tr><td>${fotoEl}<strong>${p.nombre}</strong></td><td>${p.tipo.toUpperCase()}</td><td>${catObj ? catObj.emoji + ' ' + catObj.nombre : p.cat}</td><td>${precioInfo}</td><td>${estado}</td></tr>`
+  })
+  h += '</tbody>'
+  document.getElementById('resumenTbl').innerHTML = h
+}
+
+function onEpTipoChange(pid, tipo) {
+  const isAlimento = (tipo === 'alimento')
+  const isRopaOrPoncho = (tipo === 'poncho' || tipo === 'ropa')
+  
+  document.getElementById(`ep-seccion-alimento-${pid}`).style.display = isAlimento ? 'grid' : 'none'
+  document.getElementById(`ep-seccion-unidad-${pid}`).style.display = !isAlimento ? 'grid' : 'none'
+  document.getElementById(`ep-seccion-talles-${pid}`).style.display = isRopaOrPoncho ? 'block' : 'none'
+  
+  document.getElementById(`ep-stock-general-div-${pid}`).style.display = isRopaOrPoncho ? 'none' : 'block'
+  document.getElementById(`ep-stock-checkbox-div-${pid}`).style.display = isRopaOrPoncho ? 'none' : 'flex'
+  
+  if (isRopaOrPoncho && document.getElementById(`ep-talles-lista-${pid}`).children.length === 0) {
+    addEpTalleRow(pid)
+  }
+}
+
+function addEpTalleRow(pid, nombre = '', stock = 0) {
+  const container = document.getElementById(`ep-talles-lista-${pid}`)
+  const row = document.createElement('div')
+  row.className = 'talle-row'
+  row.style.display = 'flex'
+  row.style.gap = '8px'
+  row.style.alignItems = 'center'
+  row.style.marginTop = '4px'
+  row.innerHTML = `
+    <input type="text" placeholder="Talle" class="inp ep-talle-nombre-${pid}" value="${nombre}" style="flex:2; padding:5px; margin-bottom:0; height:32px;">
+    <input type="number" placeholder="Stock" class="inp ep-talle-stock-${pid}" value="${stock}" min="0" style="flex:1; padding:5px; margin-bottom:0; height:32px;">
+    <button class="btn-danger" onclick="this.parentElement.remove()" style="padding:5px 10px; height:32px;">✕</button>
+  `
+  container.appendChild(row)
+}
+
+function renderTblProductos() {
+  const prods = adminProds
+  let h = ''
+  prods.forEach(p => {
+    const catsOpts = adminCats.map(c => `<option value="${c.id}" ${p.cat === c.id ? 'selected' : ''}>${c.emoji} ${c.nombre}</option>`).join('')
+    const r = recPrecio(p.costo, p.peso)
+    const imgSrc = (isLocalFallback && p.localImage) ? p.localImage : `/api/images/${p.id}`
+    const fotoEl = p.hasImage
+      ? `<img class="img-preview" src="${imgSrc}" alt="" onerror="this.style.display='none'">`
+      : `<span style="font-size:1.5rem">${p.emoji}</span>`
+
+    let tallesRows = ''
+    if (p.talles && typeof p.talles === 'object') {
+      Object.entries(p.talles).forEach(([tName, tStock]) => {
+        tallesRows += `
+          <div class="talle-row" style="display:flex; gap:8px; align-items:center; margin-top:4px;">
+            <input type="text" placeholder="Talle" class="inp ep-talle-nombre-${p.id}" value="${tName}" style="flex:2; padding:5px; margin-bottom:0; height:32px;">
+            <input type="number" placeholder="Stock" class="inp ep-talle-stock-${p.id}" value="${tStock}" min="0" style="flex:1; padding:5px; margin-bottom:0; height:32px;">
+            <button class="btn-danger" onclick="this.parentElement.remove()" style="padding:5px 10px; height:32px;">✕</button>
+          </div>`
+      })
+    }
+
+    h += `<div class="acard" style="margin-bottom:.7rem;" data-pid="${p.id}">
+      <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div style="flex-shrink:0;text-align:center;">
+          <div id="fotoEl-${p.id}">${fotoEl}</div>
+          <div style="margin-top:5px;display:flex;gap:4px;justify-content:center;">
+            <button class="btn-danger" style="font-size:.7rem;padding:3px 7px;" onclick="document.getElementById('fileP-${p.id}').click()">📷 Foto</button>
+            ${p.hasImage ? `<button class="btn-danger" onclick="borrarFotoServidor(${p.id})">🗑</button>` : ''}
+          </div>
+          <input type="file" id="fileP-${p.id}" accept="image/*" style="display:none" onchange="seleccionarFoto(event,${p.id})">
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="form-grid" style="gap:8px;">
+            <div class="fg"><label>Tipo de producto</label>
+              <select id="ep-tipo-${p.id}" onchange="onEpTipoChange(${p.id}, this.value)">
+                <option value="alimento" ${p.tipo === 'alimento' ? 'selected' : ''}>Alimento</option>
+                <option value="poncho" ${p.tipo === 'poncho' ? 'selected' : ''}>Poncho</option>
+                <option value="ropa" ${p.tipo === 'ropa' ? 'selected' : ''}>Ropa</option>
+                <option value="juguete" ${p.tipo === 'juguete' ? 'selected' : ''}>Juguete</option>
+                <option value="accesorio" ${p.tipo === 'accesorio' ? 'selected' : ''}>Accesorio</option>
+                <option value="higiene" ${p.tipo === 'higiene' ? 'selected' : ''}>Higiene</option>
+                <option value="medicacion" ${p.tipo === 'medicacion' ? 'selected' : ''}>Medicación</option>
+                <option value="otro" ${p.tipo === 'otro' ? 'selected' : ''}>Otro</option>
+              </select>
+            </div>
+            <div class="fg"><label>Nombre</label><input type="text" id="ep-nombre-${p.id}" value="${p.nombre.replace(/"/g, '&quot;')}"></div>
+            <div class="fg"><label>Marca</label><input type="text" id="ep-marca-${p.id}" value="${(p.marca || '').replace(/"/g, '&quot;')}"></div>
+            <div class="fg"><label>Categoría</label><select id="ep-cat-${p.id}">${catsOpts}</select></div>
+            <div class="fg"><label>Emoji</label><input type="text" id="ep-emoji-${p.id}" value="${p.emoji || ''}" maxlength="4" style="width:60px;"></div>
+            <div class="fg"><label>Costo mayorista ($)</label><input type="number" id="ep-costo-${p.id}" value="${p.costo || 0}" oninput="updateRecEnTabla(${p.id})"></div>
+            <div class="fg"><label>Precio anterior (oferta, 0=ninguno)</label><input type="number" id="ep-ant-${p.id}" value="${p.precioAnterior || 0}"></div>
+            
+            <!-- Campos específicos para Alimentos -->
+            <div id="ep-seccion-alimento-${p.id}" class="form-grid full" style="grid-column: 1 / -1; display: ${p.tipo === 'alimento' ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+              <div class="fg"><label>Peso bolsa (kg)</label><input type="number" id="ep-peso-${p.id}" value="${p.peso || 0}" step="0.5" oninput="updateRecEnTabla(${p.id})"></div>
+              <div class="fg"><label>Precio bolsa (cliente)</label><input type="number" id="ep-bolsa-${p.id}" value="${p.precioBolsa || 0}"></div>
+              <div class="fg"><label>Precio por kilo (cliente)</label><input type="number" id="ep-kg-${p.id}" value="${p.precioKg || 0}"></div>
+            </div>
+
+            <!-- Campos específicos para Ropa / Poncho / Unidad -->
+            <div id="ep-seccion-unidad-${p.id}" class="form-grid full" style="grid-column: 1 / -1; display: ${p.tipo !== 'alimento' ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="fg"><label>Precio por unidad (cliente)</label><input type="number" id="ep-unidad-${p.id}" value="${p.precioUnidad || 0}"></div>
+              <div class="fg" id="ep-stock-general-div-${p.id}" style="display: ${(p.tipo === 'poncho' || p.tipo === 'ropa') ? 'none' : 'block'};">
+                <label>Stock (unidades)</label><input type="number" id="ep-stock-general-${p.id}" value="${typeof p.stock === 'number' ? p.stock : 10}">
+              </div>
+            </div>
+
+            <!-- Seccion Talles para Ponchos / Ropa -->
+            <div id="ep-seccion-talles-${p.id}" class="fg full" style="display: ${(p.tipo === 'poncho' || p.tipo === 'ropa') ? 'block' : 'none'}; border: 1px solid var(--borde); padding: 10px; border-radius: 8px; margin-top: 5px;">
+              <label style="font-weight:700; color:var(--verde);">Talles y Stock independiente</label>
+              <div id="ep-talles-lista-${p.id}" style="margin-top: 5px; display: flex; flex-direction: column; gap: 6px;">
+                ${tallesRows}
+              </div>
+              <button class="btn-sec" onclick="addEpTalleRow(${p.id})" style="margin-top: 8px; width: fit-content; padding: 5px 12px; font-size: 0.8rem;">+ Agregar talle</button>
+            </div>
+
+            <!-- Sección de Promociones -->
+            <div class="fg full" style="border: 1px solid var(--borde); padding: 10px; border-radius: 8px; margin-top: 5px; grid-column: 1 / -1;">
+              <label style="font-weight:700; color:var(--verde); display:flex; align-items:center; gap:5px;">
+                <input type="checkbox" id="ep-promo-enabled-${p.id}" ${p.promoEnabled ? 'checked' : ''} onchange="document.getElementById('ep-promo-campos-${p.id}').style.display = this.checked ? 'grid' : 'none'">
+                Habilitar Promoción
+              </label>
+              <div id="ep-promo-campos-${p.id}" class="form-grid" style="display: ${p.promoEnabled ? 'grid' : 'none'}; margin-top:10px; gap:8px;">
+                <div class="fg"><label>Cantidad mínima requerida</label><input type="number" id="ep-promo-qty-${p.id}" value="${p.promoQty || 2}" min="1"></div>
+                <div class="fg"><label>Precio total promocional ($)</label><input type="number" id="ep-promo-price-${p.id}" value="${p.promoPrice || 0}"></div>
+              </div>
+            </div>
+
+            <div class="fg full"><label>Descripción</label><textarea id="ep-desc-${p.id}" rows="2" style="resize:vertical;">${p.desc || ''}</textarea></div>
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:.7rem;align-items:center;font-size:.82rem;">
+            <label style="display:flex;align-items:center;gap:5px;"><label class="sw"><input type="checkbox" id="ep-destacado-${p.id}" ${p.destacado ? 'checked' : ''}><span class="sw-sl"></span></label> Destacado</label>
+            <label style="display:flex;align-items:center;gap:5px;" id="ep-stock-checkbox-div-${p.id}" style="display: ${(p.tipo === 'poncho' || p.tipo === 'ropa') ? 'none' : 'flex'}"><label class="sw"><input type="checkbox" id="ep-stock-${p.id}" ${p.stock ? 'checked' : ''}><span class="sw-sl"></span></label> Con stock</label>
+            <label style="display:flex;align-items:center;gap:5px;"><label class="sw"><input type="checkbox" id="ep-oculto-${p.id}" ${p.oculto ? 'checked' : ''}><span class="sw-sl"></span></label> Ocultar</label>
+            <label style="display:flex;align-items:center;gap:5px;"><label class="sw sw-warn"><input type="checkbox" id="ep-oferta-${p.id}" ${p.oferta ? 'checked' : ''}><span class="sw-sl"></span></label> Oferta activa</label>
+            <label style="display:flex;align-items:center;gap:5px;"><label class="sw"><input type="checkbox" id="ep-nuevo-${p.id}" ${p.nuevo ? 'checked' : ''}><span class="sw-sl"></span></label> Badge "Nuevo"</label>
+          </div>
+          <div id="rec-${p.id}" style="margin-top:.7rem;">${p.tipo === 'alimento' ? renderRec(r) : ''}</div>
+          <div style="margin-top:.7rem;display:flex;gap:7px;">
+            <button class="btn-save" onclick="guardarProd(${p.id})">💾 Guardar</button>
+            <button class="btn-danger" onclick="eliminarProd(${p.id})">🗑 Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>`
+  })
+  document.getElementById('tblProductosWrap').innerHTML = h || '<p style="color:var(--gris3);padding:1rem">No hay productos cargados.</p>'
+}
+
+function renderRec(r) {
+  if (!r) return '<div style="font-size:.75rem;color:var(--gris3)">Ingresá costo y peso para ver recomendaciones</div>'
+  return `<div class="rec-box">
+    <div class="rec-titulo">💡 Recomendaciones de precio (costo $${r.costoTotal.toLocaleString('es-AR')} la bolsa)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+      <div>
+        <div style="font-size:.7rem;font-weight:700;color:var(--verdeOsc);margin-bottom:3px;">📦 BOLSA COMPLETA</div>
+        <div class="rec-row"><span>Mínimo:</span><span>$${r.bol.min.precio.toLocaleString('es-AR')} <span class="rec-gan">(+${r.bol.min.gan}%)</span></span></div>
+        <div class="rec-row calc-rec"><span>★ Recomendado:</span><span>$${r.bol.rec.precio.toLocaleString('es-AR')} <span class="rec-gan">(+${r.bol.rec.gan}%)</span></span></div>
+        <div class="rec-row"><span>Máximo:</span><span>$${r.bol.max.precio.toLocaleString('es-AR')} <span class="rec-gan">(+${r.bol.max.gan}%)</span></span></div>
+      </div>
+      <div>
+        <div style="font-size:.7rem;font-weight:700;color:var(--verdeOsc);margin-bottom:3px;">⚖ POR KILO</div>
+        <div class="rec-row"><span>Mínimo:</span><span>$${r.kg.min.precio.toLocaleString('es-AR')}/kg <span class="rec-gan">(+${r.kg.min.gan}%)</span></span></div>
+        <div class="rec-row calc-rec"><span>★ Recomendado:</span><span>$${r.kg.rec.precio.toLocaleString('es-AR')}/kg <span class="rec-gan">(+${r.kg.rec.gan}%)</span></span></div>
+        <div class="rec-row"><span>Máximo:</span><span>$${r.kg.max.precio.toLocaleString('es-AR')}/kg <span class="rec-gan">(+${r.kg.max.gan}%)</span></span></div>
+      </div>
+    </div>
+  </div>`
+}
+
+function recPrecio(costo, peso) {
+  if (!costo || !peso || costo <= 0 || peso <= 0) return null
+  const total = costo
+  const costKg = costo / peso
+  function calc(base, pctMin, pctRec, pctMax) {
+    return {
+      min: { precio: Math.round(base * (1 + pctMin / 100)), gan: pctMin },
+      rec: { precio: Math.round(base * (1 + pctRec / 100)), gan: pctRec },
+      max: { precio: Math.round(base * (1 + pctMax / 100)), gan: pctMax },
+    }
+  }
+  return { costoTotal: total, bol: calc(total, 15, 35, 60), kg: calc(costKg, 15, 35, 60) }
+}
+
+function updateRecEnTabla(id) {
+  const costo = parseFloat(document.getElementById('ep-costo-' + id).value) || 0
+  const peso = parseFloat(document.getElementById('ep-peso-' + id).value) || 0
+  document.getElementById('rec-' + id).innerHTML = renderRec(recPrecio(costo, peso))
+}
+
+async function guardarProd(id) {
+  const btn = document.querySelector(`[data-pid="${id}"] .btn-save`)
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando...' }
+  try {
+    const tipo = document.getElementById('ep-tipo-' + id).value
+    
+    const talles = {}
+    if (tipo === 'poncho' || tipo === 'ropa') {
+      const names = document.querySelectorAll(`.ep-talle-nombre-${id}`)
+      const stocks = document.querySelectorAll(`.ep-talle-stock-${id}`)
+      for (let i = 0; i < names.length; i++) {
+        const name = names[i].value.trim()
+        const stock = parseInt(stocks[i].value) || 0
+        if (name) {
+          talles[name] = stock
+        }
+      }
+    }
+    
+    let stockVal = false
+    if (tipo === 'poncho' || tipo === 'ropa') {
+      stockVal = Object.values(talles).some(s => s > 0)
+    } else if (tipo === 'alimento') {
+      stockVal = document.getElementById('ep-stock-' + id).checked
+    } else {
+      stockVal = parseInt(document.getElementById('ep-stock-general-' + id).value) || 0
+    }
+
+    const body = {
+      id: id,
+      nombre: document.getElementById('ep-nombre-' + id).value.trim(),
+      marca: document.getElementById('ep-marca-' + id).value.trim(),
+      cat: document.getElementById('ep-cat-' + id).value,
+      emoji: document.getElementById('ep-emoji-' + id).value.trim() || '🐾',
+      tipo: tipo,
+      costo: parseFloat(document.getElementById('ep-costo-' + id).value) || 0,
+      peso: tipo === 'alimento' ? (parseFloat(document.getElementById('ep-peso-' + id).value) || 0) : 0,
+      precioBolsa: tipo === 'alimento' ? (parseFloat(document.getElementById('ep-bolsa-' + id).value) || 0) : 0,
+      precioKg: tipo === 'alimento' ? (parseFloat(document.getElementById('ep-kg-' + id).value) || 0) : 0,
+      precioUnidad: tipo !== 'alimento' ? (parseFloat(document.getElementById('ep-unidad-' + id).value) || 0) : 0,
+      precioAnterior: parseFloat(document.getElementById('ep-ant-' + id).value) || 0,
+      desc: document.getElementById('ep-desc-' + id).value.trim(),
+      stock: stockVal,
+      talles: talles,
+      promoEnabled: document.getElementById('ep-promo-enabled-' + id).checked,
+      promoQty: parseInt(document.getElementById('ep-promo-qty-' + id).value) || 0,
+      promoPrice: parseFloat(document.getElementById('ep-promo-price-' + id).value) || 0,
+      destacado: document.getElementById('ep-destacado-' + id).checked,
+      oculto: document.getElementById('ep-oculto-' + id).checked,
+      oferta: document.getElementById('ep-oferta-' + id).checked,
+      nuevo: document.getElementById('ep-nuevo-' + id).checked,
+      hasImage: false
+    }
+
+    if (isLocalFallback) {
+      const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
+      const idx = localProds.findIndex(x => x.id === id)
+      if (idx !== -1) {
+        body.hasImage = localProds[idx].hasImage || false
+        if (localProds[idx].localImage) {
+          body.localImage = localProds[idx].localImage
+        }
+        localProds[idx] = body
+        localStorage.setItem('elgarage_products', JSON.stringify(localProds))
+      }
+    } else {
+      const res = await apiFetch(`/api/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      if (!res.ok) throw new Error('Error al guardar')
+    }
+
+    if (pendingPhotos[id]) {
+      if (isLocalFallback) {
+        await savePhotoLocally(id, pendingPhotos[id])
+      } else {
+        await subirFoto(id, pendingPhotos[id])
+      }
+      delete pendingPhotos[id]
+    }
+    if (removedPhotos.has(id)) {
+      if (isLocalFallback) {
+        const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
+        const idx = localProds.findIndex(x => x.id === id)
+        if (idx !== -1) {
+          localProds[idx].hasImage = false
+          delete localProds[idx].localImage
+          localStorage.setItem('elgarage_products', JSON.stringify(localProds))
+        }
+      } else {
+        await apiFetch(`/api/images/${id}`, { method: 'DELETE' })
+      }
+      removedPhotos.delete(id)
+    }
+
+    toast('✓ ' + body.nombre + ' guardado')
+    await recargarProductosAdmin()
+  } catch (err) {
+    console.error(err)
+    toast('Error al guardar el producto', true)
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar' }
+  }
+}
+
+async function eliminarProd(id) {
+  if (!confirm('¿Eliminar este producto?')) return
+  try {
+    if (isLocalFallback) {
+      const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
+      const filtered = localProds.filter(x => x.id !== id)
+      localStorage.setItem('elgarage_products', JSON.stringify(filtered))
+    } else {
+      await apiFetch(`/api/products/${id}`, { method: 'DELETE' })
+    }
+    toast('🗑 Producto eliminado')
+    await recargarProductosAdmin()
+  } catch {
+    toast('Error al eliminar', true)
+  }
+}
+
+// ================================================================
+// FOTOS — SERVIDOR
+// ================================================================
+function seleccionarFoto(evt, id) {
+  const file = evt.target.files[0]
+  if (!file) return
+  pendingPhotos[id] = file
+  removedPhotos.delete(id)
+  const reader = new FileReader()
+  reader.onload = e => {
+    const el = document.getElementById('fotoEl-' + id)
+    if (el) el.innerHTML = `<img class="img-preview" src="${e.target.result}" alt="">`
+  }
+  reader.readAsDataURL(file)
+  toast('📷 Foto seleccionada — guardá el producto para subirla')
+}
+
+async function subirFoto(id, file) {
+  const fd = new FormData()
+  fd.append('image', file)
+  fd.append('productId', id.toString())
+  const res = await apiFetch('/api/upload', { method: 'POST', body: fd })
+  if (!res.ok) throw new Error('Error al subir foto')
+}
+
+async function borrarFotoServidor(id) {
+  if (!confirm('¿Eliminar la foto de este producto?')) return
+  removedPhotos.add(id)
+  delete pendingPhotos[id]
+  const p = adminProds.find(x => x.id === id)
+  const el = document.getElementById('fotoEl-' + id)
+  if (el) el.innerHTML = `<span style="font-size:1.5rem">${p ? p.emoji : '🐾'}</span>`
+  toast('Foto marcada para eliminar — guardá el producto para confirmar')
+}
+
+let np_fotoFileData = null
+function prevFotoNuevo(evt) {
+  const file = evt.target.files[0]
+  if (!file) return
+  np_fotoFileData = file
+  const reader = new FileReader()
+  reader.onload = e => {
+    document.getElementById('np-foto-prev').innerHTML = `<img src="${e.target.result}" style="max-height:80px;border-radius:8px;margin-top:5px;">`
+  }
+  reader.readAsDataURL(file)
+}
+
+// ================================================================
+// AGREGAR PRODUCTO
+// ================================================================
+function poblarSelectCats() {
+  const sel = document.getElementById('np-cat')
+  if (sel) sel.innerHTML = adminCats.map(c => `<option value="${c.id}">${c.emoji} ${c.nombre}</option>`).join('')
+}
+
+function onNpTipoChange(tipo) {
+  const isAlimento = (tipo === 'alimento')
+  const isRopaOrPoncho = (tipo === 'poncho' || tipo === 'ropa')
+  
+  document.getElementById('np-seccion-alimento').style.display = isAlimento ? 'grid' : 'none'
+  document.getElementById('np-seccion-unidad').style.display = !isAlimento ? 'grid' : 'none'
+  document.getElementById('np-seccion-talles').style.display = isRopaOrPoncho ? 'block' : 'none'
+  
+  document.getElementById('np-stock-general-div').style.display = isRopaOrPoncho ? 'none' : 'block'
+  document.getElementById('np-stock-checkbox-div').style.display = isRopaOrPoncho ? 'none' : 'block'
+  
+  if (!isRopaOrPoncho) {
+    document.getElementById('np-talles-lista').innerHTML = ''
+  } else {
+    if (document.getElementById('np-talles-lista').children.length === 0) {
+      addNpTalleRow()
+    }
+  }
+}
+
+function addNpTalleRow(nombre = '', stock = 0) {
+  const container = document.getElementById('np-talles-lista')
+  const row = document.createElement('div')
+  row.className = 'talle-row'
+  row.style.display = 'flex'
+  row.style.gap = '8px'
+  row.style.alignItems = 'center'
+  row.style.marginTop = '4px'
+  row.innerHTML = `
+    <input type="text" placeholder="Ej: S, M, XL, Talle 45..." class="inp np-talle-nombre" value="${nombre}" style="flex:2; padding:5px; margin-bottom:0; height:32px;">
+    <input type="number" placeholder="Stock" class="inp np-talle-stock" value="${stock}" min="0" style="flex:1; padding:5px; margin-bottom:0; height:32px;">
+    <button class="btn-danger" onclick="this.parentElement.remove()" style="padding:5px 10px; height:32px;">✕</button>
+  `
+  container.appendChild(row)
+}
+
+async function agregarProducto() {
+  const nombre = document.getElementById('np-nombre').value.trim()
+  if (!nombre) { alert('El nombre es obligatorio.'); return }
+  const btn = document.getElementById('btn-agregar-prod')
+  btn.disabled = true
+  btn.textContent = '⏳ Agregando...'
+  try {
+    const tipo = document.getElementById('np-tipo').value
+    
+    // Read talles
+    const talles = {}
+    if (tipo === 'poncho' || tipo === 'ropa') {
+      const names = document.querySelectorAll('.np-talle-nombre')
+      const stocks = document.querySelectorAll('.np-talle-stock')
+      for (let i = 0; i < names.length; i++) {
+        const name = names[i].value.trim()
+        const stock = parseInt(stocks[i].value) || 0
+        if (name) {
+          talles[name] = stock
+        }
+      }
+    }
+    
+    // Determine stock
+    let stockVal = false
+    if (tipo === 'poncho' || tipo === 'ropa') {
+      stockVal = Object.values(talles).some(s => s > 0)
+    } else if (tipo === 'alimento') {
+      stockVal = document.getElementById('np-stock').checked
+    } else {
+      stockVal = parseInt(document.getElementById('np-stock-general').value) || 0
+    }
+
+    const body = {
+      nombre,
+      marca: document.getElementById('np-marca').value.trim(),
+      cat: document.getElementById('np-cat').value,
+      emoji: document.getElementById('np-emoji').value.trim() || '🐾',
+      tipo: tipo,
+      costo: parseFloat(document.getElementById('np-costo').value) || 0,
+      peso: tipo === 'alimento' ? (parseFloat(document.getElementById('np-peso').value) || 0) : 0,
+      precioBolsa: tipo === 'alimento' ? (parseFloat(document.getElementById('np-bolsa').value) || 0) : 0,
+      precioKg: tipo === 'alimento' ? (parseFloat(document.getElementById('np-kg').value) || 0) : 0,
+      precioUnidad: tipo !== 'alimento' ? (parseFloat(document.getElementById('np-unidad').value) || 0) : 0,
+      precioAnterior: parseFloat(document.getElementById('np-anterior').value) || 0,
+      desc: document.getElementById('np-desc').value.trim(),
+      nuevo: document.getElementById('np-nuevo').checked,
+      destacado: document.getElementById('np-destacado').checked,
+      stock: stockVal,
+      talles: talles,
+      promoEnabled: document.getElementById('np-promo-enabled').checked,
+      promoQty: parseInt(document.getElementById('np-promo-qty').value) || 0,
+      promoPrice: parseFloat(document.getElementById('np-promo-price').value) || 0,
+      hasImage: false
+    }
+    
+    let createdId;
+    if (isLocalFallback) {
+      const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
+      createdId = localProds.length > 0 ? Math.max(...localProds.map(x => x.id)) + 1 : 1
+      body.id = createdId
+      localProds.push(body)
+      localStorage.setItem('elgarage_products', JSON.stringify(localProds))
+    } else {
+      const res = await apiFetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      if (!res.ok) throw new Error()
+      const created = await res.json()
+      createdId = created.id
+    }
+
+    if (np_fotoFileData) {
+      if (isLocalFallback) {
+        await savePhotoLocally(createdId, np_fotoFileData)
+      } else {
+        await subirFoto(createdId, np_fotoFileData)
+      }
+      np_fotoFileData = null
+    }
+
+    // Reset inputs
+    ;['np-nombre', 'np-marca', 'np-emoji', 'np-costo', 'np-peso', 'np-bolsa', 'np-kg', 'np-unidad', 'np-stock-general', 'np-anterior', 'np-desc', 'np-promo-qty', 'np-promo-price'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = ''
+    })
+    document.getElementById('np-tipo').value = 'alimento'
+    document.getElementById('np-nuevo').checked = false
+    document.getElementById('np-destacado').checked = false
+    document.getElementById('np-stock').checked = true
+    document.getElementById('np-promo-enabled').checked = false
+    document.getElementById('np-promo-campos').style.display = 'none'
+    document.getElementById('np-talles-lista').innerHTML = ''
+    onNpTipoChange('alimento')
+    
+    document.getElementById('np-foto-prev').innerHTML = '📷 Clic para subir foto'
+    document.getElementById('np-foto-inp').value = ''
+
+    toast('✅ ' + nombre + ' agregado al catálogo')
+    await recargarProductosAdmin()
+    aTab('productos', document.querySelectorAll('.atab')[1])
+  } catch {
+    toast('Error al agregar el producto', true)
+  } finally {
+    btn.disabled = false
+    btn.textContent = '✅ Agregar producto al catálogo'
+  }
+}
+
+// ================================================================
+// CALCULADORA
+// ================================================================
+function calcular() {
+  const costo = parseFloat(document.getElementById('c-costo').value) || 0
+  const peso = parseFloat(document.getElementById('c-peso').value) || 0
+  const nombre = document.getElementById('c-nombre').value.trim()
+  const r = recPrecio(costo, peso)
+  const res = document.getElementById('calc-resultado')
+  const addBtn = document.getElementById('calc-add-btn')
+  if (!r) { res.innerHTML = '<p style="color:var(--gris3);font-size:.85rem">Ingresá costo y peso para ver los cálculos.</p>'; addBtn.innerHTML = ''; return }
+  res.innerHTML = renderRec(r)
+  if (nombre && costo > 0 && peso > 0) {
+    addBtn.innerHTML = `<button class="btn-save" onclick="pasarANuevo()">➕ Agregar este producto al catálogo</button>`
+  }
+}
+
+function pasarANuevo() {
+  document.getElementById('np-nombre').value = document.getElementById('c-nombre').value.trim()
+  document.getElementById('np-costo').value = document.getElementById('c-costo').value
+  document.getElementById('np-peso').value = document.getElementById('c-peso').value
+  aTab('nuevo', document.querySelectorAll('.atab')[2])
+  toast('Datos copiados a "Agregar producto"')
+}
+
+// ================================================================
+// CATEGORÍAS
+// ================================================================
+function renderCategorias() {
+  let h = ''
+  adminCats.forEach(c => {
+    h += `<div class="cat-item">
+      <input type="text" id="cat-emoji-${c.id}" value="${c.emoji}" style="width:50px;text-align:center;">
+      <input type="text" id="cat-nom-${c.id}" value="${c.nombre.replace(/"/g, '&quot;')}">
+      <div style="display:flex;gap:6px;">
+        <button class="btn-save" style="padding:5px 12px;font-size:.78rem" onclick="guardarCat('${c.id}')">💾</button>
+        <button class="btn-danger" onclick="eliminarCat('${c.id}')">🗑</button>
+      </div>
+    </div>`
+  })
+  document.getElementById('cats-lista').innerHTML = h || '<p style="color:var(--gris3)">No hay categorías.</p>'
+}
+
+async function guardarCat(id) {
+  const nombre = document.getElementById('cat-nom-' + id).value.trim()
+  const emoji = document.getElementById('cat-emoji-' + id).value.trim()
+  try {
+    if (isLocalFallback) {
+      const localCats = JSON.parse(localStorage.getItem('elgarage_categories') || '[]')
+      const idx = localCats.findIndex(x => x.id === id)
+      if (idx !== -1) {
+        localCats[idx] = { id, nombre, emoji }
+        localStorage.setItem('elgarage_categories', JSON.stringify(localCats))
+      }
+    } else {
+      await apiFetch(`/api/categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, emoji })
+      })
+    }
+    toast('✓ Categoría guardada')
+    await recargarProductosAdmin()
+  } catch {
+    toast('Error al guardar categoría', true)
+  }
+}
+
+async function eliminarCat(id) {
+  if (!confirm('¿Eliminar esta categoría? Los productos quedarán sin categoría.')) return
+  try {
+    if (isLocalFallback) {
+      const localCats = JSON.parse(localStorage.getItem('elgarage_categories') || '[]')
+      const filteredCats = localCats.filter(x => x.id !== id)
+      localStorage.setItem('elgarage_categories', JSON.stringify(filteredCats))
+
+      // Update products category reference
+      const localProds = JSON.parse(localStorage.getItem('elgarage_products') || '[]')
+      localProds.forEach(p => {
+        if (p.cat === id) p.cat = ''
+      })
+      localStorage.setItem('elgarage_products', JSON.stringify(localProds))
+    } else {
+      await apiFetch(`/api/categories/${id}`, { method: 'DELETE' })
+    }
+    toast('🗑 Categoría eliminada')
+    await recargarProductosAdmin()
+  } catch {
+    toast('Error al eliminar categoría', true)
+  }
+}
+
+async function agregarCategoria() {
+  const nombre = document.getElementById('nueva-cat-nombre').value.trim()
+  if (!nombre) { alert('Ingresá un nombre para la categoría.'); return }
+  const emoji = document.getElementById('nueva-cat-emoji').value.trim() || '📦'
+  const id = 'cat_' + Date.now()
+  try {
+    if (isLocalFallback) {
+      const localCats = JSON.parse(localStorage.getItem('elgarage_categories') || '[]')
+      localCats.push({ id, nombre, emoji })
+      localStorage.setItem('elgarage_categories', JSON.stringify(localCats))
+    } else {
+      await apiFetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, nombre, emoji })
+      })
+    }
+    document.getElementById('nueva-cat-nombre').value = ''
+    document.getElementById('nueva-cat-emoji').value = ''
+    toast('✓ Categoría "' + nombre + '" creada')
+    await recargarProductosAdmin()
+  } catch {
+    toast('Error al crear categoría', true)
+  }
+}
+
+// ================================================================
+// CONFIGURACIÓN
+// ================================================================
+async function cargarConfigAdmin() {
+  try {
+    let data;
+    if (isLocalFallback) {
+      data = JSON.parse(localStorage.getItem('elgarage_config') || '{}')
+    } else {
+      data = await fetch('/api/config').then(r => r.json())
+    }
+    if (document.getElementById('cfg-nombre')) document.getElementById('cfg-nombre').value = data.nombre || ''
+    if (document.getElementById('cfg-wsp')) document.getElementById('cfg-wsp').value = data.whatsapp || ''
+    if (document.getElementById('cfg-ig')) document.getElementById('cfg-ig').value = data.instagram || ''
+    if (document.getElementById('cfg-bienvenida')) document.getElementById('cfg-bienvenida').value = data.bienvenida || ''
+  } catch {}
+}
+
+async function guardarConfig() {
+  const body = {
+    nombre: document.getElementById('cfg-nombre').value.trim(),
+    whatsapp: document.getElementById('cfg-wsp').value.trim(),
+    instagram: document.getElementById('cfg-ig').value.trim(),
+    bienvenida: document.getElementById('cfg-bienvenida').value.trim(),
+  }
+  const nuevoPass = document.getElementById('cfg-pass').value
+  const nuevoUser = document.getElementById('cfg-user').value.trim()
+  if (nuevoPass) body.adminPass = nuevoPass
+  if (nuevoUser) body.adminUser = nuevoUser
+
+  try {
+    if (isLocalFallback) {
+      const localConfig = JSON.parse(localStorage.getItem('elgarage_config') || '{}')
+      const updatedConfig = { ...localConfig, ...body }
+      localStorage.setItem('elgarage_config', JSON.stringify(updatedConfig))
+    } else {
+      const res = await apiFetch('/api/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      if (!res.ok) throw new Error()
+    }
+    document.getElementById('cfg-pass').value = ''
+    document.getElementById('cfg-user').value = ''
+    cfgData = { ...cfgData, ...body }
+    applyConfig(cfgData)
+    toast('✓ Configuración guardada')
+  } catch {
+    toast('Error al guardar configuración', true)
+  }
+}
+
+// ================================================================
+// EXPORTAR / IMPORTAR
+// ================================================================
+function exportarCatalogo() {
+  const data = { prods: adminProds, cats: adminCats, cfg: cfgData, exportDate: new Date().toISOString() }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'garage_catalogo_' + new Date().toISOString().slice(0, 10) + '.json'
+  a.click()
+  URL.revokeObjectURL(url)
+  toast('⬇ Catálogo exportado')
+}
+
+async function importarCatalogo(evt) {
+  const file = evt.target.files[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = async e => {
+    try {
+      const data = JSON.parse(e.target.result)
+      if (isLocalFallback) {
+        if (data.prods && Array.isArray(data.prods)) {
+          localStorage.setItem('elgarage_products', JSON.stringify(data.prods))
+        }
+        if (data.cats && Array.isArray(data.cats)) {
+          localStorage.setItem('elgarage_categories', JSON.stringify(data.cats))
+        }
+        if (data.cfg) {
+          localStorage.setItem('elgarage_config', JSON.stringify(data.cfg))
+        }
+      } else {
+        // Import products
+        if (data.prods && Array.isArray(data.prods)) {
+          for (const p of data.prods) {
+            await apiFetch('/api/products', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(p)
+            })
+          }
+        }
+        // Import categories
+        if (data.cats && Array.isArray(data.cats)) {
+          for (const c of data.cats) {
+            await apiFetch('/api/categories', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(c)
+            }).catch(() => {})
+          }
+        }
+        // Import config
+        if (data.cfg) {
+          await apiFetch('/api/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data.cfg)
+          })
+        }
+      }
+      toast('⬆ Catálogo importado correctamente')
+      await recargarProductosAdmin()
+    } catch {
+      alert('Error al importar el archivo.')
+    }
+  }
+  reader.readAsText(file)
+  evt.target.value = ''
+}
+
+// ================================================================
+// TOAST
+// ================================================================
+function toast(msg, isErr = false) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.classList.toggle('err', isErr)
+  t.classList.add('on')
+  clearTimeout(t._t)
+  t._t = setTimeout(() => t.classList.remove('on'), 2800)
+}
+
+// ================================================================
+// INIT
+// ================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  initApp()
+
+  document.getElementById('ovCart').addEventListener('click', function(e) { if (e.target === this) closeCart() })
+  document.getElementById('ovLogin').addEventListener('click', function(e) { if (e.target === this) closeLogin() })
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeCart()
+      closeLogin()
+      document.getElementById('ovDetalle')?.remove()
+      document.getElementById('ovPres')?.remove()
+    }
+  })
+
+  // Calculadora
+  const ccosto = document.getElementById('c-costo')
+  const cpeso = document.getElementById('c-peso')
+  if (ccosto) ccosto.addEventListener('input', calcular)
+  if (cpeso) cpeso.addEventListener('input', calcular)
+
+  // Auto-sugerir precios en form nuevo producto
+  const npCosto = document.getElementById('np-costo')
+  const npPeso = document.getElementById('np-peso')
+  function actualizarSugerencia() {
+    const costo = parseFloat(npCosto.value) || 0
+    const peso = parseFloat(npPeso.value) || 0
+    const r = recPrecio(costo, peso)
+    const prev = document.getElementById('np-calc-prev')
+    if (r && prev) { prev.style.display = 'block'; prev.innerHTML = renderRec(r) }
+    else if (prev) prev.style.display = 'none'
+  }
+  if (npCosto) npCosto.addEventListener('input', actualizarSugerencia)
+  if (npPeso) npPeso.addEventListener('input', actualizarSugerencia)
+})
+</script>
+</body>
+</html>
