@@ -2276,7 +2276,13 @@ function chgQty(i, d) {
     item.qty = Math.max(1, item.qty + d)
   } else if (p.tipo === 'poncho' || p.tipo === 'ropa') {
     const talle = item.talle
-    const stockDisponible = p.talles[talle] || 0
+    const tVal = p.talles[talle]
+    let stockDisponible = 0
+    if (typeof tVal === 'object' && tVal !== null) {
+      stockDisponible = tVal.stock || 0
+    } else {
+      stockDisponible = parseInt(tVal) || 0
+    }
     if (d > 0 && item.qty >= stockDisponible) {
       toast(`⚠️ No hay más stock disponible del talle ${talle}`, true)
       return
@@ -3149,7 +3155,10 @@ function renderResumen() {
   const prods = adminProds
   const enStock = prods.filter(p => {
     if (p.tipo === 'poncho' || p.tipo === 'ropa') {
-      return p.talles && Object.values(p.talles).some(s => s > 0)
+      return p.talles && Object.values(p.talles).some(s => {
+        if (typeof s === 'object' && s !== null) return (s.stock || 0) > 0
+        return (parseInt(s) || 0) > 0
+      })
     } else if (p.tipo === 'alimento') {
       return p.stock
     } else {
@@ -3223,8 +3232,14 @@ function renderResumen() {
     let stockLabel = ''
     
     if (p.tipo === 'poncho' || p.tipo === 'ropa') {
-      isAvailable = p.talles && Object.values(p.talles).some(s => s > 0)
-      const totalTalles = p.talles ? Object.entries(p.talles).map(([n, q]) => `${n}:${q}`).join(', ') : ''
+      isAvailable = p.talles && Object.values(p.talles).some(s => {
+        if (typeof s === 'object' && s !== null) return (s.stock || 0) > 0
+        return (parseInt(s) || 0) > 0
+      })
+      const totalTalles = p.talles ? Object.entries(p.talles).map(([n, q]) => {
+        const stock = (typeof q === 'object' && q !== null) ? (q.stock || 0) : (parseInt(q) || 0)
+        return `${n}:${stock}`
+      }).join(', ') : ''
       stockLabel = totalTalles ? `(${totalTalles})` : 'Sin talles'
     } else if (p.tipo === 'alimento') {
       isAvailable = p.stock
