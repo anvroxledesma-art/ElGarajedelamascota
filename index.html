@@ -3168,7 +3168,7 @@ async function loadDolarRates() {
   }
 }
 
-async function buscarReferenciasMercado(query, containerId, costo = 0) {
+async function buscarReferenciasMercado(query, containerId, costo = 0, peso = 0) {
   const container = document.getElementById(containerId)
   if (!container) return
   container.innerHTML = '<div style="font-size:.78rem;color:var(--verde);padding:5px 0;"><span class="spinner" style="display:inline-block;width:12px;height:12px;margin-right:6px;border-width:2px;vertical-align:middle;"></span>Buscando referencias en tiempo real...</div>'
@@ -3191,7 +3191,7 @@ async function buscarReferenciasMercado(query, containerId, costo = 0) {
   }
   
   try {
-    const res = await fetch(`/api/reference-prices?q=${encodeURIComponent(cleaned)}&costo=${costo}`)
+    const res = await fetch(`/api/reference-prices?q=${encodeURIComponent(cleaned)}&costo=${costo}&peso=${peso}`)
     if (!res.ok) throw new Error()
     const data = await res.json()
     
@@ -3592,7 +3592,7 @@ function renderTblProductos() {
           <div id="rec-${p.id}" style="margin-top:.7rem;">
             ${p.tipo === 'alimento' ? renderRec(r) + `
               <div id="ml-ref-${p.id}">
-                <button class="btn-sec" onclick="buscarReferenciasMercado('${p.nombre.replace(/'/g, "\\'")}', 'ml-ref-${p.id}', ${p.costo || 0})" style="margin-top:5px; width:fit-content; font-size:.7rem; padding:4px 8px; height:auto;">🔍 Buscar precios de mercado</button>
+                <button class="btn-sec" onclick="buscarReferenciasMercado('${p.nombre.replace(/'/g, "\\'")}', 'ml-ref-${p.id}', ${p.costo || 0}, ${p.peso || 0})" style="margin-top:5px; width:fit-content; font-size:.7rem; padding:4px 8px; height:auto;">🔍 Buscar precios de mercado</button>
               </div>
             ` : ''}
           </div>
@@ -3688,7 +3688,7 @@ function updateRecEnTabla(id) {
   const recDiv = document.getElementById('rec-' + id)
   recDiv.innerHTML = renderRec(recPrecio(costo, peso)) + `
     <div id="ml-ref-${id}">
-      <button class="btn-sec" onclick="buscarReferenciasMercado('${nombre.replace(/'/g, "\\'")}', 'ml-ref-${id}', ${costo})" style="margin-top:5px; width:fit-content; font-size:.7rem; padding:4px 8px; height:auto;">🔍 Buscar precios de mercado</button>
+      <button class="btn-sec" onclick="buscarReferenciasMercado('${nombre.replace(/'/g, "\\'")}', 'ml-ref-${id}', ${costo}, ${peso})" style="margin-top:5px; width:fit-content; font-size:.7rem; padding:4px 8px; height:auto;">🔍 Buscar precios de mercado</button>
     </div>`
 }
 
@@ -4127,7 +4127,7 @@ function calcular() {
   if (!r) { res.innerHTML = '<p style="color:var(--gris3);font-size:.85rem">Ingresá costo y peso para ver los cálculos.</p>'; addBtn.innerHTML = ''; return }
   res.innerHTML = renderRec(r) + `<div id="calc-ml-ref"></div>`
   if (nombre) {
-    buscarReferenciasMercado(nombre, 'calc-ml-ref', costo)
+    buscarReferenciasMercado(nombre, 'calc-ml-ref', costo, peso)
   }
   if (nombre && costo > 0 && peso > 0) {
     addBtn.innerHTML = `<button class="btn-save" onclick="pasarANuevo()">➕ Agregar este producto al catálogo</button>`

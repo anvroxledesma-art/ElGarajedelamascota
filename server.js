@@ -816,6 +816,7 @@ app.get('/api/reference-prices', async (req, res) => {
   try {
     const q = req.query.q;
     const costo = parseFloat(req.query.costo) || 0;
+    const peso = parseFloat(req.query.peso) || 0;
     if (!q) {
       return res.status(400).json({ error: 'Query q requerida' });
     }
@@ -847,6 +848,47 @@ app.get('/api/reference-prices', async (req, res) => {
       });
     }
 
+    function isGoodMatch(query, prod, targetPeso) {
+      if (!prod) return false;
+      const queryLower = query.toLowerCase();
+      const queryClean = queryLower.replace(/[^a-z0-9]/g, '');
+      
+      // 1. Brand match check
+      let hasBrandMatch = false;
+      
+      if (prod.brand) {
+        const brandClean = prod.brand.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (queryClean.includes(brandClean) || brandClean.includes(queryClean)) {
+          hasBrandMatch = true;
+        }
+      }
+      
+      if (!hasBrandMatch && prod.productName) {
+        const nameClean = prod.productName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
+        if (queryWords.length > 0) {
+          const firstWordClean = queryWords[0].replace(/[^a-z0-9]/g, '');
+          if (nameClean.includes(firstWordClean)) {
+            hasBrandMatch = true;
+          }
+        }
+      }
+      
+      if (!hasBrandMatch) return false;
+      
+      // 2. Weight match check (only if targetPeso > 0)
+      if (targetPeso > 0 && prod.productName) {
+        const nameLower = prod.productName.toLowerCase();
+        const escapedPeso = targetPeso.toString().replace(/[\.,]/g, '[\\.,]');
+        const weightRegex = new RegExp(`(?:^|[^0-9])${escapedPeso}(?:[^0-9]|$)`);
+        if (!weightRegex.test(nameLower)) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+
     let cleaned = q.toLowerCase()
       .replace(/\(id: \d+\)/gi, '')
       .replace(/alimento/gi, '')
@@ -874,27 +916,27 @@ app.get('/api/reference-prices', async (req, res) => {
       fallback: false
     };
 
-    if (puppisData && Array.isArray(puppisData) && puppisData.length > 0) {
-      const prod = puppisData[0];
-      if (prod.items && prod.items[0] && prod.items[0].sellers && prod.items[0].sellers[0]) {
-        const offer = prod.items[0].sellers[0].commertialOffer;
+    if (puppisData && Array.isArray(puppisData)) {
+      const matchedProd = puppisData.find(prod => isGoodMatch(cleaned, prod, peso));
+      if (matchedProd && matchedProd.items && matchedProd.items[0] && matchedProd.items[0].sellers && matchedProd.items[0].sellers[0]) {
+        const offer = matchedProd.items[0].sellers[0].commertialOffer;
         if (offer && offer.Price) {
           response.puppis = {
             price: offer.Price,
-            url: prod.link || 'https://www.puppis.com.ar'
+            url: matchedProd.link || 'https://www.puppis.com.ar'
           };
         }
       }
     }
 
-    if (naturalData && Array.isArray(naturalData) && naturalData.length > 0) {
-      const prod = naturalData[0];
-      if (prod.items && prod.items[0] && prod.items[0].sellers && prod.items[0].sellers[0]) {
-        const offer = prod.items[0].sellers[0].commertialOffer;
+    if (naturalData && Array.isArray(naturalData)) {
+      const matchedProd = naturalData.find(prod => isGoodMatch(cleaned, prod, peso));
+      if (matchedProd && matchedProd.items && matchedProd.items[0] && matchedProd.items[0].sellers && matchedProd.items[0].sellers[0]) {
+        const offer = matchedProd.items[0].sellers[0].commertialOffer;
         if (offer && offer.Price) {
           response.naturalLife = {
             price: offer.Price,
-            url: prod.link || 'https://www.natural-life.com.ar'
+            url: matchedProd.link || 'https://www.natural-life.com.ar'
           };
         }
       }
