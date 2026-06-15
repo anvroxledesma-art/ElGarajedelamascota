@@ -2360,16 +2360,26 @@ function renderCart() {
         ${cfgData.transferBanco ? `<div style="margin-bottom:4px;">• <strong>Banco/Entidad:</strong> ${cfgData.transferBanco}</div>` : ''}
         
         ${cfgData.transferAlias ? `
-          <div style="margin-bottom:4px; display:flex; align-items:center; justify-content:space-between; gap:6px;">
-            <span>• <strong>Alias:</strong> <span id="val-alias" style="background:rgba(0,0,0,0.05); padding:2px 6px; border-radius:4px; font-family:monospace; font-weight:700;">${cfgData.transferAlias}</span></span>
-            <button onclick="copiarTexto('val-alias')" style="background:#2e7d32; color:white; border:none; padding:2px 8px; border-radius:4px; font-size:0.62rem; cursor:pointer; font-weight:700; height:20px; width:auto; margin:0;">📋 Copiar</button>
+          <div style="margin-bottom:8px; display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.8rem;">• <strong>Alias:</strong></span>
+              <button onclick="copiarTexto('val-alias')" style="background:#2e7d32; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.65rem; cursor:pointer; font-weight:700; height:auto; width:auto; margin:0; display:inline-flex; align-items:center; gap:3px; line-height:1; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">📋 Copiar</button>
+            </div>
+            <div style="background:rgba(0,0,0,0.05); padding:6px 10px; border-radius:6px; font-family:monospace; font-weight:700; font-size:0.85rem; word-break:break-all; text-align:left; color:#1b5e20; margin-bottom:4px;">
+              <span id="val-alias">${cfgData.transferAlias}</span>
+            </div>
           </div>
         ` : ''}
         
         ${cfgData.transferCbu ? `
-          <div style="margin-bottom:4px; display:flex; align-items:center; justify-content:space-between; gap:6px;">
-            <span>• <strong>CBU/CVU:</strong> <span id="val-cbu" style="background:rgba(0,0,0,0.05); padding:2px 6px; border-radius:4px; font-family:monospace; font-weight:700; font-size:0.75rem;">${cfgData.transferCbu}</span></span>
-            <button onclick="copiarTexto('val-cbu')" style="background:#2e7d32; color:white; border:none; padding:2px 8px; border-radius:4px; font-size:0.62rem; cursor:pointer; font-weight:700; height:20px; width:auto; margin:0;">📋 Copiar</button>
+          <div style="margin-bottom:8px; display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.8rem;">• <strong>CBU/CVU:</strong></span>
+              <button onclick="copiarTexto('val-cbu')" style="background:#2e7d32; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.65rem; cursor:pointer; font-weight:700; height:auto; width:auto; margin:0; display:inline-flex; align-items:center; gap:3px; line-height:1; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">📋 Copiar</button>
+            </div>
+            <div style="background:rgba(0,0,0,0.05); padding:6px 10px; border-radius:6px; font-family:monospace; font-weight:700; font-size:0.85rem; word-break:break-all; text-align:left; color:#1b5e20; margin-bottom:4px;">
+              <span id="val-cbu">${cfgData.transferCbu}</span>
+            </div>
           </div>
         ` : ''}
         
