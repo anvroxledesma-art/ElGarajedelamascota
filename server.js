@@ -293,7 +293,8 @@ app.put('/api/config', authorizeAdmin, async (req, res) => {
       nombre: newConfig.nombre || config.nombre,
       whatsapp: newConfig.whatsapp || config.whatsapp,
       instagram: newConfig.instagram || config.instagram,
-      bienvenida: newConfig.bienvenida || config.bienvenida
+      bienvenida: newConfig.bienvenida || config.bienvenida,
+      ajustePorcentaje: (newConfig.ajustePorcentaje !== undefined) ? parseFloat(newConfig.ajustePorcentaje) || 0 : (config.ajustePorcentaje || 0)
     };
     
     if (newConfig.adminUser) updated.adminUser = newConfig.adminUser;
@@ -784,6 +785,30 @@ app.get('/api/visits/stats', authorizeAdmin, async (req, res) => {
   } catch (e) {
     console.error("Error getting visit stats:", e);
     res.status(500).json({ error: 'Error al obtener estadísticas de visitas' });
+  }
+});
+
+app.post('/api/visits/exclude', authorizeAdmin, async (req, res) => {
+  try {
+    const { visitorId } = req.body;
+    if (!visitorId || typeof visitorId !== 'string') {
+      return res.status(400).json({ error: 'visitorId requerido' });
+    }
+    
+    if (useMongoDB) {
+      const coll = mongoDb.collection('visits');
+      await coll.deleteOne({ _id: visitorId });
+    } else {
+      const db = readLocalDB();
+      if (db.visits) {
+        db.visits = db.visits.filter(x => x.id !== visitorId);
+        writeLocalDB(db);
+      }
+    }
+    res.json({ success: true });
+  } catch (e) {
+    console.error("Error excluding visits:", e);
+    res.status(500).json({ error: 'Error al excluir visitas' });
   }
 });
 

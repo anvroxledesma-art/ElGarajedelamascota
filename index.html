@@ -1153,9 +1153,12 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
 <div class="admin-wrap" id="adminWrap">
 
   <div class="admin-hdr">
-    <div>
-      <h1>⚙ Panel de Administración</h1>
-      <span>El Garage de la Mascota — solo vos ves esto</span>
+    <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+      <div>
+        <h1>⚙ Panel de Administración</h1>
+        <span>El Garage de la Mascota — solo vos ves esto</span>
+      </div>
+      <div id="dolar-widget" style="display:none; gap:10px; font-size:.78rem; background:rgba(255, 255, 255, 0.1); border:1px solid rgba(255,255,255,0.2); padding:5px 10px; border-radius:6px; align-items:center; color:#fff; font-weight:700;"></div>
     </div>
     <button class="btn-salir" onclick="salirAdmin()">← Volver a la tienda</button>
   </div>
@@ -1329,6 +1332,7 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
         <div class="cfg-grupo"><label>WhatsApp (con código de país, sin + ni espacios)</label><input type="text" id="cfg-wsp" value="5491126976444"></div>
         <div class="cfg-grupo"><label>Instagram (sin @)</label><input type="text" id="cfg-ig" value="elgaragedelamascota"></div>
         <div class="cfg-grupo"><label>Texto de bienvenida (hero)</label><textarea id="cfg-bienvenida" rows="2"></textarea></div>
+        <div class="cfg-grupo"><label>Ajuste inflacionario / Margen adicional (%) - Afecta recomendaciones de bolsa</label><input type="number" id="cfg-ajuste-pct" value="0" step="1"></div>
         <div class="cfg-grupo"><label>Nueva contraseña admin (dejar vacío para no cambiar)</label><input type="password" id="cfg-pass" placeholder="Nueva contraseña..."></div>
         <div class="cfg-grupo"><label>Nuevo usuario admin (dejar vacío para no cambiar)</label><input type="text" id="cfg-user" placeholder="Nuevo usuario..."></div>
         <button class="btn-save" onclick="guardarConfig()">💾 Guardar configuración</button>
@@ -2020,6 +2024,9 @@ function renderHeroPromos() {
 // INIT
 // ================================================================
 function registrarVisita() {
+  if (localStorage.getItem('elgarage_is_admin') === 'true' || sessionStorage.getItem('admin_token')) {
+    return;
+  }
   let visitorId = localStorage.getItem('elgarage_visitor_id')
   if (!visitorId) {
     visitorId = 'vis_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now()
@@ -3031,6 +3038,7 @@ async function doLogin() {
     if (user === (cfgData.adminUser || 'admin') && pass === (cfgData.adminPass || 'admin123')) {
       adminToken = 'local-admin-token-123'
       sessionStorage.setItem('admin_token', adminToken)
+      excluirVisitaAdmin(adminToken)
       closeLogin()
       document.getElementById('clienteWrap').classList.add('off')
       document.getElementById('adminWrap').classList.add('on')
@@ -3053,6 +3061,7 @@ async function doLogin() {
     if (res.ok && data.token) {
       adminToken = data.token
       sessionStorage.setItem('admin_token', adminToken)
+      excluirVisitaAdmin(adminToken)
       closeLogin()
       document.getElementById('clienteWrap').classList.add('off')
       document.getElementById('adminWrap').classList.add('on')
@@ -3125,12 +3134,45 @@ let adminProds = []
 let adminCats = []
 let adminOrders = []
 
+function excluirVisitaAdmin(token) {
+  localStorage.setItem('elgarage_is_admin', 'true')
+  const visitorId = localStorage.getItem('elgarage_visitor_id')
+  if (visitorId && token && token !== 'local-admin-token-123') {
+    fetch('/api/visits/exclude', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ visitorId })
+    }).catch(err => console.log('Error al excluir visitas:', err))
+  }
+}
+
+async function loadDolarRates() {
+  const widget = document.getElementById('dolar-widget')
+  if (!widget) return
+  try {
+    const [blueRes, oficialRes] = await Promise.all([
+      fetch('https://dolarapi.com/v1/dolares/blue').then(r => r.json()),
+      fetch('https://dolarapi.com/v1/dolares/oficial').then(r => r.json())
+    ])
+    if (blueRes && blueRes.venta && oficialRes && oficialRes.venta) {
+      widget.style.display = 'flex'
+      widget.innerHTML = `💵 Dólar Blue: $${blueRes.venta.toLocaleString('es-AR')} | Oficial: $${oficialRes.venta.toLocaleString('es-AR')}`
+    }
+  } catch (e) {
+    console.log('Error al obtener cotizaciones del dólar:', e)
+  }
+}
+
 async function renderAdmin() {
   await recargarProductosAdmin()
   renderResumen()
   renderCategorias()
   poblarSelectCats()
   cargarConfigAdmin()
+  loadDolarRates()
 }
 
 async function recargarProductosAdmin() {
@@ -3212,24 +3254,30 @@ async function renderResumen() {
   // Render Ventas
   const ordersCard = document.getElementById('adminOrdersCard')
   if (ordersCard) {
-    if (adminOrders && adminOrders.length > 0) {
-      ordersCard.style.display = 'block'
-      let totalVendido = 0
-      let totalCosto = 0
+    ordersCard.style.display = 'block'
+    let totalVendido = 0
+    let totalCosto = 0
+    const cantVentas = adminOrders ? adminOrders.length : 0
+    if (cantVentas > 0) {
       adminOrders.forEach(o => {
         totalVendido += o.total || 0
         totalCosto += o.costoTotal || 0
       })
-      const totalGanancia = totalVendido - totalCosto
-      const ticketPromedio = totalVendido / adminOrders.length
+    }
+    const totalGanancia = totalVendido - totalCosto
+    const ticketPromedio = cantVentas > 0 ? (totalVendido / cantVentas) : 0
+    const tasaConversion = (visitantesUnicos && visitantesUnicos > 0) ? ((cantVentas / visitantesUnicos) * 100).toFixed(1) : '0.0'
 
-      document.getElementById('orderStats').innerHTML = `
-        <div class="stat"><div class="stat-n" style="color:var(--verde); font-size:1.3rem;">$${totalVendido.toLocaleString('es-AR')}</div><div class="stat-l">Ingresos</div></div>
-        <div class="stat"><div class="stat-n" style="color:var(--naranja); font-size:1.3rem;">$${totalCosto.toLocaleString('es-AR')}</div><div class="stat-l">Costo Mayorista</div></div>
-        <div class="stat"><div class="stat-n" style="color:#2ecc71; font-size:1.4rem; font-weight:900;">$${totalGanancia.toLocaleString('es-AR')}</div><div class="stat-l">Ganancia Neta</div></div>
-        <div class="stat"><div class="stat-n" style="color:var(--gris3); font-size:1.3rem;">$${Math.round(ticketPromedio).toLocaleString('es-AR')}</div><div class="stat-l">Ticket Promedio</div></div>
-      `
+    document.getElementById('orderStats').innerHTML = `
+      <div class="stat"><div class="stat-n" style="color:var(--verde); font-size:1.3rem;">$${totalVendido.toLocaleString('es-AR')}</div><div class="stat-l">Ingresos</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--naranja); font-size:1.3rem;">$${totalCosto.toLocaleString('es-AR')}</div><div class="stat-l">Costo Mayorista</div></div>
+      <div class="stat"><div class="stat-n" style="color:#2ecc71; font-size:1.4rem; font-weight:900;">$${totalGanancia.toLocaleString('es-AR')}</div><div class="stat-l">Ganancia Neta</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--gris3); font-size:1.3rem;">$${Math.round(ticketPromedio).toLocaleString('es-AR')}</div><div class="stat-l">Ticket Promedio</div></div>
+      <div class="stat"><div class="stat-n" style="color:#9b59b6; font-size:1.3rem;">${cantVentas}</div><div class="stat-l">Total Ventas</div></div>
+      <div class="stat"><div class="stat-n" style="color:#3498db; font-size:1.3rem;">${tasaConversion}%</div><div class="stat-l">Conversión</div></div>
+    `
 
+    if (cantVentas > 0) {
       let oh = '<thead><tr><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Ganancia</th><th>Acción</th></tr></thead><tbody>'
       const sortedOrders = [...adminOrders].sort((a, b) => b.id - a.id)
       sortedOrders.forEach(o => {
@@ -3256,7 +3304,7 @@ async function renderResumen() {
       oh += '</tbody>'
       document.getElementById('ordenesTbl').innerHTML = oh
     } else {
-      ordersCard.style.display = 'none'
+      document.getElementById('ordenesTbl').innerHTML = '<tbody><tr><td colspan="6" style="text-align:center;color:var(--gris3);padding:2rem;">No hay ventas registradas.</td></tr></tbody>'
     }
   }
 
@@ -3498,14 +3546,39 @@ function recPrecio(costo, peso) {
   if (!costo || !peso || costo <= 0 || peso <= 0) return null
   const total = costo
   const costKg = costo / peso
-  function calc(base, pctMin, pctRec, pctMax) {
-    return {
-      min: { precio: Math.round(base * (1 + pctMin / 100)), gan: pctMin },
-      rec: { precio: Math.round(base * (1 + pctRec / 100)), gan: pctRec },
-      max: { precio: Math.round(base * (1 + pctMax / 100)), gan: pctMax },
+  
+  const pctAjuste = parseFloat(cfgData.ajustePorcentaje) || 0
+  
+  const pctBolMin = 15 + pctAjuste
+  const pctBolRec = 28 + pctAjuste
+  const pctBolMax = 48 + pctAjuste
+  
+  const bolMinPrecio = Math.round(total * (1 + pctBolMin / 100))
+  const bolRecPrecio = Math.round(total * (1 + pctBolRec / 100))
+  const bolMaxPrecio = Math.round(total * (1 + pctBolMax / 100))
+  
+  const baseKg = bolRecPrecio / peso
+  const kgMinPrecio = Math.round(baseKg * 1.20)
+  const kgRecPrecio = Math.round(baseKg * 1.30)
+  const kgMaxPrecio = Math.round(baseKg * 1.50)
+  
+  const kgMinGan = Math.round((kgMinPrecio / costKg - 1) * 100)
+  const kgRecGan = Math.round((kgRecPrecio / costKg - 1) * 100)
+  const kgMaxGan = Math.round((kgMaxPrecio / costKg - 1) * 100)
+  
+  return {
+    costoTotal: total,
+    bol: {
+      min: { precio: bolMinPrecio, gan: pctBolMin },
+      rec: { precio: bolRecPrecio, gan: pctBolRec },
+      max: { precio: bolMaxPrecio, gan: pctBolMax },
+    },
+    kg: {
+      min: { precio: kgMinPrecio, gan: kgMinGan },
+      rec: { precio: kgRecPrecio, gan: kgRecGan },
+      max: { precio: kgMaxPrecio, gan: kgMaxGan },
     }
   }
-  return { costoTotal: total, bol: calc(total, 15, 35, 60), kg: calc(costKg, 15, 35, 60) }
 }
 
 function updateRecEnTabla(id) {
@@ -4069,6 +4142,7 @@ async function cargarConfigAdmin() {
     if (document.getElementById('cfg-wsp')) document.getElementById('cfg-wsp').value = data.whatsapp || ''
     if (document.getElementById('cfg-ig')) document.getElementById('cfg-ig').value = data.instagram || ''
     if (document.getElementById('cfg-bienvenida')) document.getElementById('cfg-bienvenida').value = data.bienvenida || ''
+    if (document.getElementById('cfg-ajuste-pct')) document.getElementById('cfg-ajuste-pct').value = data.ajustePorcentaje ?? 0
   } catch {}
 }
 
@@ -4078,6 +4152,7 @@ async function guardarConfig() {
     whatsapp: document.getElementById('cfg-wsp').value.trim(),
     instagram: document.getElementById('cfg-ig').value.trim(),
     bienvenida: document.getElementById('cfg-bienvenida').value.trim(),
+    ajustePorcentaje: parseFloat(document.getElementById('cfg-ajuste-pct').value) || 0,
   }
   const nuevoPass = document.getElementById('cfg-pass').value
   const nuevoUser = document.getElementById('cfg-user').value.trim()
