@@ -2231,6 +2231,23 @@ function togglePayDetails(method) {
   if (lblA) lblA.style.borderColor = method === 'acordar' ? 'var(--verde)' : 'var(--borde)'
 }
 
+function copiarTexto(id) {
+  const el = document.getElementById(id)
+  if (!el) return
+  const text = el.textContent.trim()
+  navigator.clipboard.writeText(text).then(() => {
+    toast('📋 Copiado: ' + text)
+  }).catch(() => {
+    const inp = document.createElement('input')
+    inp.value = text
+    document.body.appendChild(inp)
+    inp.select()
+    document.execCommand('copy')
+    document.body.removeChild(inp)
+    toast('📋 Copiado: ' + text)
+  })
+}
+
 function renderCart() {
   const body = document.getElementById('cartBody')
   const ftr = document.getElementById('cartFtr')
@@ -2339,13 +2356,26 @@ function renderCart() {
       
       <!-- DETALLES DE PAGO -->
       <div id="pay-details-transfer" style="background:#eef6ee; border:1px solid #c8e6c9; border-radius:8px; padding:10px; margin-top:10px; font-size:0.8rem; color:#2e7d32; display:block;">
-        <strong style="display:block; margin-bottom:4px; font-size:0.82rem;">💡 Datos para la transferencia:</strong>
-        ${cfgData.transferBanco ? `<div style="margin-bottom:2px;">• <strong>Banco/Entidad:</strong> ${cfgData.transferBanco}</div>` : ''}
-        ${cfgData.transferAlias ? `<div style="margin-bottom:2px;">• <strong>Alias:</strong> <span style="background:rgba(0,0,0,0.05); padding:2px 4px; border-radius:4px; font-family:monospace;">${cfgData.transferAlias}</span></div>` : ''}
-        ${cfgData.transferCbu ? `<div style="margin-bottom:2px;">• <strong>CBU/CVU:</strong> <span style="background:rgba(0,0,0,0.05); padding:2px 4px; border-radius:4px; font-family:monospace;">${cfgData.transferCbu}</span></div>` : ''}
-        ${cfgData.transferTitular ? `<div style="margin-bottom:2px;">• <strong>Titular:</strong> ${cfgData.transferTitular}</div>` : ''}
+        <strong style="display:block; margin-bottom:6px; font-size:0.82rem;">💡 Datos para la transferencia:</strong>
+        ${cfgData.transferBanco ? `<div style="margin-bottom:4px;">• <strong>Banco/Entidad:</strong> ${cfgData.transferBanco}</div>` : ''}
+        
+        ${cfgData.transferAlias ? `
+          <div style="margin-bottom:4px; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <span>• <strong>Alias:</strong> <span id="val-alias" style="background:rgba(0,0,0,0.05); padding:2px 6px; border-radius:4px; font-family:monospace; font-weight:700;">${cfgData.transferAlias}</span></span>
+            <button onclick="copiarTexto('val-alias')" style="background:#2e7d32; color:white; border:none; padding:2px 8px; border-radius:4px; font-size:0.62rem; cursor:pointer; font-weight:700; height:20px; width:auto; margin:0;">📋 Copiar</button>
+          </div>
+        ` : ''}
+        
+        ${cfgData.transferCbu ? `
+          <div style="margin-bottom:4px; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <span>• <strong>CBU/CVU:</strong> <span id="val-cbu" style="background:rgba(0,0,0,0.05); padding:2px 6px; border-radius:4px; font-family:monospace; font-weight:700; font-size:0.75rem;">${cfgData.transferCbu}</span></span>
+            <button onclick="copiarTexto('val-cbu')" style="background:#2e7d32; color:white; border:none; padding:2px 8px; border-radius:4px; font-size:0.62rem; cursor:pointer; font-weight:700; height:20px; width:auto; margin:0;">📋 Copiar</button>
+          </div>
+        ` : ''}
+        
+        ${cfgData.transferTitular ? `<div style="margin-bottom:4px;">• <strong>Titular:</strong> ${cfgData.transferTitular}</div>` : ''}
         <div style="margin-top:6px; font-style:italic; font-size:0.75rem; color:#1b5e20; border-top:1.5px dashed #c8e6c9; padding-top:6px;">
-          * Realizá la transferencia por el total ($${total.toLocaleString('es-AR')}) y luego envianos el comprobante por WhatsApp al confirmar.
+          * Tocá el botón <strong>Copiar</strong> para llevarte el Alias o CBU y pegarlo en tu app de banco (Mercado Pago, Ualá, etc.). Transferí el total ($${total.toLocaleString('es-AR')}) y envianos el comprobante por chat al confirmar.
         </div>
       </div>
       
