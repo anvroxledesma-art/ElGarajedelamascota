@@ -3195,23 +3195,15 @@ async function buscarReferenciasMercado(query, containerId, costo = 0, peso = 0)
     if (!res.ok) throw new Error()
     const data = await res.json()
     
-    const pPrice = data.puppis ? data.puppis.price : null
-    const nPrice = data.naturalLife ? data.naturalLife.price : null
-    
-    if (!pPrice && !nPrice) {
+    if (!data.meli && !data.retail) {
       container.innerHTML = `<div style="font-size:.75rem;color:var(--gris3)">No se hallaron precios de referencia para este producto.</div>`
       return
     }
     
-    const refPuppisPrice = pPrice || Math.round(nPrice * 1.05)
-    const refNaturalPrice = nPrice || Math.round(pPrice * 0.95)
-    
-    const minPrice = Math.min(refPuppisPrice, refNaturalPrice)
-    const minGbaTarget = Math.round(minPrice * 0.90) // 10% cheaper as GBA wholesaler target
-    
-    const pUrl = data.puppis ? data.puppis.url : 'https://www.puppis.com.ar'
-    const nUrl = data.naturalLife ? data.naturalLife.url : 'https://www.natural-life.com.ar'
     const isFallback = data.fallback
+    const meliObj = data.meli
+    const retailObj = data.retail
+    const minGbaTarget = data.minPrice || Math.round(costo * 1.15)
     
     container.innerHTML = `
       <div style="background:var(--gris1); border:1px solid var(--borde); border-radius:8px; padding:10px; margin-top:8px;">
@@ -3220,24 +3212,33 @@ async function buscarReferenciasMercado(query, containerId, costo = 0, peso = 0)
           <span style="font-size:.65rem; color:var(--gris3); font-weight:normal;">Ref: "${cleaned}"</span>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
-          <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--borde); text-align:center;">
-            <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase;">Tienda Puppis</div>
-            <div style="font-size:.9rem; font-weight:800; color:var(--naranja); margin:2px 0;">$${refPuppisPrice.toLocaleString('es-AR')}</div>
-            <a href="${pUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver en Puppis ↗</a>
+          
+          <!-- MERCADO LIBRE -->
+          <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid ${meliObj && meliObj.isReal ? 'var(--verde)' : 'var(--borde)'}; text-align:center;">
+            <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase; font-weight:700;">Mercado Libre</div>
+            <div style="font-size:.9rem; font-weight:800; color:${meliObj && meliObj.isReal ? 'var(--verde)' : 'var(--naranja)'}; margin:2px 0;">$${meliObj ? meliObj.price.toLocaleString('es-AR') : 'N/D'}</div>
+            <span style="font-size:.55rem; color:var(--gris3); display:block; margin-bottom:2px;">(${meliObj && meliObj.isReal ? 'En vivo' : 'Estimado'})</span>
+            ${meliObj ? `<a href="${meliObj.url}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver en ML ↗</a>` : '<span style="font-size:.62rem; color:var(--gris3);">Agotado/No disponible</span>'}
           </div>
-          <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--verde); text-align:center;">
-            <div style="font-size:.62rem; color:var(--verdeOsc); text-transform:uppercase; font-weight:700;">Natural Life</div>
-            <div style="font-size:.9rem; font-weight:800; color:var(--verde); margin:2px 0;">$${refNaturalPrice.toLocaleString('es-AR')}</div>
-            <a href="${nUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver en Natural ↗</a>
+          
+          <!-- TIENDA MINORISTA -->
+          <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid ${retailObj && retailObj.isReal ? 'var(--verde)' : 'var(--borde)'}; text-align:center;">
+            <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase; font-weight:700;">${retailObj ? retailObj.store : 'Tiendas'}</div>
+            <div style="font-size:.9rem; font-weight:800; color:${retailObj && retailObj.isReal ? 'var(--verde)' : 'var(--naranja)'}; margin:2px 0;">$${retailObj ? retailObj.price.toLocaleString('es-AR') : 'N/D'}</div>
+            <span style="font-size:.55rem; color:var(--gris3); display:block; margin-bottom:2px;">(${retailObj && retailObj.isReal ? 'En vivo' : 'Estimado'})</span>
+            ${retailObj ? `<a href="${retailObj.url}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver Tienda ↗</a>` : '<span style="font-size:.62rem; color:var(--gris3);">Agotado/No disponible</span>'}
           </div>
+          
+          <!-- PRECIO MINIMO -->
           <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--borde); text-align:center;">
             <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase; font-weight:700;">Precio Mínimo</div>
             <div style="font-size:.9rem; font-weight:800; color:#e74c3c; margin:2px 0;">$${minGbaTarget.toLocaleString('es-AR')}</div>
-            <span style="font-size:.58rem; color:var(--gris3); display:block; line-height:1;">(Sugerido Mayorista)</span>
+            <span style="font-size:.58rem; color:var(--gris3); display:block; line-height:1; margin-top:4px;">(Sugerido Mayorista)</span>
           </div>
+          
         </div>
         <div style="font-size:.65rem; color:var(--gris3); margin-top:6px; line-height:1.2; text-align:center;">
-          * Las referencias de <strong>Puppis</strong> y <strong>Natural Life</strong> son precios minoristas de mercado. El <strong>Precio Mínimo</strong> estima el valor de distribuidora para competir en el barrio.
+          * Las referencias de <strong>Mercado Libre</strong> y <strong>${retailObj ? retailObj.store : 'Tiendas'}</strong> son precios minoristas de mercado. El <strong>Precio Mínimo</strong> sugiere un precio de distribuidor/combate para competir en el barrio.
         </div>
       </div>
     `
