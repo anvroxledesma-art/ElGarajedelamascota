@@ -2019,6 +2019,19 @@ function renderHeroPromos() {
 // ================================================================
 // INIT
 // ================================================================
+function registrarVisita() {
+  let visitorId = localStorage.getItem('elgarage_visitor_id')
+  if (!visitorId) {
+    visitorId = 'vis_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now()
+    localStorage.setItem('elgarage_visitor_id', visitorId)
+  }
+  fetch('/api/visits', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ visitorId })
+  }).catch(err => console.log('Error logging visit:', err))
+}
+
 async function initApp() {
   showLoading()
   try {
@@ -2045,6 +2058,7 @@ async function initApp() {
     renderCatalogo()
     renderHeroPromos()
     hideLoading()
+    registrarVisita()
   }
 }
 
@@ -3151,7 +3165,7 @@ async function recargarProductosAdmin() {
 // ================================================================
 // ADMIN RESUMEN
 // ================================================================
-function renderResumen() {
+async function renderResumen() {
   const prods = adminProds
   const enStock = prods.filter(p => {
     if (p.tipo === 'poncho' || p.tipo === 'ropa') {
@@ -3167,11 +3181,32 @@ function renderResumen() {
   }).length
   const sinS = prods.length - enStock
   const ocultos = prods.filter(p => p.oculto).length
+
+  // Fetch stats from visits API
+  let visitasTotales = '-'
+  let visitantesUnicos = '-'
+  if (!isLocalFallback) {
+    try {
+      const statsRes = await apiFetch('/api/visits/stats')
+      if (statsRes.ok) {
+        const stats = await statsRes.json()
+        visitasTotales = stats.totalVisits ?? 0
+        visitantesUnicos = stats.uniqueVisitors ?? 0
+      }
+    } catch (e) {
+      console.error("Error al obtener stats de visitas:", e)
+    }
+  }
+
+  const formatStat = val => typeof val === 'number' ? val.toLocaleString('es-AR') : val;
+
   document.getElementById('adminStats').innerHTML = `
     <div class="stat"><div class="stat-n">${prods.length}</div><div class="stat-l">Productos</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--verde)">${enStock}</div><div class="stat-l">Con stock</div></div>
     <div class="stat"><div class="stat-n" style="color:#e74c3c">${sinS}</div><div class="stat-l">Sin stock</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--gris3)">${ocultos}</div><div class="stat-l">Ocultos</div></div>
+    <div class="stat"><div class="stat-n" style="color:#9b59b6">${formatStat(visitasTotales)}</div><div class="stat-l">Visitas Totales</div></div>
+    <div class="stat"><div class="stat-n" style="color:#3498db">${formatStat(visitantesUnicos)}</div><div class="stat-l">Visitas Únicas</div></div>
   `
 
   // Render Ventas

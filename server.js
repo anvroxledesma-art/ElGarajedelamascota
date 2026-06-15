@@ -716,6 +716,77 @@ app.delete('/api/orders/:id', authorizeAdmin, async (req, res) => {
   }
 });
 
+// 8. Visitas / Visitor Counter
+app.post('/api/visits', async (req, res) => {
+  try {
+    const { visitorId } = req.body;
+    if (!visitorId || typeof visitorId !== 'string') {
+      return res.status(400).json({ error: 'visitorId requerido' });
+    }
+    
+    if (useMongoDB) {
+      const coll = mongoDb.collection('visits');
+      await coll.updateOne(
+        { _id: visitorId },
+        { 
+          $inc: { hits: 1 },
+          $setOnInsert: { firstVisit: new Date() },
+          $set: { lastVisit: new Date() }
+        },
+        { upsert: true }
+      );
+    } else {
+      const db = readLocalDB();
+      if (!db.visits) db.visits = [];
+      let vis = db.visits.find(x => x.id === visitorId);
+      if (vis) {
+        vis.hits = (vis.hits || 0) + 1;
+        vis.lastVisit = new Date();
+      } else {
+        db.visits.push({
+          id: visitorId,
+          hits: 1,
+          firstVisit: new Date(),
+          lastVisit: new Date()
+        });
+      }
+      writeLocalDB(db);
+    }
+    res.json({ success: true });
+  } catch (e) {
+    console.error("Error logging visit:", e);
+    res.status(500).json({ error: 'Error al registrar visita' });
+  }
+});
+
+app.get('/api/visits/stats', authorizeAdmin, async (req, res) => {
+  try {
+    let totalVisits = 0;
+    let uniqueVisitors = 0;
+    
+    if (useMongoDB) {
+      const coll = mongoDb.collection('visits');
+      uniqueVisitors = await coll.countDocuments();
+      
+      const agg = await coll.aggregate([
+        { $group: { _id: null, totalHits: { $sum: "$hits" } } }
+      ]).toArray();
+      
+      totalVisits = agg.length > 0 ? agg[0].totalHits : 0;
+    } else {
+      const db = readLocalDB();
+      const visits = db.visits || [];
+      uniqueVisitors = visits.length;
+      totalVisits = visits.reduce((acc, x) => acc + (x.hits || 0), 0);
+    }
+    
+    res.json({ totalVisits, uniqueVisitors });
+  } catch (e) {
+    console.error("Error getting visit stats:", e);
+    res.status(500).json({ error: 'Error al obtener estadísticas de visitas' });
+  }
+});
+
 // 7. Login Authentication
 app.post('/api/auth/login', async (req, res) => {
   try {
