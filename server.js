@@ -812,6 +812,103 @@ app.post('/api/visits/exclude', authorizeAdmin, async (req, res) => {
   }
 });
 
+app.get('/api/reference-prices', async (req, res) => {
+  try {
+    const q = req.query.q;
+    if (!q) {
+      return res.status(400).json({ error: 'Query q requerida' });
+    }
+    
+    const https = require('https');
+    
+    function fetchJson(url) {
+      return new Promise((resolve, reject) => {
+        const options = {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        };
+        https.get(url, options, (apiRes) => {
+          let data = '';
+          apiRes.on('data', (chunk) => { data += chunk; });
+          apiRes.on('end', () => {
+            try {
+              resolve(JSON.parse(data));
+            } catch (err) {
+              resolve(null);
+            }
+          });
+        }).on('error', (err) => {
+          console.error(`Error fetching from ${url}:`, err);
+          resolve(null);
+        });
+      });
+    }
+
+    let cleaned = q.toLowerCase()
+      .replace(/\(id: \d+\)/gi, '')
+      .replace(/alimento/gi, '')
+      .replace(/poncho/gi, '')
+      .replace(/ropa/gi, '')
+      .replace(/juguete/gi, '')
+      .replace(/accesorio/gi, '')
+      .replace(/higiene/gi, '')
+      .replace(/medicación/gi, '')
+      .replace(/medicacion/gi, '')
+      .trim();
+
+    const mlUrl = `https://api.mercadolibre.com/sites/MLA/search?q=${encodeURIComponent(cleaned)}`;
+    const puppisUrl = `https://www.puppis.com.ar/api/catalog_system/pub/products/search?ft=${encodeURIComponent(cleaned)}`;
+    
+    const [mlData, puppisData] = await Promise.all([
+      fetchJson(mlUrl),
+      fetchJson(puppisUrl).catch(() => null)
+    ]);
+    
+    const response = {
+      ml: null,
+      puppis: null
+    };
+
+    if (mlData && mlData.results && mlData.results.length > 0) {
+      const items = mlData.results.filter(x => x.price && x.price > 100);
+      if (items.length > 0) {
+        items.sort((a, b) => a.price - b.price);
+        const minItem = items[0];
+        
+        const sliceCount = Math.min(items.length, 6);
+        const topSlice = items.slice(0, sliceCount);
+        const avgPrice = Math.round(topSlice.reduce((acc, x) => acc + x.price, 0) / sliceCount);
+        
+        response.ml = {
+          minPrice: minItem.price,
+          minUrl: minItem.permalink,
+          avgPrice: avgPrice,
+          searchUrl: `https://listado.mercadolibre.com.ar/${encodeURIComponent(cleaned)}`
+        };
+      }
+    }
+
+    if (puppisData && Array.isArray(puppisData) && puppisData.length > 0) {
+      const prod = puppisData[0];
+      if (prod.items && prod.items[0] && prod.items[0].sellers && prod.items[0].sellers[0]) {
+        const offer = prod.items[0].sellers[0].commertialOffer;
+        if (offer && offer.Price) {
+          response.puppis = {
+            price: offer.Price,
+            url: prod.link || 'https://www.puppis.com.ar'
+          };
+        }
+      }
+    }
+
+    res.json(response);
+  } catch (e) {
+    console.error("Error in reference-prices route:", e);
+    res.status(500).json({ error: 'Error interno en el servidor' });
+  }
+});
+
 // 7. Login Authentication
 app.post('/api/auth/login', async (req, res) => {
   try {

@@ -3191,27 +3191,31 @@ async function buscarReferenciasMercado(query, containerId) {
   }
   
   try {
-    const res = await fetch(`https://api.mercadolibre.com/sites/MLA/search?q=${encodeURIComponent(cleaned)}`)
+    const res = await fetch(`/api/reference-prices?q=${encodeURIComponent(cleaned)}`)
     if (!res.ok) throw new Error()
     const data = await res.json()
-    const items = (data.results || []).filter(x => x.price && x.price > 100)
     
-    if (items.length === 0) {
-      container.innerHTML = `<div style="font-size:.75rem;color:var(--gris3)">No se hallaron precios de referencia en Mercado Libre.</div>`
+    if (!data.ml) {
+      container.innerHTML = `<div style="font-size:.75rem;color:var(--gris3)">No se hallaron precios de referencia para este producto.</div>`
       return
     }
     
-    items.sort((a, b) => a.price - b.price)
+    const mlMinPrice = data.ml.minPrice
+    const mlAvgPrice = data.ml.avgPrice
+    const mlMinUrl = data.ml.minUrl
+    const mlSearchUrl = data.ml.searchUrl
     
-    const minItem = items[0]
-    const minPrice = minItem.price
+    let refMedPrice = Math.round(mlAvgPrice * 0.88)
+    let refMedLabel = "Pet Shop (GBA)"
+    let refMedUrl = mlSearchUrl
+    let sourceBadge = "Estimado"
     
-    const sliceCount = Math.min(items.length, 6)
-    const topSlice = items.slice(0, sliceCount)
-    const avgPrice = Math.round(topSlice.reduce((acc, x) => acc + x.price, 0) / sliceCount)
-    
-    const localGbaPrice = Math.round(avgPrice * 0.88)
-    const mlSearchUrl = `https://listado.mercadolibre.com.ar/${encodeURIComponent(cleaned)}`
+    if (data.puppis) {
+      refMedPrice = data.puppis.price
+      refMedLabel = "Tienda Puppis"
+      refMedUrl = data.puppis.url
+      sourceBadge = "En vivo"
+    }
     
     container.innerHTML = `
       <div style="background:var(--gris1); border:1px solid var(--borde); border-radius:8px; padding:10px; margin-top:8px;">
@@ -3221,23 +3225,23 @@ async function buscarReferenciasMercado(query, containerId) {
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
           <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--borde); text-align:center;">
-            <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase;">Mínimo ML</div>
-            <div style="font-size:.9rem; font-weight:800; color:#e74c3c; margin:2px 0;">$${minPrice.toLocaleString('es-AR')}</div>
-            <a href="${minItem.permalink}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver producto ↗</a>
-          </div>
-          <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--borde); text-align:center;">
-            <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase;">Promedio ML</div>
-            <div style="font-size:.9rem; font-weight:800; color:var(--naranja); margin:2px 0;">$${avgPrice.toLocaleString('es-AR')}</div>
+            <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase;">Mercado Libre</div>
+            <div style="font-size:.9rem; font-weight:800; color:var(--naranja); margin:2px 0;">$${mlAvgPrice.toLocaleString('es-AR')}</div>
             <a href="${mlSearchUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver búsqueda ↗</a>
           </div>
           <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--verde); text-align:center;">
-            <div style="font-size:.62rem; color:var(--verdeOsc); text-transform:uppercase; font-weight:700;">Pet Shop GBA</div>
-            <div style="font-size:.9rem; font-weight:800; color:var(--verde); margin:2px 0;">$${localGbaPrice.toLocaleString('es-AR')}</div>
-            <span style="font-size:.58rem; color:var(--gris3); display:block; line-height:1;">(Sugerido GBA)</span>
+            <div style="font-size:.62rem; color:var(--verdeOsc); text-transform:uppercase; font-weight:700;">${refMedLabel}</div>
+            <div style="font-size:.9rem; font-weight:800; color:var(--verde); margin:2px 0;">$${refMedPrice.toLocaleString('es-AR')}</div>
+            <a href="${refMedUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">${sourceBadge === "En vivo" ? "Ver tienda ↗" : "Ref. Minorista ↗"}</a>
+          </div>
+          <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--borde); text-align:center;">
+            <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase; font-weight:700;">Precio Mínimo</div>
+            <div style="font-size:.9rem; font-weight:800; color:#e74c3c; margin:2px 0;">$${mlMinPrice.toLocaleString('es-AR')}</div>
+            <a href="${mlMinUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver oferta ↗</a>
           </div>
         </div>
         <div style="font-size:.65rem; color:var(--gris3); margin-top:6px; line-height:1.2; text-align:center;">
-          * El precio <strong>Pet Shop GBA</strong> descuenta la comisión de ML, ideal para vender barato y competitivo en el barrio sin perder ganancia.
+          * La referencia de <strong>Precio Mínimo</strong> proviene de distribuidores o liquidadores mayoristas online. El precio medio/recomendado es ideal para competir al público en el barrio.
         </div>
       </div>
     `
