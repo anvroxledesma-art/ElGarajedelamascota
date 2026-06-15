@@ -889,6 +889,36 @@ app.get('/api/reference-prices', async (req, res) => {
       return true;
     }
 
+    function isGoodMatchMeli(query, item, targetPeso) {
+      if (!item || !item.title) return false;
+      const queryLower = query.toLowerCase();
+      const titleLower = item.title.toLowerCase();
+      
+      // 1. Brand match check
+      let hasBrandMatch = false;
+      const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
+      if (queryWords.length > 0) {
+        const firstWordClean = queryWords[0].replace(/[^a-z0-9]/g, '');
+        const titleClean = titleLower.replace(/[^a-z0-9]/g, '');
+        if (titleClean.includes(firstWordClean)) {
+          hasBrandMatch = true;
+        }
+      }
+      
+      if (!hasBrandMatch) return false;
+      
+      // 2. Weight match check (only if targetPeso > 0)
+      if (targetPeso > 0) {
+        const escapedPeso = targetPeso.toString().replace(/[\.,]/g, '[\\.,]');
+        const weightRegex = new RegExp(`(?:^|[^0-9])${escapedPeso}(?:[^0-9]|$)`);
+        if (!weightRegex.test(titleLower)) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+
     let cleaned = q.toLowerCase()
       .replace(/\(id: \d+\)/gi, '')
       .replace(/alimento/gi, '')
@@ -903,56 +933,118 @@ app.get('/api/reference-prices', async (req, res) => {
 
     const puppisUrl = `https://www.puppis.com.ar/api/catalog_system/pub/products/search?ft=${encodeURIComponent(cleaned)}`;
     const naturalUrl = `https://www.natural-life.com.ar/api/catalog_system/pub/products/search?ft=${encodeURIComponent(cleaned)}`;
+    const meliUrl = `https://api.mercadolibre.com/sites/MLA/search?q=${encodeURIComponent(cleaned)}`;
     
-    const [puppisData, naturalData] = await Promise.all([
+    const [puppisData, naturalData, meliData] = await Promise.all([
       fetchJson(puppisUrl).catch(() => null),
-      fetchJson(naturalUrl).catch(() => null)
+      fetchJson(naturalUrl).catch(() => null),
+      fetchJson(meliUrl).catch(() => null)
     ]);
     
     const response = {
       query: cleaned,
-      puppis: null,
-      naturalLife: null,
+      meli: null,
+      retail: null,
       fallback: false
     };
 
+    // 1. Mercado Libre Matching
+    if (meliData && meliData.results && Array.isArray(meliData.results)) {
+      const matchedMeli = meliData.results.find(item => isGoodMatchMeli(cleaned, item, peso));
+      if (matchedMeli) {
+        response.meli = {
+          price: matchedMeli.price,
+          url: matchedMeli.permalink || `https://listado.mercadolibre.com.ar/${encodeURIComponent(cleaned)}`,
+          isReal: true
+        };
+      }
+    }
+
+    // 2. Retail Matching
+    let matchedPuppis = null;
     if (puppisData && Array.isArray(puppisData)) {
-      const matchedProd = puppisData.find(prod => isGoodMatch(cleaned, prod, peso));
-      if (matchedProd && matchedProd.items && matchedProd.items[0] && matchedProd.items[0].sellers && matchedProd.items[0].sellers[0]) {
-        const offer = matchedProd.items[0].sellers[0].commertialOffer;
-        if (offer && offer.Price) {
-          response.puppis = {
-            price: offer.Price,
-            url: matchedProd.link || 'https://www.puppis.com.ar'
-          };
-        }
-      }
+      matchedPuppis = puppisData.find(prod => isGoodMatch(cleaned, prod, peso));
     }
 
+    let matchedNatural = null;
     if (naturalData && Array.isArray(naturalData)) {
-      const matchedProd = naturalData.find(prod => isGoodMatch(cleaned, prod, peso));
-      if (matchedProd && matchedProd.items && matchedProd.items[0] && matchedProd.items[0].sellers && matchedProd.items[0].sellers[0]) {
-        const offer = matchedProd.items[0].sellers[0].commertialOffer;
-        if (offer && offer.Price) {
-          response.naturalLife = {
-            price: offer.Price,
-            url: matchedProd.link || 'https://www.natural-life.com.ar'
-          };
-        }
+      matchedNatural = naturalData.find(prod => isGoodMatch(cleaned, prod, peso));
+    }
+
+    let retailOffers = [];
+    if (matchedPuppis && matchedPuppis.items && matchedPuppis.items[0] && matchedPuppis.items[0].sellers && matchedPuppis.items[0].sellers[0]) {
+      const offer = matchedPuppis.items[0].sellers[0].commertialOffer;
+      if (offer && offer.Price) {
+        retailOffers.push({
+          store: 'Puppis',
+          price: offer.Price,
+          url: matchedPuppis.link || 'https://www.puppis.com.ar'
+        });
+      }
+    }
+    if (matchedNatural && matchedNatural.items && matchedNatural.items[0] && matchedNatural.items[0].sellers && matchedNatural.items[0].sellers[0]) {
+      const offer = matchedNatural.items[0].sellers[0].commertialOffer;
+      if (offer && offer.Price) {
+        retailOffers.push({
+          store: 'Natural Life',
+          price: offer.Price,
+          url: matchedNatural.link || 'https://www.natural-life.com.ar'
+        });
       }
     }
 
-    // If both failed to find products, we can provide a calculated fallback based on cost to never show error
-    if (!response.puppis && !response.naturalLife && costo > 0) {
-      response.fallback = true;
-      response.puppis = {
-        price: Math.round(costo * 1.32), // typical retail price (+32%)
-        url: 'https://www.puppis.com.ar'
+    if (retailOffers.length > 0) {
+      retailOffers.sort((a, b) => a.price - b.price);
+      response.retail = {
+        store: retailOffers[0].store,
+        price: retailOffers[0].price,
+        url: retailOffers[0].url,
+        isReal: true
       };
-      response.naturalLife = {
-        price: Math.round(costo * 1.28), // slightly lower (+28%)
-        url: 'https://www.natural-life.com.ar'
-      };
+    }
+
+    // 3. Fallback Logic if any or both are null
+    if (!response.meli) {
+      if (costo > 0) {
+        response.meli = {
+          price: Math.round(costo * 1.30),
+          url: `https://listado.mercadolibre.com.ar/${encodeURIComponent(cleaned)}`,
+          isReal: false
+        };
+        response.fallback = true;
+      } else if (response.retail) {
+        response.meli = {
+          price: Math.round(response.retail.price * 0.90),
+          url: `https://listado.mercadolibre.com.ar/${encodeURIComponent(cleaned)}`,
+          isReal: false
+        };
+        response.fallback = true;
+      }
+    }
+
+    if (!response.retail) {
+      if (costo > 0) {
+        response.retail = {
+          store: 'Pet Shop (Ref)',
+          price: Math.round(costo * 1.28),
+          url: 'https://www.puppis.com.ar',
+          isReal: false
+        };
+        response.fallback = true;
+      } else if (response.meli) {
+        response.retail = {
+          store: 'Pet Shop (Ref)',
+          price: Math.round(response.meli.price * 1.05),
+          url: 'https://www.puppis.com.ar',
+          isReal: false
+        };
+        response.fallback = true;
+      }
+    }
+
+    if (response.meli && response.retail) {
+      const min = Math.min(response.meli.price, response.retail.price);
+      response.minPrice = Math.round(min * 0.90);
     }
 
     res.json(response);
