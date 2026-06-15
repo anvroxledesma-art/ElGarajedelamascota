@@ -1333,8 +1333,21 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
         <div class="cfg-grupo"><label>Instagram (sin @)</label><input type="text" id="cfg-ig" value="elgaragedelamascota"></div>
         <div class="cfg-grupo"><label>Texto de bienvenida (hero)</label><textarea id="cfg-bienvenida" rows="2"></textarea></div>
         <div class="cfg-grupo"><label>Ajuste inflacionario / Margen adicional (%) - Afecta recomendaciones de bolsa</label><input type="number" id="cfg-ajuste-pct" value="0" step="1"></div>
-        <div class="cfg-grupo"><label>Nueva contraseña admin (dejar vacío para no cambiar)</label><input type="password" id="cfg-pass" placeholder="Nueva contraseña..."></div>
-        <div class="cfg-grupo"><label>Nuevo usuario admin (dejar vacío para no cambiar)</label><input type="text" id="cfg-user" placeholder="Nuevo usuario..."></div>
+        
+        <div style="border-top:1.5px solid var(--borde); margin:20px 0; padding-top:15px;">
+          <h4 style="margin-bottom:12px; color:var(--verde);">🏦 Datos para Transferencia Bancaria (Checkout)</h4>
+          <div class="cfg-grupo"><label>Banco / Entidad Financiera</label><input type="text" id="cfg-transfer-banco" placeholder="Ej: Mercado Pago"></div>
+          <div class="cfg-grupo"><label>Alias de Transferencia</label><input type="text" id="cfg-transfer-alias" placeholder="Ej: elgarage.mascota.mp"></div>
+          <div class="cfg-grupo"><label>CBU / CVU de Transferencia</label><input type="text" id="cfg-transfer-cbu" placeholder="Ej: 00000031000..."></div>
+          <div class="cfg-grupo"><label>Nombre del Titular</label><input type="text" id="cfg-transfer-titular" placeholder="Ej: Valentin Ledesma"></div>
+        </div>
+
+        <div style="border-top:1.5px solid var(--borde); margin:20px 0; padding-top:15px;">
+          <h4 style="margin-bottom:12px; color:var(--gris3);">🔐 Credenciales del Administrador</h4>
+          <div class="cfg-grupo"><label>Nueva contraseña admin (dejar vacío para no cambiar)</label><input type="password" id="cfg-pass" placeholder="Nueva contraseña..."></div>
+          <div class="cfg-grupo"><label>Nuevo usuario admin (dejar vacío para no cambiar)</label><input type="text" id="cfg-user" placeholder="Nuevo usuario..."></div>
+        </div>
+        
         <button class="btn-save" onclick="guardarConfig()">💾 Guardar configuración</button>
       </div>
     </div>
@@ -2201,6 +2214,23 @@ function updateBadge() {
 function openCart() { document.getElementById('ovCart').classList.add('on'); renderCart() }
 function closeCart() { document.getElementById('ovCart').classList.remove('on') }
 
+function togglePayDetails(method) {
+  const t = document.getElementById('pay-details-transfer')
+  const c = document.getElementById('pay-details-tarjeta')
+  const a = document.getElementById('pay-details-acordar')
+  
+  if (t) t.style.display = method === 'transferencia' ? 'block' : 'none'
+  if (c) c.style.display = method === 'tarjeta' ? 'block' : 'none'
+  if (a) a.style.display = method === 'acordar' ? 'block' : 'none'
+  
+  const lblT = document.getElementById('lbl-pay-transfer')
+  const lblC = document.getElementById('lbl-pay-card')
+  const lblA = document.getElementById('lbl-pay-acordar')
+  if (lblT) lblT.style.borderColor = method === 'transferencia' ? 'var(--verde)' : 'var(--borde)'
+  if (lblC) lblC.style.borderColor = method === 'tarjeta' ? 'var(--verde)' : 'var(--borde)'
+  if (lblA) lblA.style.borderColor = method === 'acordar' ? 'var(--verde)' : 'var(--borde)'
+}
+
 function renderCart() {
   const body = document.getElementById('cartBody')
   const ftr = document.getElementById('cartFtr')
@@ -2276,16 +2306,79 @@ function renderCart() {
   const savedName = localStorage.getItem('elgarage_cliente_nombre') || ''
 
   ftr.innerHTML = `
+    <!-- DATOS DEL CLIENTE -->
     <div style="margin-bottom:12px; text-align: left;">
       <label style="font-size:0.82rem; font-weight:700; color:var(--texto); display:block; margin-bottom:4px;">Tu Nombre y Apellido (para confirmar el pedido) *</label>
       <input type="text" id="cart-client-name" placeholder="Ej: Valentin Ledesma" class="inp" value="${savedName}" style="margin-bottom:0; padding:8px 12px; font-size:0.9rem; height:36px; border:1.5px solid var(--borde); border-radius:8px; width:100%;">
     </div>
+    
+    <!-- METODO DE PAGO -->
+    <div style="margin: 15px 0; text-align: left; border-top: 1.5px solid var(--borde); padding-top: 15px;">
+      <h3 style="font-size:0.92rem; font-weight:800; color:var(--texto); margin-bottom:10px;">💳 Elegí cómo pagar</h3>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        
+        <!-- TRANSFERENCIA -->
+        <label style="display:block; background:var(--blanco); border:1.5px solid var(--verde); border-radius:8px; padding:10px; cursor:pointer;" id="lbl-pay-transfer">
+          <div style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:0.85rem; color:var(--texto);">
+            <input type="radio" name="pay-method" value="transferencia" checked onchange="togglePayDetails('transferencia')">
+            <span>🏦 Transferencia Bancaria / Virtual</span>
+          </div>
+          <div style="font-size:0.75rem; color:var(--gris3); margin-left:22px; margin-top:2px;">Mercado Pago, Ualá, Naranja X, Banco, etc.</div>
+        </label>
+        
+        <!-- ACORDAR / WHATSAPP -->
+        <label style="display:block; background:var(--blanco); border:1.5px solid var(--borde); border-radius:8px; padding:10px; cursor:pointer;" id="lbl-pay-acordar">
+          <div style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:0.85rem; color:var(--texto);">
+            <input type="radio" name="pay-method" value="acordar" onchange="togglePayDetails('acordar')">
+            <span>🤝 Efectivo / Acordar por WhatsApp</span>
+          </div>
+          <div style="font-size:0.75rem; color:var(--gris3); margin-left:22px; margin-top:2px;">Abonás en efectivo al retirar en el local.</div>
+        </label>
+        
+      </div>
+      
+      <!-- DETALLES DE PAGO -->
+      <div id="pay-details-transfer" style="background:#eef6ee; border:1px solid #c8e6c9; border-radius:8px; padding:10px; margin-top:10px; font-size:0.8rem; color:#2e7d32; display:block;">
+        <strong style="display:block; margin-bottom:4px; font-size:0.82rem;">💡 Datos para la transferencia:</strong>
+        ${cfgData.transferBanco ? `<div style="margin-bottom:2px;">• <strong>Banco/Entidad:</strong> ${cfgData.transferBanco}</div>` : ''}
+        ${cfgData.transferAlias ? `<div style="margin-bottom:2px;">• <strong>Alias:</strong> <span style="background:rgba(0,0,0,0.05); padding:2px 4px; border-radius:4px; font-family:monospace;">${cfgData.transferAlias}</span></div>` : ''}
+        ${cfgData.transferCbu ? `<div style="margin-bottom:2px;">• <strong>CBU/CVU:</strong> <span style="background:rgba(0,0,0,0.05); padding:2px 4px; border-radius:4px; font-family:monospace;">${cfgData.transferCbu}</span></div>` : ''}
+        ${cfgData.transferTitular ? `<div style="margin-bottom:2px;">• <strong>Titular:</strong> ${cfgData.transferTitular}</div>` : ''}
+        <div style="margin-top:6px; font-style:italic; font-size:0.75rem; color:#1b5e20; border-top:1.5px dashed #c8e6c9; padding-top:6px;">
+          * Realizá la transferencia por el total ($${total.toLocaleString('es-AR')}) y luego envianos el comprobante por WhatsApp al confirmar.
+        </div>
+      </div>
+      
+      <div id="pay-details-acordar" style="background:#efebe9; border:1px solid #d7ccc8; border-radius:8px; padding:10px; margin-top:10px; font-size:0.8rem; color:#4e342e; display:none;">
+        <strong>🤝 Efectivo / Acordar por chat:</strong>
+        <p style="margin:4px 0 0 0; line-height:1.2; font-size:0.78rem;">Podés abonar en efectivo directamente al retirar tu pedido por el local.</p>
+      </div>
+      
+    </div>
+
+    <!-- RESUMEN DE COMPRA -->
+    <div style="background:var(--gris1); border:1.5px solid var(--borde); border-radius:8px; padding:12px; margin-bottom:15px; text-align:left;">
+      <h4 style="margin:0 0 8px 0; font-size:0.85rem; font-weight:800; color:var(--texto); border-bottom:1px solid var(--borde); padding-bottom:6px;">🧾 Resumen de la compra</h4>
+      <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--gris2); margin-bottom:4px; width:100%;">
+        <span style="flex:1;">Productos (${carrito.reduce((sum, item) => sum + item.qty, 0)})</span>
+        <span>$${total.toLocaleString('es-AR')}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--verde); font-weight:700; margin-bottom:6px; width:100%;">
+        <span style="flex:1;">Envío</span>
+        <span>Gratis (Retiro en local)</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:800; color:var(--texto); border-top:1.5px dashed var(--borde); padding-top:6px; width:100%;">
+        <span style="flex:1;">Pagás</span>
+        <span style="color:var(--verde)">$${total.toLocaleString('es-AR')}</span>
+      </div>
+    </div>
+
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
       <button class="btn-vaciar" onclick="vaciarCarrito()">🗑 Vaciar</button>
-      <div style="font-size:.85rem;color:var(--gris3)">Total: <strong style="font-size:1.05rem;color:var(--verde)">$${total.toLocaleString('es-AR')}</strong></div>
     </div>
     <button class="btn-wsp-big" onclick="enviarPedido(${total})" style="border:none; width:100%; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      <span>Confirmar y enviar pedido por WhatsApp</span>
     </button>`
 }
 
@@ -2337,6 +2430,14 @@ async function enviarPedido(total) {
 
   localStorage.setItem('elgarage_cliente_nombre', nombreCliente)
 
+  const payMethodInput = document.querySelector('input[name="pay-method"]:checked')
+  const payMethod = payMethodInput ? payMethodInput.value : 'transferencia'
+  
+  let payMethodText = ''
+  if (payMethod === 'transferencia') payMethodText = '🏦 Transferencia Bancaria / Virtual'
+  else if (payMethod === 'tarjeta') payMethodText = '💳 Tarjeta de Débito / Crédito'
+  else payMethodText = '🤝 Efectivo / Acordar por WhatsApp'
+
   // Preparar datos de venta
   const cleanProds = carrito.map(item => {
     const p = productos.find(x => x.id === item.id)
@@ -2367,7 +2468,8 @@ async function enviarPedido(total) {
     cliente: nombreCliente,
     productos: cleanProds,
     total: total,
-    costoTotal: Math.round(cleanProds.reduce((sum, item) => sum + item.costo, 0))
+    costoTotal: Math.round(cleanProds.reduce((sum, item) => sum + item.costo, 0)),
+    metodoPago: payMethod
   }
 
   // Guardar en base de datos
@@ -2390,7 +2492,7 @@ async function enviarPedido(total) {
   }
 
   // Generar mensaje de WhatsApp
-  let msg = `Hola! Soy *${nombreCliente}*. Quisiera consultar por estos productos desde ${cfgData.nombre || 'El Garage de la Mascota'}:\n\n`
+  let msg = `Hola! Soy *${nombreCliente}*. Quisiera confirmar este pedido desde ${cfgData.nombre || 'El Garage de la Mascota'}:\n\n`
   carrito.forEach((item) => {
     const p = productos.find(x => x.id === item.id)
     let itemTotal = item.precio * item.qty
@@ -2419,8 +2521,9 @@ async function enviarPedido(total) {
     msg += itemDetailStr + '\n'
   })
 
-  msg += `\n*Total de referencia: $${total.toLocaleString('es-AR')}*\n`
-  msg += `📍 Retiro en el local\n\n¡Muchas gracias! 😊`
+  msg += `\n*Total a pagar: $${total.toLocaleString('es-AR')}*\n`
+  msg += `💳 Medio de pago: *${payMethodText}*\n`
+  msg += `📍 Retiro en el local (Envío: Gratis)\n\n¡Muchas gracias! 😊`
 
   const encodedMsg = encodeURIComponent(msg)
   window.open(`https://wa.me/${getWsp()}?text=${encodedMsg}`, '_blank')
@@ -3372,10 +3475,19 @@ async function renderResumen() {
         }).join(', ')
 
         const gan = (o.total || 0) - (o.costoTotal || 0)
+        
+        let payBadge = ''
+        if (o.metodoPago === 'transferencia') {
+          payBadge = '<span style="font-size:.65rem; background:#eef6ee; color:#2e7d32; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:700;">🏦 Transf</span>'
+        } else if (o.metodoPago === 'tarjeta') {
+          payBadge = '<span style="font-size:.65rem; background:#fff3e0; color:#e65100; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:700;">💳 Tarjeta</span>'
+        } else if (o.metodoPago === 'acordar') {
+          payBadge = '<span style="font-size:.65rem; background:#efebe9; color:#4e342e; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:700;">🤝 Acordar</span>'
+        }
 
         oh += `<tr>
           <td>${fechaStr}</td>
-          <td><strong>${o.cliente || 'Anónimo'}</strong></td>
+          <td><strong>${o.cliente || 'Anónimo'}</strong>${payBadge}</td>
           <td style="font-size:.82rem; color:var(--gris2); max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${prodList}">${prodList}</td>
           <td><strong style="color:var(--verde)">$${(o.total || 0).toLocaleString('es-AR')}</strong></td>
           <td><span style="color:#2ecc71; font-weight:700;">$${gan.toLocaleString('es-AR')}</span></td>
@@ -4252,6 +4364,10 @@ async function cargarConfigAdmin() {
     if (document.getElementById('cfg-ig')) document.getElementById('cfg-ig').value = data.instagram || ''
     if (document.getElementById('cfg-bienvenida')) document.getElementById('cfg-bienvenida').value = data.bienvenida || ''
     if (document.getElementById('cfg-ajuste-pct')) document.getElementById('cfg-ajuste-pct').value = data.ajustePorcentaje ?? 0
+    if (document.getElementById('cfg-transfer-banco')) document.getElementById('cfg-transfer-banco').value = data.transferBanco || ''
+    if (document.getElementById('cfg-transfer-alias')) document.getElementById('cfg-transfer-alias').value = data.transferAlias || ''
+    if (document.getElementById('cfg-transfer-cbu')) document.getElementById('cfg-transfer-cbu').value = data.transferCbu || ''
+    if (document.getElementById('cfg-transfer-titular')) document.getElementById('cfg-transfer-titular').value = data.transferTitular || ''
   } catch {}
 }
 
@@ -4262,6 +4378,10 @@ async function guardarConfig() {
     instagram: document.getElementById('cfg-ig').value.trim(),
     bienvenida: document.getElementById('cfg-bienvenida').value.trim(),
     ajustePorcentaje: parseFloat(document.getElementById('cfg-ajuste-pct').value) || 0,
+    transferBanco: document.getElementById('cfg-transfer-banco').value.trim(),
+    transferAlias: document.getElementById('cfg-transfer-alias').value.trim(),
+    transferCbu: document.getElementById('cfg-transfer-cbu').value.trim(),
+    transferTitular: document.getElementById('cfg-transfer-titular').value.trim(),
   }
   const nuevoPass = document.getElementById('cfg-pass').value
   const nuevoUser = document.getElementById('cfg-user').value.trim()

@@ -282,7 +282,6 @@ app.get('/api/config', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener configuración' });
   }
 });
-
 app.put('/api/config', authorizeAdmin, async (req, res) => {
   try {
     const config = await getConfig();
@@ -294,7 +293,11 @@ app.put('/api/config', authorizeAdmin, async (req, res) => {
       whatsapp: newConfig.whatsapp || config.whatsapp,
       instagram: newConfig.instagram || config.instagram,
       bienvenida: newConfig.bienvenida || config.bienvenida,
-      ajustePorcentaje: (newConfig.ajustePorcentaje !== undefined) ? parseFloat(newConfig.ajustePorcentaje) || 0 : (config.ajustePorcentaje || 0)
+      ajustePorcentaje: (newConfig.ajustePorcentaje !== undefined) ? parseFloat(newConfig.ajustePorcentaje) || 0 : (config.ajustePorcentaje || 0),
+      transferCbu: (newConfig.transferCbu !== undefined) ? newConfig.transferCbu.trim() : (config.transferCbu || ''),
+      transferAlias: (newConfig.transferAlias !== undefined) ? newConfig.transferAlias.trim() : (config.transferAlias || ''),
+      transferTitular: (newConfig.transferTitular !== undefined) ? newConfig.transferTitular.trim() : (config.transferTitular || ''),
+      transferBanco: (newConfig.transferBanco !== undefined) ? newConfig.transferBanco.trim() : (config.transferBanco || '')
     };
     
     if (newConfig.adminUser) updated.adminUser = newConfig.adminUser;
