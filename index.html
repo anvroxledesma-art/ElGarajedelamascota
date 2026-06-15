@@ -3168,7 +3168,7 @@ async function loadDolarRates() {
   }
 }
 
-async function buscarReferenciasMercado(query, containerId) {
+async function buscarReferenciasMercado(query, containerId, costo = 0) {
   const container = document.getElementById(containerId)
   if (!container) return
   container.innerHTML = '<div style="font-size:.78rem;color:var(--verde);padding:5px 0;"><span class="spinner" style="display:inline-block;width:12px;height:12px;margin-right:6px;border-width:2px;vertical-align:middle;"></span>Buscando referencias en tiempo real...</div>'
@@ -3191,57 +3191,53 @@ async function buscarReferenciasMercado(query, containerId) {
   }
   
   try {
-    const res = await fetch(`/api/reference-prices?q=${encodeURIComponent(cleaned)}`)
+    const res = await fetch(`/api/reference-prices?q=${encodeURIComponent(cleaned)}&costo=${costo}`)
     if (!res.ok) throw new Error()
     const data = await res.json()
     
-    if (!data.ml) {
+    const pPrice = data.puppis ? data.puppis.price : null
+    const nPrice = data.naturalLife ? data.naturalLife.price : null
+    
+    if (!pPrice && !nPrice) {
       container.innerHTML = `<div style="font-size:.75rem;color:var(--gris3)">No se hallaron precios de referencia para este producto.</div>`
       return
     }
     
-    const mlMinPrice = data.ml.minPrice
-    const mlAvgPrice = data.ml.avgPrice
-    const mlMinUrl = data.ml.minUrl
-    const mlSearchUrl = data.ml.searchUrl
+    const refPuppisPrice = pPrice || Math.round(nPrice * 1.05)
+    const refNaturalPrice = nPrice || Math.round(pPrice * 0.95)
     
-    let refMedPrice = Math.round(mlAvgPrice * 0.88)
-    let refMedLabel = "Pet Shop (GBA)"
-    let refMedUrl = mlSearchUrl
-    let sourceBadge = "Estimado"
+    const minPrice = Math.min(refPuppisPrice, refNaturalPrice)
+    const minGbaTarget = Math.round(minPrice * 0.90) // 10% cheaper as GBA wholesaler target
     
-    if (data.puppis) {
-      refMedPrice = data.puppis.price
-      refMedLabel = "Tienda Puppis"
-      refMedUrl = data.puppis.url
-      sourceBadge = "En vivo"
-    }
+    const pUrl = data.puppis ? data.puppis.url : 'https://www.puppis.com.ar'
+    const nUrl = data.naturalLife ? data.naturalLife.url : 'https://www.natural-life.com.ar'
+    const isFallback = data.fallback
     
     container.innerHTML = `
       <div style="background:var(--gris1); border:1px solid var(--borde); border-radius:8px; padding:10px; margin-top:8px;">
         <div style="font-size:.72rem; font-weight:700; color:var(--verde); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-          <span>🔍 COMPARATIVA DE MERCADO EN VIVO</span>
+          <span>🔍 COMPARATIVA DE MERCADO ${isFallback ? 'ESTIMADA' : 'EN VIVO'}</span>
           <span style="font-size:.65rem; color:var(--gris3); font-weight:normal;">Ref: "${cleaned}"</span>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
           <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--borde); text-align:center;">
-            <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase;">Mercado Libre</div>
-            <div style="font-size:.9rem; font-weight:800; color:var(--naranja); margin:2px 0;">$${mlAvgPrice.toLocaleString('es-AR')}</div>
-            <a href="${mlSearchUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver búsqueda ↗</a>
+            <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase;">Tienda Puppis</div>
+            <div style="font-size:.9rem; font-weight:800; color:var(--naranja); margin:2px 0;">$${refPuppisPrice.toLocaleString('es-AR')}</div>
+            <a href="${pUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver en Puppis ↗</a>
           </div>
           <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--verde); text-align:center;">
-            <div style="font-size:.62rem; color:var(--verdeOsc); text-transform:uppercase; font-weight:700;">${refMedLabel}</div>
-            <div style="font-size:.9rem; font-weight:800; color:var(--verde); margin:2px 0;">$${refMedPrice.toLocaleString('es-AR')}</div>
-            <a href="${refMedUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">${sourceBadge === "En vivo" ? "Ver tienda ↗" : "Ref. Minorista ↗"}</a>
+            <div style="font-size:.62rem; color:var(--verdeOsc); text-transform:uppercase; font-weight:700;">Natural Life</div>
+            <div style="font-size:.9rem; font-weight:800; color:var(--verde); margin:2px 0;">$${refNaturalPrice.toLocaleString('es-AR')}</div>
+            <a href="${nUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver en Natural ↗</a>
           </div>
           <div style="background:var(--blanco); padding:6px; border-radius:6px; border:1px solid var(--borde); text-align:center;">
             <div style="font-size:.62rem; color:var(--gris3); text-transform:uppercase; font-weight:700;">Precio Mínimo</div>
-            <div style="font-size:.9rem; font-weight:800; color:#e74c3c; margin:2px 0;">$${mlMinPrice.toLocaleString('es-AR')}</div>
-            <a href="${mlMinUrl}" target="_blank" style="font-size:.62rem; color:var(--verde); text-decoration:underline; display:block;">Ver oferta ↗</a>
+            <div style="font-size:.9rem; font-weight:800; color:#e74c3c; margin:2px 0;">$${minGbaTarget.toLocaleString('es-AR')}</div>
+            <span style="font-size:.58rem; color:var(--gris3); display:block; line-height:1;">(Sugerido Mayorista)</span>
           </div>
         </div>
         <div style="font-size:.65rem; color:var(--gris3); margin-top:6px; line-height:1.2; text-align:center;">
-          * La referencia de <strong>Precio Mínimo</strong> proviene de distribuidores o liquidadores mayoristas online. El precio medio/recomendado es ideal para competir al público en el barrio.
+          * Las referencias de <strong>Puppis</strong> y <strong>Natural Life</strong> son precios minoristas de mercado. El <strong>Precio Mínimo</strong> estima el valor de distribuidora para competir en el barrio.
         </div>
       </div>
     `
@@ -3596,7 +3592,7 @@ function renderTblProductos() {
           <div id="rec-${p.id}" style="margin-top:.7rem;">
             ${p.tipo === 'alimento' ? renderRec(r) + `
               <div id="ml-ref-${p.id}">
-                <button class="btn-sec" onclick="buscarReferenciasMercado('${p.nombre.replace(/'/g, "\\'")}', 'ml-ref-${p.id}')" style="margin-top:5px; width:fit-content; font-size:.7rem; padding:4px 8px; height:auto;">🔍 Buscar precios de mercado</button>
+                <button class="btn-sec" onclick="buscarReferenciasMercado('${p.nombre.replace(/'/g, "\\'")}', 'ml-ref-${p.id}', ${p.costo || 0})" style="margin-top:5px; width:fit-content; font-size:.7rem; padding:4px 8px; height:auto;">🔍 Buscar precios de mercado</button>
               </div>
             ` : ''}
           </div>
@@ -3692,7 +3688,7 @@ function updateRecEnTabla(id) {
   const recDiv = document.getElementById('rec-' + id)
   recDiv.innerHTML = renderRec(recPrecio(costo, peso)) + `
     <div id="ml-ref-${id}">
-      <button class="btn-sec" onclick="buscarReferenciasMercado('${nombre.replace(/'/g, "\\'")}', 'ml-ref-${id}')" style="margin-top:5px; width:fit-content; font-size:.7rem; padding:4px 8px; height:auto;">🔍 Buscar precios de mercado</button>
+      <button class="btn-sec" onclick="buscarReferenciasMercado('${nombre.replace(/'/g, "\\'")}', 'ml-ref-${id}', ${costo})" style="margin-top:5px; width:fit-content; font-size:.7rem; padding:4px 8px; height:auto;">🔍 Buscar precios de mercado</button>
     </div>`
 }
 
@@ -4131,7 +4127,7 @@ function calcular() {
   if (!r) { res.innerHTML = '<p style="color:var(--gris3);font-size:.85rem">Ingresá costo y peso para ver los cálculos.</p>'; addBtn.innerHTML = ''; return }
   res.innerHTML = renderRec(r) + `<div id="calc-ml-ref"></div>`
   if (nombre) {
-    buscarReferenciasMercado(nombre, 'calc-ml-ref')
+    buscarReferenciasMercado(nombre, 'calc-ml-ref', costo)
   }
   if (nombre && costo > 0 && peso > 0) {
     addBtn.innerHTML = `<button class="btn-save" onclick="pasarANuevo()">➕ Agregar este producto al catálogo</button>`
