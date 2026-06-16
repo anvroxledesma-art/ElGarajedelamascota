@@ -122,6 +122,9 @@ img{max-width:100%;height:auto;}
 .logo-icon{font-size:1.8rem;line-height:1;}
 .logo-name{font-size:1.05rem;font-weight:800;line-height:1.2;}
 .logo-sub{font-size:0.65rem;opacity:.75;letter-spacing:.8px;text-transform:uppercase;}
+.logo-img-container{display:flex;align-items:center;justify-content:center;height:42px;width:auto;min-width:34px;flex-shrink:0;}
+.logo-img-header{height:42px;width:auto;max-width:140px;object-fit:contain;transition:transform 0.2s ease;}
+.logo-img-header:hover{transform:scale(1.05);}
 .header-right{display:flex;align-items:center;gap:8px;}
 .btn-cart-header{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 13px;border-radius:20px;font-size:.85rem;display:flex;align-items:center;gap:6px;transition:.2s;}
 .btn-cart-header:hover{background:rgba(255,255,255,.28);}
@@ -1021,7 +1024,9 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
 
   <header class="site-header">
     <div class="logo-wrap">
-      <span class="logo-icon">🐾</span>
+      <div class="logo-img-container" id="logoImgContainer">
+        <span class="logo-icon">🐾</span>
+      </div>
       <div>
         <div class="logo-name" id="cfg-logo-name">El Garage de la Mascota</div>
         <div class="logo-sub">Alimentos para tu mascota</div>
@@ -1329,6 +1334,38 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
       <div class="acard">
         <div class="acard-hdr"><h3>⚙ Configuración de la tienda</h3></div>
         <div class="cfg-grupo"><label>Nombre de la tienda</label><input type="text" id="cfg-nombre" value="El Garage de la Mascota"></div>
+        
+        <div class="cfg-grupo" style="border:1.5px solid var(--borde); padding:12px; border-radius:10px; margin-bottom:15px; background:var(--gris2);">
+          <label style="font-weight:700; color:var(--verde); margin-bottom:8px; display:block;">🖼️ Logotipos de la Tienda (Formatos Claro/Oscuro)</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <!-- Logo Modo Claro -->
+            <div style="display:flex; flex-direction:column; gap:5px; align-items:center; text-align:center; background:var(--blanco); padding:10px; border-radius:8px; border:1px solid var(--borde);">
+              <span style="font-size:0.75rem; font-weight:700; color:var(--texto);">Logo Modo Claro (Texto Oscuro)</span>
+              <div id="cfg-logo-light-prev" style="width:100%; height:70px; display:flex; align-items:center; justify-content:center; background:#fbfbfb; border:1px dashed var(--borde); border-radius:6px; overflow:hidden; margin:4px 0;">
+                <span style="font-size:1.8rem; opacity:0.35;">🐾</span>
+              </div>
+              <div style="display:flex; gap:6px; width:100%;">
+                <button class="btn-save" onclick="document.getElementById('logo-light-inp').click()" style="flex:1; padding:5px; font-size:0.75rem; margin:0;">Subir</button>
+                <button class="btn-danger" id="btn-del-logo-light" onclick="eliminarLogoConfig('light')" style="display:none; padding:5px; font-size:0.75rem; margin:0; width:auto;">🗑️</button>
+              </div>
+              <input type="file" id="logo-light-inp" accept="image/*" style="display:none" onchange="subirLogoConfig(event, 'light')">
+            </div>
+            
+            <!-- Logo Modo Oscuro -->
+            <div style="display:flex; flex-direction:column; gap:5px; align-items:center; text-align:center; background:var(--texto); color:var(--blanco); padding:10px; border-radius:8px; border:1px solid var(--borde);">
+              <span style="font-size:0.75rem; font-weight:700; color:var(--blanco);">Logo Modo Oscuro (Texto Blanco)</span>
+              <div id="cfg-logo-dark-prev" style="width:100%; height:70px; display:flex; align-items:center; justify-content:center; background:#1e1e1e; border:1px dashed var(--borde); border-radius:6px; overflow:hidden; margin:4px 0;">
+                <span style="font-size:1.8rem; opacity:0.35; color:#fff;">🐾</span>
+              </div>
+              <div style="display:flex; gap:6px; width:100%;">
+                <button class="btn-save" onclick="document.getElementById('logo-dark-inp').click()" style="flex:1; padding:5px; font-size:0.75rem; margin:0; background:var(--verde2);">Subir</button>
+                <button class="btn-danger" id="btn-del-logo-dark" onclick="eliminarLogoConfig('dark')" style="display:none; padding:5px; font-size:0.75rem; margin:0; width:auto;">🗑️</button>
+              </div>
+              <input type="file" id="logo-dark-inp" accept="image/*" style="display:none" onchange="subirLogoConfig(event, 'dark')">
+            </div>
+          </div>
+        </div>
+
         <div class="cfg-grupo"><label>WhatsApp (con código de país, sin + ni espacios)</label><input type="text" id="cfg-wsp" value="5491126976444"></div>
         <div class="cfg-grupo"><label>Instagram (sin @)</label><input type="text" id="cfg-ig" value="elgaragedelamascota"></div>
         <div class="cfg-grupo"><label>Texto de bienvenida (hero)</label><textarea id="cfg-bienvenida" rows="2"></textarea></div>
@@ -1386,6 +1423,7 @@ function toggleTheme() {
   const isDark = document.documentElement.classList.toggle('dark-mode')
   localStorage.setItem('theme', isDark ? 'dark' : 'light')
   actualizarIconoTema()
+  actualizarLogoHeader()
 }
 
 function actualizarIconoTema() {
@@ -2093,6 +2131,25 @@ function applyConfig(cfg) {
   document.getElementById('footerWsp').textContent = wsp ? '+' + wsp : ''
   document.getElementById('footerIg').textContent = ig ? '@' + ig : ''
   if (cfg.bienvenida) document.getElementById('heroDesc').textContent = cfg.bienvenida
+  actualizarLogoHeader();
+}
+
+function actualizarLogoHeader() {
+  const logoContainer = document.getElementById('logoImgContainer');
+  if (!logoContainer) return;
+  
+  const isDark = document.documentElement.classList.contains('dark-mode');
+  const t = Date.now();
+  
+  if (isDark && cfgData.hasLogoDark) {
+    const src = isLocalFallback ? (localStorage.getItem('elgarage_logo_dark') || '') : `/api/logo/dark?t=${t}`;
+    logoContainer.innerHTML = `<img src="${src}" alt="Logo" class="logo-img-header">`;
+  } else if (!isDark && cfgData.hasLogoLight) {
+    const src = isLocalFallback ? (localStorage.getItem('elgarage_logo_light') || '') : `/api/logo/light?t=${t}`;
+    logoContainer.innerHTML = `<img src="${src}" alt="Logo" class="logo-img-header">`;
+  } else {
+    logoContainer.innerHTML = `<span class="logo-icon">🐾</span>`;
+  }
 }
 
 function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden') }
@@ -4408,7 +4465,116 @@ async function cargarConfigAdmin() {
     if (document.getElementById('cfg-transfer-alias')) document.getElementById('cfg-transfer-alias').value = data.transferAlias || ''
     if (document.getElementById('cfg-transfer-cbu')) document.getElementById('cfg-transfer-cbu').value = data.transferCbu || ''
     if (document.getElementById('cfg-transfer-titular')) document.getElementById('cfg-transfer-titular').value = data.transferTitular || ''
+    
+    // Update logo previews in Admin Panel
+    actualizarLogoPreviewsAdmin(data);
   } catch {}
+}
+
+function actualizarLogoPreviewsAdmin(data) {
+  const t = Date.now();
+  
+  // Light Logo
+  const lightPrev = document.getElementById('cfg-logo-light-prev');
+  const lightDel = document.getElementById('btn-del-logo-light');
+  if (lightPrev) {
+    if (data.hasLogoLight) {
+      const src = isLocalFallback ? (localStorage.getItem('elgarage_logo_light') || '') : `/api/logo/light?t=${t}`;
+      lightPrev.innerHTML = `<img src="${src}" style="max-height:100%; max-width:100%; object-fit:contain;">`;
+      if (lightDel) lightDel.style.display = 'block';
+    } else {
+      lightPrev.innerHTML = `<span style="font-size:1.8rem; opacity:0.35;">🐾</span>`;
+      if (lightDel) lightDel.style.display = 'none';
+    }
+  }
+  
+  // Dark Logo
+  const darkPrev = document.getElementById('cfg-logo-dark-prev');
+  const darkDel = document.getElementById('btn-del-logo-dark');
+  if (darkPrev) {
+    if (data.hasLogoDark) {
+      const src = isLocalFallback ? (localStorage.getItem('elgarage_logo_dark') || '') : `/api/logo/dark?t=${t}`;
+      darkPrev.innerHTML = `<img src="${src}" style="max-height:100%; max-width:100%; object-fit:contain;">`;
+      if (darkDel) darkDel.style.display = 'block';
+    } else {
+      darkPrev.innerHTML = `<span style="font-size:1.8rem; opacity:0.35; color:#fff;">🐾</span>`;
+      if (darkDel) darkDel.style.display = 'none';
+    }
+  }
+}
+
+async function subirLogoConfig(event, type) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (isLocalFallback) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      localStorage.setItem(`elgarage_logo_${type}`, e.target.result);
+      const localConfig = JSON.parse(localStorage.getItem('elgarage_config') || '{}');
+      localConfig[`hasLogo${type.charAt(0).toUpperCase() + type.slice(1)}`] = true;
+      localStorage.setItem('elgarage_config', JSON.stringify(localConfig));
+      
+      cfgData = { ...cfgData, ...localConfig };
+      actualizarLogoPreviewsAdmin(cfgData);
+      applyConfig(cfgData);
+      toast('✓ Logo subido (local)');
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+  
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('type', type);
+  
+  try {
+    const res = await apiFetch('/api/config/upload-logo', {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) throw new Error();
+    
+    cfgData[`hasLogo${type.charAt(0).toUpperCase() + type.slice(1)}`] = true;
+    actualizarLogoPreviewsAdmin(cfgData);
+    applyConfig(cfgData);
+    toast('✓ Logo subido correctamente');
+  } catch (err) {
+    toast('Error al subir el logo', true);
+  } finally {
+    event.target.value = ''; // Reset file input
+  }
+}
+
+async function eliminarLogoConfig(type) {
+  if (!confirm(`¿Estás seguro de que querés eliminar el logo para modo ${type === 'light' ? 'claro' : 'oscuro'}?`)) return;
+  
+  if (isLocalFallback) {
+    localStorage.removeItem(`elgarage_logo_${type}`);
+    const localConfig = JSON.parse(localStorage.getItem('elgarage_config') || '{}');
+    localConfig[`hasLogo${type.charAt(0).toUpperCase() + type.slice(1)}`] = false;
+    localStorage.setItem('elgarage_config', JSON.stringify(localConfig));
+    
+    cfgData = { ...cfgData, ...localConfig };
+    actualizarLogoPreviewsAdmin(cfgData);
+    applyConfig(cfgData);
+    toast('✓ Logo eliminado (local)');
+    return;
+  }
+  
+  try {
+    const res = await apiFetch(`/api/config/logo/${type}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) throw new Error();
+    
+    cfgData[`hasLogo${type.charAt(0).toUpperCase() + type.slice(1)}`] = false;
+    actualizarLogoPreviewsAdmin(cfgData);
+    applyConfig(cfgData);
+    toast('✓ Logo eliminado');
+  } catch (err) {
+    toast('Error al eliminar el logo', true);
+  }
 }
 
 async function guardarConfig() {

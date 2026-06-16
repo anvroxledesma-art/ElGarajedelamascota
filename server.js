@@ -277,6 +277,8 @@ app.get('/api/config', async (req, res) => {
     const publicConfig = { ...config };
     delete publicConfig.adminUser;
     delete publicConfig.adminPass;
+    delete publicConfig.logoLightData;
+    delete publicConfig.logoDarkData;
     res.json(publicConfig);
   } catch (e) {
     res.status(500).json({ error: 'Error al obtener configuración' });
@@ -677,6 +679,153 @@ app.delete('/api/images/:id', authorizeAdmin, async (req, res) => {
       }
     }
     res.status(404).json({ error: 'Imagen no encontrada' });
+  }
+});
+
+// 6.2. Logo Management API
+app.post('/api/config/upload-logo', authorizeAdmin, upload.single('image'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No se subió ningún archivo' });
+  }
+  
+  const type = req.body.type; // 'light' or 'dark'
+  if (type !== 'light' && type !== 'dark') {
+    return res.status(400).json({ error: 'Tipo de logo no válido' });
+  }
+  
+  if (useMongoDB) {
+    try {
+      const base64Str = req.file.buffer.toString('base64');
+      const mimeType = req.file.mimetype;
+      
+      const updateField = {};
+      updateField[`hasLogo${type.charAt(0).toUpperCase() + type.slice(1)}`] = true;
+      updateField[`logo${type.charAt(0).toUpperCase() + type.slice(1)}Data`] = base64Str;
+      updateField[`logo${type.charAt(0).toUpperCase() + type.slice(1)}MimeType`] = mimeType;
+      
+      await mongoDb.collection('config').updateOne(
+        {},
+        { $set: updateField },
+        { upsert: true }
+      );
+      
+      return res.json({ success: true });
+    } catch (e) {
+      console.error("Error al guardar logo en MongoDB:", e);
+      return res.status(500).json({ error: 'Error al guardar el logo en la base de datos' });
+    }
+  } else {
+    try {
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      const filename = `logo-${type}${ext}`;
+      const filePath = path.join(UPLOADS_DIR, filename);
+      
+      // Clean existing logo files with different extensions for this type
+      if (fs.existsSync(UPLOADS_DIR)) {
+        const files = fs.readdirSync(UPLOADS_DIR);
+        files.forEach(f => {
+          if (f.startsWith(`logo-${type}.`)) {
+            try {
+              fs.unlinkSync(path.join(UPLOADS_DIR, f));
+            } catch (err) {}
+          }
+        });
+      }
+      
+      fs.writeFileSync(filePath, req.file.buffer);
+      
+      const db = readLocalDB();
+      db.config[`hasLogo${type.charAt(0).toUpperCase() + type.slice(1)}`] = true;
+      writeLocalDB(db);
+      
+      res.json({ success: true, filename: filename });
+    } catch (e) {
+      console.error("Error al guardar logo localmente:", e);
+      res.status(500).json({ error: 'Error al guardar el logo localmente' });
+    }
+  }
+});
+
+app.get('/api/logo/:type', async (req, res) => {
+  const type = req.params.type; // 'light' or 'dark'
+  if (type !== 'light' && type !== 'dark') {
+    return res.status(400).send('Tipo de logo no válido');
+  }
+  
+  if (useMongoDB) {
+    try {
+      const config = await mongoDb.collection('config').findOne({});
+      const hasLogo = config && config[`hasLogo${type.charAt(0).toUpperCase() + type.slice(1)}`];
+      const logoData = config && config[`logo${type.charAt(0).toUpperCase() + type.slice(1)}Data`];
+      const mimeType = config && config[`logo${type.charAt(0).toUpperCase() + type.slice(1)}MimeType`];
+      
+      if (hasLogo && logoData) {
+        const imgBuffer = Buffer.from(logoData, 'base64');
+        res.contentType(mimeType || 'image/png');
+        return res.send(imgBuffer);
+      } else {
+        return res.status(404).send('Logo no encontrado');
+      }
+    } catch (e) {
+      return res.status(500).send('Error al buscar el logo');
+    }
+  } else {
+    try {
+      const files = fs.readdirSync(UPLOADS_DIR);
+      const logoFile = files.find(f => f.startsWith(`logo-${type}.`));
+      
+      if (logoFile) {
+        res.sendFile(path.join(UPLOADS_DIR, logoFile));
+      } else {
+        res.status(404).send('Logo no encontrado');
+      }
+    } catch (e) {
+      res.status(404).send('Logo no encontrado');
+    }
+  }
+});
+
+app.delete('/api/config/logo/:type', authorizeAdmin, async (req, res) => {
+  const type = req.params.type; // 'light' or 'dark'
+  if (type !== 'light' && type !== 'dark') {
+    return res.status(400).json({ error: 'Tipo de logo no válido' });
+  }
+  
+  if (useMongoDB) {
+    try {
+      const unsetFields = {};
+      unsetFields[`logo${type.charAt(0).toUpperCase() + type.slice(1)}Data`] = "";
+      unsetFields[`logo${type.charAt(0).toUpperCase() + type.slice(1)}MimeType`] = "";
+      
+      const setFields = {};
+      setFields[`hasLogo${type.charAt(0).toUpperCase() + type.slice(1)}`] = false;
+      
+      await mongoDb.collection('config').updateOne(
+        {},
+        { $set: setFields, $unset: unsetFields }
+      );
+      return res.json({ success: true });
+    } catch (e) {
+      return res.status(500).json({ error: 'No se pudo eliminar el logo' });
+    }
+  } else {
+    try {
+      const files = fs.readdirSync(UPLOADS_DIR);
+      files.forEach(f => {
+        if (f.startsWith(`logo-${type}.`)) {
+          try {
+            fs.unlinkSync(path.join(UPLOADS_DIR, f));
+          } catch (err) {}
+        }
+      });
+      
+      const db = readLocalDB();
+      db.config[`hasLogo${type.charAt(0).toUpperCase() + type.slice(1)}`] = false;
+      writeLocalDB(db);
+      return res.json({ success: true });
+    } catch (e) {
+      return res.status(500).json({ error: 'No se pudo eliminar el logo' });
+    }
   }
 });
 
