@@ -5,7 +5,9 @@
                    "instagram":  "elgaragedelamascota",
                    "bienvenida":  "Alimentos de calidad para perros y gatos. Precios directos, con atención personalizada.",
                    "adminUser":  "admin",
-                   "adminPass":  "admin123"
+                   "adminPass":  "admin123",
+                   "hasLogoLight": true,
+                   "hasLogoDark": true
                },
     "categories":  [
                        {
