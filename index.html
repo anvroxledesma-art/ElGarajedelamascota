@@ -327,6 +327,45 @@ img{max-width:100%;height:auto;}
   box-shadow: 2px 2px 0 var(--borde);
 }
 
+.search-sort-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+.sort-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.sort-select {
+  padding: 8px 30px 8px 12px;
+  border: 2px solid var(--borde);
+  border-radius: 20px;
+  font-size: .85rem;
+  outline: none;
+  width: 170px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: var(--blanco);
+  color: var(--texto);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+.sort-select:focus {
+  border-color: var(--verde);
+  box-shadow: 3px 3px 0 var(--borde);
+}
+.sort-icon-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gris3);
+  font-size: .75rem;
+  pointer-events: none;
+}
+
 @media(max-width: 768px) {
   .filtros-bar {
     flex-direction: column;
@@ -337,10 +376,21 @@ img{max-width:100%;height:auto;}
     width: 100%;
     padding-bottom: 6px;
   }
+  .search-sort-container {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
   .search-wrap {
     width: 100%;
   }
   .search-inp {
+    width: 100% !important;
+  }
+  .sort-wrap {
+    width: 100%;
+  }
+  .sort-select {
     width: 100% !important;
   }
 }
@@ -1111,9 +1161,21 @@ table.tbl input:focus,table.tbl select:focus{border-color:var(--verde);}
       <div class="filtros-fade-left"></div>
       <div class="filtros-fade-right"></div>
     </div>
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input class="search-inp" type="search" id="searchInp" placeholder="Buscar producto..." oninput="onSearch(this.value)" autocomplete="one-time-code" name="search-query">
+    <div class="search-sort-container">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-inp" type="search" id="searchInp" placeholder="Buscar producto..." oninput="onSearch(this.value)" autocomplete="one-time-code" name="search-query">
+      </div>
+      <div class="sort-wrap">
+        <select class="sort-select" id="sortSelect" onchange="onSortChange(this.value)">
+          <option value="predeterminado">📌 Predeterminado</option>
+          <option value="precio_bajo">💰 Menor precio</option>
+          <option value="precio_alto">💸 Mayor precio</option>
+          <option value="oferta">🔥 En Oferta</option>
+          <option value="nuevo">✨ Nuevos</option>
+        </select>
+        <span class="sort-icon-arrow">▼</span>
+      </div>
     </div>
   </div>
 
@@ -1403,6 +1465,7 @@ let categorias = []
 let cfgData = {}
 let carrito = []
 let filtroActual = 'todos'
+let ordenActual = 'predeterminado'
 let busqueda = ''
 let adminToken = sessionStorage.getItem('admin_token') || null
 let pendingPhotos = {}   // productId -> File
@@ -2675,6 +2738,35 @@ function onSearch(val) {
   renderCatalogo()
 }
 
+function onSortChange(val) {
+  ordenActual = val
+  renderCatalogo()
+}
+
+function obtenerPrecioMinimo(p) {
+  if (p.tipo === 'alimento') {
+    if (p.precioBolsa > 0) return p.precioBolsa
+    if (p.precioKg > 0) return p.precioKg
+    return p.precioUnidad || 0
+  }
+  if ((p.tipo === 'poncho' || p.tipo === 'ropa') && p.talles && typeof p.talles === 'object') {
+    let minPrice = Infinity
+    Object.values(p.talles).forEach(tVal => {
+      let price = 0
+      if (typeof tVal === 'object' && tVal !== null) {
+        price = tVal.precio || 0
+      } else {
+        price = p.precioUnidad || 0
+      }
+      if (price > 0 && price < minPrice) {
+        minPrice = price
+      }
+    })
+    if (minPrice !== Infinity) return minPrice
+  }
+  return p.precioUnidad || 0
+}
+
 // ================================================================
 // CATÁLOGO CLIENTE
 // ================================================================
@@ -2837,7 +2929,12 @@ function renderCatalogo() {
   const cont = document.getElementById('catalogoMain')
   let html = ''
 
-  const filtered = productos.filter(p => {
+  const sortSelect = document.getElementById('sortSelect')
+  if (sortSelect) {
+    sortSelect.value = ordenActual
+  }
+
+  let filtered = productos.filter(p => {
     if (filtroActual !== 'todos') {
       if (filtroActual === 'alimentos_all') {
         return p.cat === 'cat_alimentos_perros' || p.cat === 'cat_alimentos_gatos'
@@ -2849,40 +2946,66 @@ function renderCatalogo() {
     return true
   })
 
-  // Render Destacados first if in "Todos" or "Alimentos" tab
-  const featured = filtered.filter(p => p.destacado)
-  if ((filtroActual === 'todos' || filtroActual === 'alimentos_all') && featured.length > 0) {
-    html += `<div class="sec-label">🌟 Productos Destacados</div><div class="grid">`
-    featured.forEach(p => {
-      html += renderCardHtml(p)
-    })
-    html += '</div>'
-  }
+  if (ordenActual !== 'predeterminado') {
+    if (ordenActual === 'precio_bajo') {
+      filtered.sort((a, b) => obtenerPrecioMinimo(a) - obtenerPrecioMinimo(b))
+    } else if (ordenActual === 'precio_alto') {
+      filtered.sort((a, b) => obtenerPrecioMinimo(b) - obtenerPrecioMinimo(a))
+    } else if (ordenActual === 'oferta') {
+      filtered = filtered.filter(p => p.oferta || (p.precioAnterior && p.precioAnterior > 0) || (p.promoEnabled && p.promoPrice > 0))
+    } else if (ordenActual === 'nuevo') {
+      filtered = filtered.filter(p => p.nuevo)
+    }
 
-  const byCat = {}
-  filtered.forEach(p => {
-    if (!byCat[p.cat]) byCat[p.cat] = []
-    byCat[p.cat].push(p)
-  })
+    if (filtered.length > 0) {
+      let label = ''
+      if (ordenActual === 'precio_bajo') label = '💰 Productos de menor a mayor precio'
+      else if (ordenActual === 'precio_alto') label = '💸 Productos de mayor a menor precio'
+      else if (ordenActual === 'oferta') label = '🔥 Ofertas y Promociones Especiales'
+      else if (ordenActual === 'nuevo') label = '✨ Nuevos Lanzamientos'
 
-  let catsToShow = []
-  if (filtroActual === 'todos') {
-    catsToShow = categorias
-  } else if (filtroActual === 'alimentos_all') {
-    catsToShow = categorias.filter(c => c.id === 'cat_alimentos_perros' || c.id === 'cat_alimentos_gatos')
+      html += `<div class="sec-label">${label}</div><div class="grid">`
+      filtered.forEach(p => {
+        html += renderCardHtml(p)
+      })
+      html += '</div>'
+    }
   } else {
-    catsToShow = categorias.filter(c => c.id === filtroActual)
-  }
+    // Render Destacados first if in "Todos" or "Alimentos" tab
+    const featured = filtered.filter(p => p.destacado)
+    if ((filtroActual === 'todos' || filtroActual === 'alimentos_all') && featured.length > 0) {
+      html += `<div class="sec-label">🌟 Productos Destacados</div><div class="grid">`
+      featured.forEach(p => {
+        html += renderCardHtml(p)
+      })
+      html += '</div>'
+    }
 
-  catsToShow.forEach(cat => {
-    const items = byCat[cat.id]
-    if (!items || !items.length) return
-    html += `<div class="sec-label">${cat.emoji} ${cat.nombre}</div><div class="grid">`
-    items.forEach(p => {
-      html += renderCardHtml(p)
+    const byCat = {}
+    filtered.forEach(p => {
+      if (!byCat[p.cat]) byCat[p.cat] = []
+      byCat[p.cat].push(p)
     })
-    html += '</div>'
-  })
+
+    let catsToShow = []
+    if (filtroActual === 'todos') {
+      catsToShow = categorias
+    } else if (filtroActual === 'alimentos_all') {
+      catsToShow = categorias.filter(c => c.id === 'cat_alimentos_perros' || c.id === 'cat_alimentos_gatos')
+    } else {
+      catsToShow = categorias.filter(c => c.id === filtroActual)
+    }
+
+    catsToShow.forEach(cat => {
+      const items = byCat[cat.id]
+      if (!items || !items.length) return
+      html += `<div class="sec-label">${cat.emoji} ${cat.nombre}</div><div class="grid">`
+      items.forEach(p => {
+        html += renderCardHtml(p)
+      })
+      html += '</div>'
+    })
+  }
 
   if (!html) {
     html = busqueda
